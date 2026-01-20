@@ -6,7 +6,7 @@ This implementation plan breaks down the development of the Tauri-based macOS de
 
 ## Tasks
 
-- [-] 1. Project Scaffolding and Initial Setup
+- [x] 1. Project Scaffolding and Initial Setup
   - Initialize Tauri project with React + TypeScript template
   - Configure Vite, TypeScript, Tailwind CSS, and Mantine UI
   - Set up project structure (src/, src-tauri/, tests/)
@@ -15,7 +15,7 @@ This implementation plan breaks down the development of the Tauri-based macOS de
   - Create README with project description and setup instructions
   - _Requirements: 14.1, 14.2, 14.6, 14.7_
 
-- [ ] 2. TypeScript Type Definitions
+- [x] 2. TypeScript Type Definitions
   - Create src/types/ingress.ts with IngressData, ErrorInfo, Settings, IngressResponse interfaces
   - Ensure types match the Kubernetes ingress structure documented in requirements
   - _Requirements: 5.1, 15.1-15.10_
