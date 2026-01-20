@@ -51,6 +51,7 @@ pub async fn get_ingresses(state: State<'_, AppState>) -> Result<IngressResponse
 /// # Requirements
 /// - 8.1-8.4: Opens URL in default browser
 /// - 13.4: Tauri command handler
+/// - 20.4.1: Update tray menu on window hide
 #[tauri::command]
 pub async fn open_url(url: String, app: tauri::AppHandle) -> Result<(), String> {
     use tauri_plugin_opener::OpenerExt;
@@ -63,6 +64,28 @@ pub async fn open_url(url: String, app: tauri::AppHandle) -> Result<(), String> 
     // Hide the window after opening URL
     if let Some(window) = app.get_webview_window("main") {
         let _ = window.hide();
+    }
+    
+    // Update tray menu to show "Show"
+    use tauri::menu::{Menu, MenuItemBuilder};
+    
+    let show_item = MenuItemBuilder::with_id("show", "Show (⌘⇧K)")
+        .build(&app)
+        .map_err(|e| format!("Failed to build menu item: {}", e))?;
+    
+    let options_item = MenuItemBuilder::with_id("options", "Options...")
+        .build(&app)
+        .map_err(|e| format!("Failed to build menu item: {}", e))?;
+    
+    let quit_item = MenuItemBuilder::with_id("quit", "Quit")
+        .build(&app)
+        .map_err(|e| format!("Failed to build menu item: {}", e))?;
+
+    let menu = Menu::with_items(&app, &[&show_item, &options_item, &quit_item])
+        .map_err(|e| format!("Failed to create menu: {}", e))?;
+
+    if let Some(tray) = app.tray_by_id("main") {
+        let _ = tray.set_menu(Some(menu));
     }
     
     Ok(())

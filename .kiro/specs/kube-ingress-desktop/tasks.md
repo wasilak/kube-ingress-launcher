@@ -207,6 +207,42 @@ This implementation plan breaks down the development of the Tauri-based macOS de
     - Test auto-save on change
     - _Requirements: 17.4_
 
+- [ ] 14.5 Add Kubeconfig Path Configuration to Settings
+  - [ ] 14.5.1 Add kubeconfig path field to Settings struct in Rust
+    - Add `kubeconfig_path: Option<String>` to Settings struct
+    - Default to None (uses ~/.kube/config)
+    - Persist to settings store
+    - _Requirements: 4.1, 4.2, 9.18-9.20_
+
+  - [ ] 14.5.2 Update K8sClient to use custom kubeconfig path
+    - Modify K8sClient::new() to accept optional kubeconfig path
+    - Use Config::from_kubeconfig() when custom path is provided
+    - Fall back to Config::infer() when path is None
+    - Handle file not found errors gracefully
+    - _Requirements: 4.1, 4.2, 11.3_
+
+  - [ ] 14.5.3 Add Tauri commands for kubeconfig path management
+    - Implement get_kubeconfig_path command
+    - Implement set_kubeconfig_path command with validation
+    - Validate file exists and is readable
+    - Trigger ingress refresh after path change
+    - _Requirements: 4.1, 4.2, 9.18-9.20_
+
+  - [ ] 14.5.4 Add kubeconfig path input to SettingsDialog
+    - Add TextInput for kubeconfig path with file picker button
+    - Display current path or "Default (~/.kube/config)" placeholder
+    - Add "Browse..." button to open file picker dialog
+    - Show validation error if file doesn't exist
+    - Auto-save on change
+    - _Requirements: 9.1-9.20_
+
+  - [ ]* 14.5.5 Write tests for kubeconfig path configuration
+    - Test K8sClient with custom path
+    - Test K8sClient falls back to default
+    - Test error handling for invalid paths
+    - Test settings persistence
+    - _Requirements: 17.1, 17.3_
+
 - [x] 15. Frontend: Custom Hooks
   - [x] 15.1 Create src/hooks/useIngresses.ts
     - Call get_ingresses Tauri command
@@ -309,6 +345,54 @@ This implementation plan breaks down the development of the Tauri-based macOS de
     - Document all public functions and structs
     - Add JSDoc comments to TypeScript code
     - _Requirements: 14.7_
+
+- [-] 20.4 Fix Menu Bar Dynamic Show/Hide Label
+  - [x] 20.4.1 Update tray menu "Show" item to dynamically change based on window state
+    - Change menu item text to "Show" when window is hidden
+    - Change menu item text to "Hide" when window is visible
+    - Update menu item on window show/hide events
+    - _Requirements: 3.1-3.11_
+
+  - [x] 20.4.2 Add window state tracking
+    - Listen for window show/hide events
+    - Update tray menu item label accordingly
+    - Ensure menu reflects current window state
+    - _Requirements: 3.1-3.11_
+
+- [-] 20.4.5 Verify and Fix Escape Key and Focus Loss Behavior
+  - [x] 20.4.5.1 Verify useWindowBehavior hook is properly integrated
+    - Confirm useWindowBehavior is called in App.tsx
+    - Test Escape key hides window in development mode
+    - Test clicking outside window hides it after 100ms
+    - Add console logging for debugging if not working
+    - _Requirements: 2.4, 2.5, 8.5_
+
+  - [-] 20.4.5.2 Fix any issues with window hide behavior
+    - Ensure Tauri window.hide() is being called correctly
+    - Verify no event propagation issues preventing Escape key
+    - Check that blur events are firing correctly
+    - Test with different focus scenarios (clicking outside, switching apps)
+    - _Requirements: 2.4, 2.5, 2.6_
+
+- [ ] 20.5 Fix Kubernetes Client Configuration Loading
+  - [ ] 20.5.1 Ensure K8sClient properly loads kubeconfig from default path
+    - Verify Config::infer() correctly finds ~/.kube/config
+    - Add better error messages for authentication failures
+    - Log the kubeconfig path being used for debugging
+    - _Requirements: 4.1, 4.2, 11.2, 11.3_
+
+  - [ ] 20.5.2 Add kubeconfig validation on startup
+    - Check if kubeconfig file exists before attempting connection
+    - Validate kubeconfig has valid current-context
+    - Display helpful error message if kubeconfig is missing or invalid
+    - _Requirements: 4.4, 11.3_
+
+  - [ ] 20.5.3 Handle authentication errors gracefully
+    - Catch 401 Unauthorized errors specifically
+    - Display user-friendly error message about credentials
+    - Suggest checking kubeconfig and cluster connectivity
+    - Continue running app with cached data if available
+    - _Requirements: 11.1, 11.2, 11.7_
 
 - [ ] 21. Final Integration and Testing
   - [ ] 21.1 Run all tests

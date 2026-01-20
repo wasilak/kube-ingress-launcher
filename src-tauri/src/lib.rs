@@ -69,6 +69,7 @@ pub fn run() {
             commands::permissions::enable_app_autostart,
             commands::permissions::disable_app_autostart,
             commands::permissions::check_autostart,
+            commands::window::update_tray_menu_state,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -76,31 +77,51 @@ pub fn run() {
 
 /// Setup the system tray menu
 ///
-/// Creates a menu bar tray with Show, Options, and Quit items.
-/// The Show item displays the current global shortcut.
+/// Creates a menu bar tray with Show/Hide, Options, and Quit items.
+/// The Show/Hide item dynamically changes based on window visibility.
 ///
 /// # Requirements
 /// - 3.1-3.11: Menu bar application behavior
+/// - 20.4.1: Dynamic Show/Hide menu item text
+/// - 20.4.2: Window state tracking
 fn setup_tray(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
     use tauri::menu::{Menu, MenuItemBuilder};
     use tauri::tray::{TrayIconBuilder, MouseButton, MouseButtonState};
 
+    // Create initial menu with "Show" (window starts hidden)
     let show_item = MenuItemBuilder::with_id("show", "Show (⌘⇧K)").build(app)?;
     let options_item = MenuItemBuilder::with_id("options", "Options...").build(app)?;
     let quit_item = MenuItemBuilder::with_id("quit", "Quit").build(app)?;
 
     let menu = Menu::with_items(app, &[&show_item, &options_item, &quit_item])?;
 
-    let _tray = TrayIconBuilder::new()
+    let _tray = TrayIconBuilder::with_id("main")
         .icon(app.default_window_icon().unwrap().clone())
         .menu(&menu)
+        .icon_as_template(true)
+        .show_menu_on_left_click(false)
         .on_menu_event(|app, event| {
             match event.id.as_ref() {
                 "show" => {
                     if let Some(window) = app.get_webview_window("main") {
-                        let _ = window.show();
-                        let _ = window.set_focus();
-                        let _ = window.center();
+                        // Toggle window visibility
+                        match window.is_visible() {
+                            Ok(true) => {
+                                let _ = window.hide();
+                                // Update menu to show "Show"
+                                let _ = update_tray_menu(app, false);
+                            }
+                            Ok(false) => {
+                                let _ = window.show();
+                                let _ = window.set_focus();
+                                let _ = window.center();
+                                // Update menu to show "Hide"
+                                let _ = update_tray_menu(app, true);
+                            }
+                            Err(e) => {
+                                eprintln!("Failed to check window visibility: {}", e);
+                            }
+                        }
                     }
                 }
                 "options" => {
@@ -122,13 +143,79 @@ fn setup_tray(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
             {
                 let app = tray.app_handle();
                 if let Some(window) = app.get_webview_window("main") {
-                    let _ = window.show();
-                    let _ = window.set_focus();
-                    let _ = window.center();
+                    // Toggle window visibility on tray click
+                    match window.is_visible() {
+                        Ok(true) => {
+                            let _ = window.hide();
+                            // Update menu to show "Show"
+                            let _ = update_tray_menu(app, false);
+                        }
+                        Ok(false) => {
+                            let _ = window.show();
+                            let _ = window.set_focus();
+                            let _ = window.center();
+                            // Update menu to show "Hide"
+                            let _ = update_tray_menu(app, true);
+                        }
+                        Err(e) => {
+                            eprintln!("Failed to check window visibility: {}", e);
+                        }
+                    }
                 }
             }
         })
         .build(app)?;
+
+    // Setup window event listeners to update menu text
+    if let Some(window) = app.get_webview_window("main") {
+        let app_handle = app.handle().clone();
+        
+        // Listen for window show events
+        window.on_window_event(move |event| {
+            match event {
+                tauri::WindowEvent::Focused(focused) => {
+                    // Update menu when window gains or loses focus
+                    if let Err(e) = update_tray_menu(&app_handle, *focused) {
+                        eprintln!("Failed to update tray menu: {}", e);
+                    }
+                }
+                _ => {}
+            }
+        });
+    }
+
+    Ok(())
+}
+
+/// Update the tray menu item text based on window visibility
+///
+/// Changes "Show (⌘⇧K)" to "Hide (⌘⇧K)" when window is visible,
+/// and vice versa.
+///
+/// # Requirements
+/// - 20.4.1: Dynamic menu item text
+/// - 20.4.2: Window state tracking
+fn update_tray_menu(app: &tauri::AppHandle, is_visible: bool) -> Result<(), Box<dyn std::error::Error>> {
+    use tauri::menu::{Menu, MenuItemBuilder};
+
+    // Determine menu text based on visibility
+    let show_text = if is_visible {
+        "Hide (⌘⇧K)"
+    } else {
+        "Show (⌘⇧K)"
+    };
+
+    // Rebuild menu with updated text
+    let show_item = MenuItemBuilder::with_id("show", show_text).build(app)?;
+    let options_item = MenuItemBuilder::with_id("options", "Options...").build(app)?;
+    let quit_item = MenuItemBuilder::with_id("quit", "Quit").build(app)?;
+
+    let menu = Menu::with_items(app, &[&show_item, &options_item, &quit_item])?;
+
+    // Update tray menu
+    if let Some(tray) = app.tray_by_id("main") {
+        tray.set_menu(Some(menu))?;
+    }
 
     Ok(())
 }
@@ -173,11 +260,15 @@ fn setup_global_shortcut(app: &tauri::App) -> Result<(), Box<dyn std::error::Err
             match window.is_visible() {
                 Ok(true) => {
                     let _ = window.hide();
+                    // Update menu to show "Show"
+                    let _ = update_tray_menu(app, false);
                 }
                 Ok(false) => {
                     let _ = window.show();
                     let _ = window.set_focus();
                     let _ = window.center();
+                    // Update menu to show "Hide"
+                    let _ = update_tray_menu(app, true);
                 }
                 Err(e) => {
                     eprintln!("Failed to check window visibility: {}", e);
