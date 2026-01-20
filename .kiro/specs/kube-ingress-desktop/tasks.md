@@ -30,8 +30,8 @@ This implementation plan breaks down the development of the Tauri-based macOS de
     - Test AppState::new() creates empty state
     - _Requirements: 17.1_
 
-- [ ] 4. Kubernetes Client Implementation
-  - [ ] 4.1 Create src-tauri/src/k8s/client.rs with K8sClient struct
+- [x] 4. Kubernetes Client Implementation
+  - [x] 4.1 Create src-tauri/src/k8s/client.rs with K8sClient struct
     - Implement K8sClient::new() using kube::Config::infer()
     - Implement list_ingresses() using kube::Api<Ingress>
     - Handle kubeconfig loading errors gracefully
