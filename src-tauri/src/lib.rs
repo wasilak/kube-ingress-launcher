@@ -49,6 +49,33 @@ pub fn run() {
                 eprintln!("Failed to setup global shortcut: {}", e);
             }
 
+            // Validate kubeconfig on startup
+            let app_handle_validation = app.handle().clone();
+            tauri::async_runtime::spawn(async move {
+                match k8s::client::Client::validate_kubeconfig().await {
+                    Ok(_) => {
+                        eprintln!("Kubeconfig validation successful");
+                    }
+                    Err(e) => {
+                        eprintln!("Kubeconfig validation failed: {}", e);
+                        eprintln!("The application will continue running, but Kubernetes connectivity may not work.");
+                        eprintln!("Please check your kubeconfig file and cluster connectivity.");
+                        
+                        // Store the validation error in state so it can be displayed to the user
+                        if let Some(state) = app_handle_validation.try_state::<AppState>() {
+                            let error_info = state::ErrorInfo {
+                                message: format!("Kubeconfig validation failed: {}", e),
+                                details: Some("Please check your kubeconfig file and ensure it has a valid current-context set.".to_string()),
+                                timestamp: chrono::Utc::now().to_rfc3339(),
+                            };
+                            
+                            let mut last_error = state.last_error.write().await;
+                            *last_error = Some(error_info);
+                        }
+                    }
+                }
+            });
+
             // Start background refresh task
             let app_handle = app.handle().clone();
             tauri::async_runtime::spawn(async move {

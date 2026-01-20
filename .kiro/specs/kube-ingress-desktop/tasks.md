@@ -346,7 +346,7 @@ This implementation plan breaks down the development of the Tauri-based macOS de
     - Add JSDoc comments to TypeScript code
     - _Requirements: 14.7_
 
-- [-] 20.4 Fix Menu Bar Dynamic Show/Hide Label
+- [x] 20.4 Fix Menu Bar Dynamic Show/Hide Label
   - [x] 20.4.1 Update tray menu "Show" item to dynamically change based on window state
     - Change menu item text to "Show" when window is hidden
     - Change menu item text to "Hide" when window is visible
@@ -359,7 +359,7 @@ This implementation plan breaks down the development of the Tauri-based macOS de
     - Ensure menu reflects current window state
     - _Requirements: 3.1-3.11_
 
-- [-] 20.4.5 Verify and Fix Escape Key and Focus Loss Behavior
+- [x] 20.4.5 Verify and Fix Escape Key and Focus Loss Behavior
   - [x] 20.4.5.1 Verify useWindowBehavior hook is properly integrated
     - Confirm useWindowBehavior is called in App.tsx
     - Test Escape key hides window in development mode
@@ -367,27 +367,27 @@ This implementation plan breaks down the development of the Tauri-based macOS de
     - Add console logging for debugging if not working
     - _Requirements: 2.4, 2.5, 8.5_
 
-  - [-] 20.4.5.2 Fix any issues with window hide behavior
+  - [x] 20.4.5.2 Fix any issues with window hide behavior
     - Ensure Tauri window.hide() is being called correctly
     - Verify no event propagation issues preventing Escape key
     - Check that blur events are firing correctly
     - Test with different focus scenarios (clicking outside, switching apps)
     - _Requirements: 2.4, 2.5, 2.6_
 
-- [ ] 20.5 Fix Kubernetes Client Configuration Loading
-  - [ ] 20.5.1 Ensure K8sClient properly loads kubeconfig from default path
+- [x] 20.5 Fix Kubernetes Client Configuration Loading
+  - [x] 20.5.1 Ensure K8sClient properly loads kubeconfig from default path
     - Verify Config::infer() correctly finds ~/.kube/config
     - Add better error messages for authentication failures
     - Log the kubeconfig path being used for debugging
     - _Requirements: 4.1, 4.2, 11.2, 11.3_
 
-  - [ ] 20.5.2 Add kubeconfig validation on startup
+  - [x] 20.5.2 Add kubeconfig validation on startup
     - Check if kubeconfig file exists before attempting connection
     - Validate kubeconfig has valid current-context
     - Display helpful error message if kubeconfig is missing or invalid
     - _Requirements: 4.4, 11.3_
 
-  - [ ] 20.5.3 Handle authentication errors gracefully
+  - [x] 20.5.3 Handle authentication errors gracefully
     - Catch 401 Unauthorized errors specifically
     - Display user-friendly error message about credentials
     - Suggest checking kubeconfig and cluster connectivity

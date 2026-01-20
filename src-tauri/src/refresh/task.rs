@@ -92,7 +92,7 @@ pub async fn start_refresh_task(app_handle: AppHandle) {
 ///
 /// # Requirements
 ///
-/// Implements requirements 6.1, 6.4-6.8
+/// Implements requirements 6.1, 6.4-6.8, 11.1, 11.2, 11.7
 async fn fetch_and_update(
     app_handle: &AppHandle,
     state: &AppState,
@@ -102,19 +102,29 @@ async fn fetch_and_update(
         .map_err(|e| {
             let error_msg = format!("Failed to connect to Kubernetes: {}", e);
             
-            // Store error in state (Requirement 6.8)
+            // Check if this is an authentication error
+            let is_auth_error = error_msg.contains("401") || error_msg.contains("Unauthorized");
+            
+            // Store error in state (Requirement 6.8, 11.1, 11.2)
             let error_info = ErrorInfo {
-                message: error_msg.clone(),
+                message: if is_auth_error {
+                    format!("Authentication failed: {}. Please check your kubeconfig credentials and ensure you have valid authentication tokens.", e)
+                } else {
+                    error_msg.clone()
+                },
                 details: Some(format!("{:?}", e)),
                 timestamp: Utc::now().to_rfc3339(),
             };
             
-            // Update error state asynchronously
+            // Update error state asynchronously (Requirement 11.7 - continue running with cached data)
             let state = state.clone();
             tauri::async_runtime::spawn(async move {
                 let mut last_error = state.last_error.write().await;
                 *last_error = Some(error_info);
             });
+            
+            eprintln!("Kubernetes connection error: {}", error_msg);
+            eprintln!("Application will continue running with cached data if available.");
             
             error_msg
         })?;
@@ -124,19 +134,35 @@ async fn fetch_and_update(
         .map_err(|e| {
             let error_msg = format!("Failed to fetch ingresses: {}", e);
             
-            // Store error in state (Requirement 6.8)
+            // Check if this is an authentication error (Requirement 11.1, 11.2)
+            let is_auth_error = error_msg.contains("401") || error_msg.contains("Unauthorized");
+            let is_forbidden = error_msg.contains("403") || error_msg.contains("Forbidden");
+            let is_connectivity = error_msg.contains("connection") || error_msg.contains("timeout");
+            
+            // Store error in state (Requirement 6.8, 11.7)
             let error_info = ErrorInfo {
-                message: error_msg.clone(),
+                message: if is_auth_error {
+                    "Authentication failed (401 Unauthorized). Please check your kubeconfig credentials and ensure you have valid authentication tokens.".to_string()
+                } else if is_forbidden {
+                    "Access forbidden (403). Your credentials are valid but you don't have permission to list ingresses.".to_string()
+                } else if is_connectivity {
+                    format!("Network connectivity issue: {}. Please check your cluster connectivity.", e)
+                } else {
+                    error_msg.clone()
+                },
                 details: Some(format!("{:?}", e)),
                 timestamp: Utc::now().to_rfc3339(),
             };
             
-            // Update error state asynchronously
+            // Update error state asynchronously (Requirement 11.7 - continue running with cached data)
             let state = state.clone();
             tauri::async_runtime::spawn(async move {
                 let mut last_error = state.last_error.write().await;
                 *last_error = Some(error_info);
             });
+            
+            eprintln!("Kubernetes API error: {}", error_msg);
+            eprintln!("Application will continue running with cached data if available.");
             
             error_msg
         })?;
