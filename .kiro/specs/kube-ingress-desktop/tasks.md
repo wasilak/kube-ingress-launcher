@@ -148,7 +148,7 @@ This implementation plan breaks down the development of the Tauri-based macOS de
     - Test window starts hidden
     - _Requirements: 17.3_
 
-- [-] 11. Frontend: SearchInput Component
+- [x] 11. Frontend: SearchInput Component
   - [x] 11.1 Create src/components/SearchInput.tsx
     - Use Mantine TextInput with IconSearch
     - Implement auto-focus
