@@ -6,15 +6,9 @@ pub mod refresh;
 pub mod commands;
 pub mod settings;
 
-use tauri::Manager;
+use tauri::{Manager, Emitter};
 use state::AppState;
 use settings::SettingsState;
-
-// Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-#[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
-}
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -26,16 +20,42 @@ pub fn run() {
         .setup(|app| {
             // Initialize application state
             let app_state = AppState::new();
-            app.manage(app_state);
+            app.manage(app_state.clone());
 
             // Initialize settings state
             let settings_state = SettingsState::new();
             app.manage(settings_state);
 
+            // Setup window vibrancy (macOS only)
+            if let Some(window) = app.get_webview_window("main") {
+                #[cfg(target_os = "macos")]
+                {
+                    use window_vibrancy::{apply_vibrancy, NSVisualEffectMaterial};
+                    if let Err(e) = apply_vibrancy(&window, NSVisualEffectMaterial::HudWindow, None, None) {
+                        eprintln!("Failed to apply vibrancy: {}", e);
+                    }
+                }
+            }
+
+            // Setup menu bar tray
+            if let Err(e) = setup_tray(app) {
+                eprintln!("Failed to setup tray: {}", e);
+            }
+
+            // Register global shortcut
+            if let Err(e) = setup_global_shortcut(app) {
+                eprintln!("Failed to setup global shortcut: {}", e);
+            }
+
+            // Start background refresh task
+            let app_handle = app.handle().clone();
+            tauri::async_runtime::spawn(async move {
+                refresh::task::start_refresh_task(app_handle).await;
+            });
+
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
-            greet,
             commands::ingresses::get_ingresses,
             commands::ingresses::open_url,
             commands::settings::get_settings,
@@ -45,4 +65,96 @@ pub fn run() {
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+/// Setup the system tray menu
+///
+/// Creates a menu bar tray with Show, Options, and Quit items.
+/// The Show item displays the current global shortcut.
+///
+/// # Requirements
+/// - 3.1-3.11: Menu bar application behavior
+fn setup_tray(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
+    use tauri::menu::{Menu, MenuItemBuilder};
+    use tauri::tray::{TrayIconBuilder, MouseButton, MouseButtonState};
+
+    let show_item = MenuItemBuilder::with_id("show", "Show (⌘⇧K)").build(app)?;
+    let options_item = MenuItemBuilder::with_id("options", "Options...").build(app)?;
+    let quit_item = MenuItemBuilder::with_id("quit", "Quit").build(app)?;
+
+    let menu = Menu::with_items(app, &[&show_item, &options_item, &quit_item])?;
+
+    let _tray = TrayIconBuilder::new()
+        .icon(app.default_window_icon().unwrap().clone())
+        .menu(&menu)
+        .on_menu_event(|app, event| {
+            match event.id.as_ref() {
+                "show" => {
+                    if let Some(window) = app.get_webview_window("main") {
+                        let _ = window.show();
+                        let _ = window.set_focus();
+                        let _ = window.center();
+                    }
+                }
+                "options" => {
+                    // Emit event to open settings dialog
+                    let _ = app.emit("open-settings", ());
+                }
+                "quit" => {
+                    app.exit(0);
+                }
+                _ => {}
+            }
+        })
+        .on_tray_icon_event(|tray, event| {
+            if let tauri::tray::TrayIconEvent::Click {
+                button: MouseButton::Left,
+                button_state: MouseButtonState::Up,
+                ..
+            } = event
+            {
+                let app = tray.app_handle();
+                if let Some(window) = app.get_webview_window("main") {
+                    let _ = window.show();
+                    let _ = window.set_focus();
+                    let _ = window.center();
+                }
+            }
+        })
+        .build(app)?;
+
+    Ok(())
+}
+
+/// Setup the global keyboard shortcut
+///
+/// Registers Cmd+Shift+K (or Ctrl+Shift+K on non-Mac) to show/hide the window.
+///
+/// # Requirements
+/// - 2.1-2.7: Global keyboard shortcut
+/// - 13.10: Global shortcut plugin usage
+fn setup_global_shortcut(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
+    use tauri_plugin_global_shortcut::{GlobalShortcutExt, Shortcut};
+
+    let shortcut = "CmdOrCtrl+Shift+K".parse::<Shortcut>()?;
+
+    app.global_shortcut().on_shortcut(shortcut, |app, _shortcut, _event| {
+        if let Some(window) = app.get_webview_window("main") {
+            match window.is_visible() {
+                Ok(true) => {
+                    let _ = window.hide();
+                }
+                Ok(false) => {
+                    let _ = window.show();
+                    let _ = window.set_focus();
+                    let _ = window.center();
+                }
+                Err(e) => {
+                    eprintln!("Failed to check window visibility: {}", e);
+                }
+            }
+        }
+    })?;
+
+    Ok(())
 }
