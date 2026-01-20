@@ -160,7 +160,7 @@ This implementation plan breaks down the development of the Tauri-based macOS de
     - Test debouncing behavior
     - _Requirements: 17.4_
 
-- [-] 12. Frontend: IngressList and IngressItem Components
+- [x] 12. Frontend: IngressList and IngressItem Components
   - [x] 12.1 Create src/components/IngressList.tsx
     - Use Mantine Stack for layout
     - Display first 50 ingresses with "X more results" message
@@ -179,8 +179,8 @@ This implementation plan breaks down the development of the Tauri-based macOS de
     - Test URL click calls open_url
     - _Requirements: 17.4_
 
-- [ ] 13. Frontend: ErrorBanner Component
-  - [ ] 13.1 Create src/components/ErrorBanner.tsx
+- [x] 13. Frontend: ErrorBanner Component
+  - [x] 13.1 Create src/components/ErrorBanner.tsx
     - Use Mantine Alert with error color
     - Display error message and timestamp
     - Implement "Copy Error" button using navigator.clipboard
@@ -191,8 +191,8 @@ This implementation plan breaks down the development of the Tauri-based macOS de
     - Test copy button functionality
     - _Requirements: 17.4_
 
-- [ ] 14. Frontend: SettingsDialog Component
-  - [ ] 14.1 Create src/components/SettingsDialog.tsx
+- [-] 14. Frontend: SettingsDialog Component
+  - [x] 14.1 Create src/components/SettingsDialog.tsx
     - Use Mantine Modal
     - Implement shortcut recorder with "Record" button
     - Implement refresh interval NumberInput (10-3600 validation)
