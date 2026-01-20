@@ -191,7 +191,7 @@ This implementation plan breaks down the development of the Tauri-based macOS de
     - Test copy button functionality
     - _Requirements: 17.4_
 
-- [-] 14. Frontend: SettingsDialog Component
+- [x] 14. Frontend: SettingsDialog Component
   - [x] 14.1 Create src/components/SettingsDialog.tsx
     - Use Mantine Modal
     - Implement shortcut recorder with "Record" button
