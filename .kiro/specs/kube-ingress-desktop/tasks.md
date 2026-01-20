@@ -207,14 +207,14 @@ This implementation plan breaks down the development of the Tauri-based macOS de
     - Test auto-save on change
     - _Requirements: 17.4_
 
-- [ ] 15. Frontend: Custom Hooks
-  - [ ] 15.1 Create src/hooks/useIngresses.ts
+- [x] 15. Frontend: Custom Hooks
+  - [x] 15.1 Create src/hooks/useIngresses.ts
     - Call get_ingresses Tauri command
     - Listen for "ingresses-updated" events
     - Return ingresses, loading, error, lastUpdated
     - _Requirements: 6.1-6.11_
 
-  - [ ] 15.2 Create src/hooks/useSearch.ts
+  - [x] 15.2 Create src/hooks/useSearch.ts
     - Implement filtering logic (name, namespace, host, URL)
     - Use useMemo for performance
     - _Requirements: 7.3_
