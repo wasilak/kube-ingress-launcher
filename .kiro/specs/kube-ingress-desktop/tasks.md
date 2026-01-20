@@ -160,14 +160,14 @@ This implementation plan breaks down the development of the Tauri-based macOS de
     - Test debouncing behavior
     - _Requirements: 17.4_
 
-- [ ] 12. Frontend: IngressList and IngressItem Components
-  - [ ] 12.1 Create src/components/IngressList.tsx
+- [-] 12. Frontend: IngressList and IngressItem Components
+  - [x] 12.1 Create src/components/IngressList.tsx
     - Use Mantine Stack for layout
     - Display first 50 ingresses with "X more results" message
     - Show "No ingresses found" when empty
     - _Requirements: 7.5, 7.10, 12.5_
 
-  - [ ] 12.2 Create src/components/IngressItem.tsx
+  - [x] 12.2 Create src/components/IngressItem.tsx
     - Display name, namespace, hosts, TLS badge
     - Implement expandable URL list
     - Call open_url Tauri command on URL click
