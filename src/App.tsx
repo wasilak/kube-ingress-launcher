@@ -1,50 +1,103 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import { invoke } from "@tauri-apps/api/core";
-import "./App.css";
+/**
+ * Main App component for Kube Ingress Desktop
+ * 
+ * This component orchestrates the entire UI:
+ * - SearchInput for filtering ingresses
+ * - IngressList for displaying results
+ * - ErrorBanner for showing errors
+ * - SettingsDialog for configuration
+ * 
+ * Requirements: 7.1-7.10, 12.10
+ */
 
-function App() {
-  const [greetMsg, setGreetMsg] = useState("");
-  const [name, setName] = useState("");
+import { useState } from 'react';
+import { Stack } from '@mantine/core';
+import { SearchInput } from './components/SearchInput';
+import { IngressList } from './components/IngressList';
+import { ErrorBanner } from './components/ErrorBanner';
+import { SettingsDialog } from './components/SettingsDialog';
+import { useIngresses } from './hooks/useIngresses';
+import { useSearch } from './hooks/useSearch';
+import { IngressData } from './types/ingress';
+import { invoke } from '@tauri-apps/api/core';
+import { listen } from '@tauri-apps/api/event';
+import { useEffect } from 'react';
 
-  async function greet() {
-    // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-    setGreetMsg(await invoke("greet", { name }));
-  }
+/**
+ * Main application component
+ * 
+ * Features:
+ * - Fetches and displays Kubernetes ingress resources
+ * - Provides search/filter functionality
+ * - Shows error messages when issues occur
+ * - Allows configuration via settings dialog
+ * - Semi-transparent dark background for vibrancy effect
+ * 
+ * Requirements: 7.1-7.10, 12.10
+ */
+export function App() {
+  // Fetch ingresses data and manage loading/error states
+  const { ingresses, loading, error } = useIngresses();
+  
+  // Search/filter functionality
+  const { searchTerm, setSearchTerm, filteredIngresses } = useSearch(ingresses);
+  
+  // Settings dialog state
+  const [settingsOpen, setSettingsOpen] = useState(false);
+
+  // Listen for settings dialog open event from menu
+  useEffect(() => {
+    const unlisten = listen('open-settings', () => {
+      setSettingsOpen(true);
+    });
+
+    return () => {
+      unlisten.then((fn) => fn());
+    };
+  }, []);
+
+  /**
+   * Handle ingress selection
+   * Opens the first URL of the selected ingress in the default browser
+   * 
+   * Requirements: 8.1-8.4
+   */
+  const handleIngressSelect = async (ingress: IngressData) => {
+    if (ingress.urls.length > 0) {
+      try {
+        await invoke('open_url', { url: ingress.urls[0] });
+      } catch (err) {
+        console.error('Failed to open URL:', err);
+      }
+    }
+  };
 
   return (
-    <main className="container">
-      <h1>Welcome to Tauri + React</h1>
-
-      <div className="row">
-        <a href="https://vite.dev" target="_blank">
-          <img src="/vite.svg" className="logo vite" alt="Vite logo" />
-        </a>
-        <a href="https://tauri.app" target="_blank">
-          <img src="/tauri.svg" className="logo tauri" alt="Tauri logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <p>Click on the Tauri, Vite, and React logos to learn more.</p>
-
-      <form
-        className="row"
-        onSubmit={(e) => {
-          e.preventDefault();
-          greet();
-        }}
-      >
-        <input
-          id="greet-input"
-          onChange={(e) => setName(e.currentTarget.value)}
-          placeholder="Enter a name..."
+    <div className="app-container">
+      <Stack gap="md" p="md">
+        {/* Error banner - shown when there's an error */}
+        {error && <ErrorBanner error={error} />}
+        
+        {/* Search input - auto-focused for immediate typing */}
+        <SearchInput
+          value={searchTerm}
+          onChange={setSearchTerm}
+          loading={loading}
         />
-        <button type="submit">Greet</button>
-      </form>
-      <p>{greetMsg}</p>
-    </main>
+        
+        {/* Ingress list - displays filtered results */}
+        <IngressList
+          ingresses={filteredIngresses}
+          onSelect={handleIngressSelect}
+        />
+      </Stack>
+
+      {/* Settings dialog - modal for configuration */}
+      <SettingsDialog
+        opened={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+      />
+    </div>
   );
 }
 

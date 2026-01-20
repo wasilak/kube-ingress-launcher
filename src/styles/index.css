@@ -1,8 +1,24 @@
+/**
+ * Global styles for Kube Ingress Desktop
+ * 
+ * Includes:
+ * - Tailwind CSS base, components, and utilities
+ * - Custom styles for vibrancy background
+ * - Rounded corners for window
+ * - Ingress item hover effects
+ * 
+ * Requirements: 1.9, 12.3
+ */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Custom styles for vibrancy background */
+/**
+ * Base styles
+ * 
+ * Reset margins and padding, set up font smoothing
+ */
 body {
   margin: 0;
   padding: 0;
@@ -11,21 +27,87 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
 }
 
+/**
+ * Root element
+ * 
+ * Ensures full viewport height
+ */
+#root {
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/**
+ * App container with vibrancy effect
+ * 
+ * Features:
+ * - Semi-transparent dark background (rgba(0, 0, 0, 0.7))
+ * - Rounded corners (12px border-radius)
+ * - Backdrop blur for vibrancy effect
+ * - Full viewport height
+ * 
+ * Requirements: 1.9, 12.3, 12.10
+ */
 .app-container {
   background: rgba(0, 0, 0, 0.7);
   border-radius: 12px;
   min-height: 100vh;
+  width: 100%;
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
+  overflow: hidden;
 }
 
-/* Ingress item hover effect */
+/**
+ * Ingress item hover effect
+ * 
+ * Provides visual feedback when hovering over ingress items
+ * 
+ * Requirements: 12.6
+ */
 .ingress-item {
   transition: background-color 0.2s ease;
+  cursor: pointer;
 }
 
 .ingress-item:hover {
   background-color: rgba(255, 255, 255, 0.1);
+}
+
+/**
+ * Scrollbar styling for dark theme
+ * 
+ * Custom scrollbar to match the dark vibrancy theme
+ */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/**
+ * Focus styles
+ * 
+ * Ensure focus indicators are visible for accessibility
+ */
+*:focus-visible {
+  outline: 2px solid rgba(99, 179, 237, 0.8);
+  outline-offset: 2px;
 }

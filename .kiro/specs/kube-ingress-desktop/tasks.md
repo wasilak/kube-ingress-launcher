@@ -226,20 +226,20 @@ This implementation plan breaks down the development of the Tauri-based macOS de
     - Verify filtering returns only matching ingresses
     - _Requirements: 17.2_
 
-- [ ] 16. Frontend: Main App Component
-  - [ ] 16.1 Create src/App.tsx
+- [x] 16. Frontend: Main App Component
+  - [x] 16.1 Create src/App.tsx
     - Use Mantine Stack for layout
     - Integrate SearchInput, IngressList, ErrorBanner, SettingsDialog
     - Use useIngresses and useSearch hooks
     - Apply semi-transparent dark background (rgba(0, 0, 0, 0.7))
     - _Requirements: 7.1-7.10, 12.10_
 
-  - [ ] 16.2 Create src/main.tsx
+  - [x] 16.2 Create src/main.tsx
     - Setup React root
     - Wrap App with MantineProvider
     - _Requirements: 12.1_
 
-  - [ ] 16.3 Create src/styles/index.css
+  - [x] 16.3 Create src/styles/index.css
     - Configure Tailwind CSS
     - Add custom styles for vibrancy background
     - Add rounded corners (12px border-radius)
