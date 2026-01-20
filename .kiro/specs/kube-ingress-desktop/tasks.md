@@ -132,8 +132,8 @@ This implementation plan breaks down the development of the Tauri-based macOS de
     - Verify application continues running
     - _Requirements: 17.2_
 
-- [ ] 10. Main Rust Entry Point
-  - [ ] 10.1 Implement src-tauri/src/main.rs
+- [x] 10. Main Rust Entry Point
+  - [x] 10.1 Implement src-tauri/src/main.rs
     - Initialize AppState and manage it with Tauri
     - Setup window vibrancy using window-vibrancy crate
     - Setup menu bar tray with Show, Options, Quit items
@@ -148,8 +148,8 @@ This implementation plan breaks down the development of the Tauri-based macOS de
     - Test window starts hidden
     - _Requirements: 17.3_
 
-- [ ] 11. Frontend: SearchInput Component
-  - [ ] 11.1 Create src/components/SearchInput.tsx
+- [-] 11. Frontend: SearchInput Component
+  - [x] 11.1 Create src/components/SearchInput.tsx
     - Use Mantine TextInput with IconSearch
     - Implement auto-focus
     - Use useDebouncedValue hook (150ms)
