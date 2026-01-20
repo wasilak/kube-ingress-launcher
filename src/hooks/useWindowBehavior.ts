@@ -22,7 +22,16 @@ export function useWindowBehavior() {
     // Handle Escape key press
     const handleKeyDown = async (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
+        // Check if any modal or dialog is open by checking for Mantine modal overlay
+        const modalOverlay = document.querySelector('[data-mantine-modal-overlay]');
+        if (modalOverlay) {
+          console.log('[useWindowBehavior] Escape key pressed but modal is open, ignoring');
+          return; // Let the modal handle the Escape key
+        }
+        
         console.log('[useWindowBehavior] Escape key pressed, hiding window');
+        event.preventDefault();
+        event.stopPropagation();
         await window.hide();
         // Update tray menu to show "Show"
         try {
