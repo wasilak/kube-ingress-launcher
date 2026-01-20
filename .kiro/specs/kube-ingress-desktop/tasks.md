@@ -261,14 +261,14 @@ This implementation plan breaks down the development of the Tauri-based macOS de
     - Test graceful degradation without permissions
     - _Requirements: 17.3_
 
-- [ ] 18. Window Behavior and Focus Management
-  - [ ] 18.1 Implement window show/hide logic
+- [x] 18. Window Behavior and Focus Management
+  - [x] 18.1 Implement window show/hide logic
     - Hide window on Escape key press
     - Hide window on focus loss (100ms delay)
     - Center window on show
     - _Requirements: 2.4, 2.5, 2.6_
 
-  - [ ] 18.2 Implement keyboard navigation
+  - [x] 18.2 Implement keyboard navigation
     - Arrow Up/Down to navigate ingress list
     - Enter to select ingress
     - Escape to close window

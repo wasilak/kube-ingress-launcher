@@ -7,7 +7,7 @@ import { invoke } from '@tauri-apps/api/core';
 /**
  * Props for the IngressItem component
  * 
- * Requirements: 7.5, 7.6, 8.1-8.4, 12.6
+ * Requirements: 7.5, 7.6, 8.1-8.4, 12.6, 8.5, 11.4
  */
 interface IngressItemProps {
   /** Ingress resource to display */
@@ -15,6 +15,9 @@ interface IngressItemProps {
   
   /** Callback when the ingress is selected */
   onSelect: () => void;
+  
+  /** Whether this item is currently selected via keyboard navigation */
+  isSelected?: boolean;
 }
 
 /**
@@ -26,11 +29,13 @@ interface IngressItemProps {
  * - Opens URLs in default browser via Tauri command
  * - Hover effect for better UX
  * - Semi-transparent background for vibrancy effect
+ * - Visual highlight when selected via keyboard navigation
  * 
- * Requirements: 7.5, 7.6, 8.1-8.4, 12.6
+ * Requirements: 7.5, 7.6, 8.1-8.4, 12.6, 8.5, 11.4
  */
-export function IngressItem({ ingress, onSelect }: IngressItemProps) {
+export function IngressItem({ ingress, onSelect, isSelected = false }: IngressItemProps) {
   const [expanded, setExpanded] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
   /**
    * Opens a URL in the default system browser
@@ -57,22 +62,30 @@ export function IngressItem({ ingress, onSelect }: IngressItemProps) {
     onSelect();
   };
 
+  // Calculate background color based on selection and hover state
+  const getBackgroundColor = () => {
+    if (isSelected) {
+      return 'rgba(66, 153, 225, 0.3)'; // Blue highlight for selected
+    }
+    if (isHovered) {
+      return 'rgba(255, 255, 255, 0.08)';
+    }
+    return 'rgba(255, 255, 255, 0.05)';
+  };
+
   return (
     <div
       onClick={handleItemClick}
       style={{
         padding: '12px',
         borderRadius: '8px',
-        backgroundColor: 'rgba(255, 255, 255, 0.05)',
+        backgroundColor: getBackgroundColor(),
         cursor: 'pointer',
         transition: 'background-color 0.2s',
+        border: isSelected ? '1px solid rgba(66, 153, 225, 0.5)' : 'none',
       }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)';
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
-      }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       <Group justify="space-between">
         <Stack gap={4}>

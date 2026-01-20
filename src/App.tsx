@@ -18,6 +18,8 @@ import { ErrorBanner } from './components/ErrorBanner';
 import { SettingsDialog } from './components/SettingsDialog';
 import { useIngresses } from './hooks/useIngresses';
 import { useSearch } from './hooks/useSearch';
+import { useWindowBehavior } from './hooks/useWindowBehavior';
+import { useKeyboardNavigation } from './hooks/useKeyboardNavigation';
 import { IngressData } from './types/ingress';
 import { invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
@@ -41,6 +43,9 @@ export function App() {
   
   // Search/filter functionality
   const { searchTerm, setSearchTerm, filteredIngresses } = useSearch(ingresses);
+  
+  // Window behavior (Escape key, focus loss)
+  useWindowBehavior();
   
   // Settings dialog state
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -72,6 +77,13 @@ export function App() {
     }
   };
 
+  // Keyboard navigation for ingress list
+  const { selectedIndex } = useKeyboardNavigation({
+    items: filteredIngresses,
+    onSelect: handleIngressSelect,
+    enabled: !settingsOpen, // Disable when settings dialog is open
+  });
+
   return (
     <div className="app-container">
       <Stack gap="md" p="md">
@@ -89,6 +101,7 @@ export function App() {
         <IngressList
           ingresses={filteredIngresses}
           onSelect={handleIngressSelect}
+          selectedIndex={selectedIndex}
         />
       </Stack>
 

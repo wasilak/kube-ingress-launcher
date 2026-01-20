@@ -5,7 +5,7 @@ import { IngressItem } from './IngressItem';
 /**
  * Props for the IngressList component
  * 
- * Requirements: 7.5, 7.10, 12.5
+ * Requirements: 7.5, 7.10, 12.5, 8.5, 11.4
  */
 interface IngressListProps {
   /** List of ingress resources to display */
@@ -13,6 +13,9 @@ interface IngressListProps {
   
   /** Callback when an ingress is selected */
   onSelect: (ingress: IngressData) => void;
+  
+  /** Index of the currently selected item for keyboard navigation */
+  selectedIndex?: number;
 }
 
 /**
@@ -24,10 +27,11 @@ interface IngressListProps {
  * - Shows "No ingresses found" when list is empty
  * - Uses Mantine Stack for vertical layout
  * - Scrollable container with max height
+ * - Keyboard navigation support with visual selection
  * 
- * Requirements: 7.5, 7.10, 12.5
+ * Requirements: 7.5, 7.10, 12.5, 8.5, 11.4
  */
-export function IngressList({ ingresses, onSelect }: IngressListProps) {
+export function IngressList({ ingresses, onSelect, selectedIndex = -1 }: IngressListProps) {
   // Show empty state when no ingresses
   if (ingresses.length === 0) {
     return (
@@ -43,11 +47,12 @@ export function IngressList({ ingresses, onSelect }: IngressListProps) {
 
   return (
     <Stack gap="xs" style={{ maxHeight: '400px', overflowY: 'auto' }}>
-      {displayedIngresses.map((ingress) => (
+      {displayedIngresses.map((ingress, index) => (
         <IngressItem
           key={ingress.id}
           ingress={ingress}
           onSelect={() => onSelect(ingress)}
+          isSelected={index === selectedIndex}
         />
       ))}
       
