@@ -245,13 +245,13 @@ This implementation plan breaks down the development of the Tauri-based macOS de
     - Add rounded corners (12px border-radius)
     - _Requirements: 1.9, 12.3_
 
-- [ ] 17. macOS Permissions Handling
-  - [ ] 17.1 Implement accessibility permission check
+- [x] 17. macOS Permissions Handling
+  - [x] 17.1 Implement accessibility permission check
     - Check for accessibility permission on shortcut registration
     - Display dialog with explanation and "Open System Settings" button
     - _Requirements: 10.1-10.3_
 
-  - [ ] 17.2 Implement autostart permission handling
+  - [x] 17.2 Implement autostart permission handling
     - Use tauri-plugin-autostart for login item registration
     - Handle registration failures gracefully
     - _Requirements: 10.4-10.5_

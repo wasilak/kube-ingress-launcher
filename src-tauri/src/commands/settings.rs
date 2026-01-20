@@ -28,6 +28,7 @@ pub async fn get_settings(state: State<'_, SettingsState>) -> Result<Settings, S
 ///
 /// Validates the new settings and persists them to disk using tauri-plugin-store.
 /// Settings are applied immediately without requiring application restart.
+/// Handles autostart registration/unregistration when the autostart setting changes.
 ///
 /// # Arguments
 /// * `settings` - New settings to apply
@@ -38,7 +39,9 @@ pub async fn get_settings(state: State<'_, SettingsState>) -> Result<Settings, S
 ///
 /// # Requirements
 /// - 9.1-9.20: Settings configuration and validation
+/// - 9.13-9.14: Autostart toggle handling
 /// - 9.18-9.20: Settings persistence
+/// - 10.4-10.5: Autostart permission handling
 /// - 13.4: Tauri command handler
 #[tauri::command]
 pub async fn update_settings(
@@ -54,6 +57,29 @@ pub async fn update_settings(
     // Validate global shortcut
     if settings.global_shortcut.trim().is_empty() {
         return Err("Global shortcut cannot be empty".to_string());
+    }
+
+    // Check if autostart setting changed
+    let autostart_changed = {
+        let current_settings = state.settings.read().await;
+        current_settings.autostart != settings.autostart
+    };
+
+    // Handle autostart changes
+    if autostart_changed {
+        if settings.autostart {
+            // Enable autostart
+            if let Err(e) = crate::permissions::enable_autostart(&app) {
+                eprintln!("Warning: Failed to enable autostart: {}", e);
+                return Err(crate::permissions::autostart::get_autostart_error_message());
+            }
+        } else {
+            // Disable autostart
+            if let Err(e) = crate::permissions::disable_autostart(&app) {
+                eprintln!("Warning: Failed to disable autostart: {}", e);
+                // Don't fail on disable errors, just log
+            }
+        }
     }
 
     // Update in-memory settings

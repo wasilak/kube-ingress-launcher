@@ -1,7 +1,9 @@
-import { Modal, Stack, TextInput, NumberInput, Switch, Select, Button, Group, Text } from '@mantine/core';
+import { Modal, Stack, TextInput, NumberInput, Switch, Select, Button, Group, Text, Alert } from '@mantine/core';
 import { useState, useEffect } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { Settings } from '../types/ingress';
+import { IconAlertCircle } from '@tabler/icons-react';
+import { PermissionsDialog } from './PermissionsDialog';
 
 /**
  * Props for the SettingsDialog component
@@ -41,18 +43,38 @@ export function SettingsDialog({ opened, onClose }: SettingsDialogProps) {
   const [recording, setRecording] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [permissionsDialogOpen, setPermissionsDialogOpen] = useState(false);
+  const [permissionType, setPermissionType] = useState<'accessibility' | 'autostart'>('accessibility');
+  const [accessibilityGranted, setAccessibilityGranted] = useState(false);
 
   /**
    * Load settings and contexts when dialog opens
+   * Check accessibility permission
    * 
-   * Requirements: 9.1-9.20
+   * Requirements: 9.1-9.20, 10.1
    */
   useEffect(() => {
     if (opened) {
       loadSettings();
       loadContexts();
+      checkAccessibility();
     }
   }, [opened]);
+
+  /**
+   * Check accessibility permission status
+   * 
+   * Requirements: 10.1
+   */
+  const checkAccessibility = async () => {
+    try {
+      const granted = await invoke<boolean>('check_accessibility');
+      setAccessibilityGranted(granted);
+    } catch (err) {
+      console.error('Failed to check accessibility permission:', err);
+      setAccessibilityGranted(false);
+    }
+  };
 
   /**
    * Load current settings from backend
@@ -89,8 +111,9 @@ export function SettingsDialog({ opened, onClose }: SettingsDialogProps) {
 
   /**
    * Update a setting and auto-save to backend
+   * Handle autostart permission errors
    * 
-   * Requirements: 9.18-9.20 (auto-save)
+   * Requirements: 9.18-9.20 (auto-save), 10.4-10.5 (autostart handling)
    */
   const handleSettingChange = async (key: keyof Settings, value: string | number | boolean) => {
     const updated = { ...settings, [key]: value };
@@ -100,10 +123,20 @@ export function SettingsDialog({ opened, onClose }: SettingsDialogProps) {
       setError(null);
       await invoke('update_settings', { settings: updated });
     } catch (err) {
-      setError(`Failed to save settings: ${err}`);
-      console.error('Failed to save settings:', err);
-      // Revert the change on error
-      setSettings(settings);
+      const errorMessage = String(err);
+      
+      // Check if it's an autostart permission error
+      if (key === 'autostart' && errorMessage.includes('autostart')) {
+        setPermissionType('autostart');
+        setPermissionsDialogOpen(true);
+        // Revert the change
+        setSettings(settings);
+      } else {
+        setError(`Failed to save settings: ${err}`);
+        console.error('Failed to save settings:', err);
+        // Revert the change on error
+        setSettings(settings);
+      }
     }
   };
 
@@ -232,6 +265,26 @@ export function SettingsDialog({ opened, onClose }: SettingsDialogProps) {
           </Text>
         )}
         
+        {/* Accessibility Permission Warning */}
+        {!accessibilityGranted && (
+          <Alert color="yellow" icon={<IconAlertCircle />}>
+            <Text size="sm">
+              Accessibility permission not granted. Global shortcuts will not work.
+            </Text>
+            <Button
+              size="xs"
+              variant="light"
+              mt="xs"
+              onClick={() => {
+                setPermissionType('accessibility');
+                setPermissionsDialogOpen(true);
+              }}
+            >
+              Grant Permission
+            </Button>
+          </Alert>
+        )}
+        
         {/* Global Shortcut Configuration */}
         <div>
           <Text size="sm" fw={500} mb="xs">
@@ -297,6 +350,16 @@ export function SettingsDialog({ opened, onClose }: SettingsDialogProps) {
           </Text>
         )}
       </Stack>
+      
+      {/* Permissions Dialog */}
+      <PermissionsDialog
+        opened={permissionsDialogOpen}
+        onClose={() => {
+          setPermissionsDialogOpen(false);
+          checkAccessibility(); // Recheck after closing
+        }}
+        permissionType={permissionType}
+      />
     </Modal>
   );
 }
