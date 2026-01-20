@@ -42,8 +42,8 @@ This implementation plan breaks down the development of the Tauri-based macOS de
     - Test error handling for missing kubeconfig
     - _Requirements: 17.1_
 
-- [ ] 5. Ingress Transformation Logic
-  - [ ] 5.1 Create src-tauri/src/k8s/transform.rs with transform_ingress function
+- [-] 5. Ingress Transformation Logic
+  - [-] 5.1 Create src-tauri/src/k8s/transform.rs with transform_ingress function
     - Extract name, namespace, id from metadata
     - Extract hosts from spec.rules[].host and spec.tls[].hosts (deduplicate)
     - Extract paths from spec.rules[].http.paths[].path
