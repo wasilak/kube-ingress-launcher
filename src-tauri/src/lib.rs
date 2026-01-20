@@ -4,10 +4,11 @@ pub mod k8s;
 pub mod error;
 pub mod refresh;
 pub mod commands;
+pub mod settings;
 
 use tauri::Manager;
 use state::AppState;
-use commands::settings::SettingsState;
+use settings::SettingsState;
 
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]

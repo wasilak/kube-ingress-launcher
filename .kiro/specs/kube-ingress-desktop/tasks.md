@@ -105,8 +105,8 @@ This implementation plan breaks down the development of the Tauri-based macOS de
     - Test switch_context changes active cluster
     - _Requirements: 17.3_
 
-- [ ] 8. Settings Persistence
-  - [ ] 8.1 Create src-tauri/src/settings/store.rs
+- [x] 8. Settings Persistence
+  - [x] 8.1 Create src-tauri/src/settings/store.rs
     - Implement load_settings using tauri-plugin-store
     - Implement save_settings using tauri-plugin-store
     - Use Settings::default() for missing settings
