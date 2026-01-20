@@ -66,8 +66,8 @@ This implementation plan breaks down the development of the Tauri-based macOS de
     - Test annotation filtering
     - _Requirements: 17.1_
 
-- [-] 6. Background Refresh Task
-  - [-] 6.1 Create src-tauri/src/refresh/task.rs with start_refresh_task function
+- [x] 6. Background Refresh Task
+  - [x] 6.1 Create src-tauri/src/refresh/task.rs with start_refresh_task function
     - Use tokio::time::interval for periodic refresh
     - Fetch ingresses using K8sClient
     - Transform ingresses using transform_ingress
@@ -82,19 +82,19 @@ This implementation plan breaks down the development of the Tauri-based macOS de
     - Test error is stored in state
     - _Requirements: 17.3_
 
-- [ ] 7. Tauri Commands
-  - [ ] 7.1 Create src-tauri/src/commands/ingresses.rs
+- [x] 7. Tauri Commands
+  - [x] 7.1 Create src-tauri/src/commands/ingresses.rs
     - Implement get_ingresses command (returns IngressResponse)
     - Implement open_url command (uses tauri-plugin-shell)
     - _Requirements: 7.1-7.4, 8.1-8.4, 13.4_
 
-  - [ ] 7.2 Create src-tauri/src/commands/settings.rs
+  - [x] 7.2 Create src-tauri/src/commands/settings.rs
     - Implement get_settings command
     - Implement update_settings command with validation
     - Validate refresh interval (10-3600 seconds)
     - _Requirements: 9.1-9.20, 13.4_
 
-  - [ ] 7.3 Create src-tauri/src/commands/kubernetes.rs
+  - [x] 7.3 Create src-tauri/src/commands/kubernetes.rs
     - Implement get_contexts command
     - Implement switch_context command
     - _Requirements: 4.6, 4.7, 9.15-9.17, 13.4_

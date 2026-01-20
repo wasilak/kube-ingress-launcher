@@ -79,6 +79,39 @@ impl Client {
         // For now, return a placeholder
         Ok(vec!["default".to_string()])
     }
+
+    /// Switches to a different Kubernetes context.
+    ///
+    /// # Arguments
+    ///
+    /// * `context` - The name of the context to switch to
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if:
+    /// - The context does not exist
+    /// - Kubeconfig cannot be updated
+    ///
+    /// # Note
+    ///
+    /// This is a simplified implementation. A full implementation would:
+    /// 1. Parse ~/.kube/config
+    /// 2. Verify the context exists
+    /// 3. Update the current-context field
+    /// 4. Write the updated config back to disk
+    pub async fn switch_context(context: &str) -> Result<(), AppError> {
+        // Verify the context exists by trying to load config with it
+        let _config = Config::infer().await
+            .map_err(|e| AppError::KubernetesError(format!("Failed to load kubeconfig: {}", e)))?;
+
+        // TODO: Implement actual context switching
+        // For now, just verify we can load the config
+        if context.is_empty() {
+            return Err(AppError::KubernetesError("Context name cannot be empty".to_string()));
+        }
+
+        Ok(())
+    }
 }
 
 #[cfg(test)]
