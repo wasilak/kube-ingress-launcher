@@ -79,23 +79,6 @@ pub fn run() {
                         let _: () = msg_send![layer, setMasksToBounds: YES];
                     }
                 }
-                
-                // Handle window close event to hide instead of quit
-                let app_handle_close = app.handle().clone();
-                window.on_window_event(move |event| {
-                    if let tauri::WindowEvent::CloseRequested { api, .. } = event {
-                        // Prevent the window from closing
-                        api.prevent_close();
-                        
-                        // Hide the window instead
-                        if let Some(window) = app_handle_close.get_webview_window("main") {
-                            let _ = window.hide();
-                            
-                            // Update tray menu to show "Show"
-                            let _ = update_tray_menu(&app_handle_close, false);
-                        }
-                    }
-                });
             }
 
             // Setup menu bar tray
@@ -106,6 +89,32 @@ pub fn run() {
             // Register global shortcut
             if let Err(e) = setup_global_shortcut(app) {
                 eprintln!("Failed to setup global shortcut: {}", e);
+            }
+            
+            // Handle window close event to hide instead of quit
+            // This must be done AFTER window is created
+            if let Some(window) = app.get_webview_window("main") {
+                let app_handle = app.handle().clone();
+                window.on_window_event(move |event| {
+                    if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+                        eprintln!("Close requested - preventing and hiding window");
+                        api.prevent_close();
+                        
+                        // Hide the window
+                        if let Some(win) = app_handle.get_webview_window("main") {
+                            if let Err(e) = win.hide() {
+                                eprintln!("Failed to hide window: {}", e);
+                            } else {
+                                eprintln!("Window hidden successfully");
+                            }
+                            
+                            // Update tray menu
+                            if let Err(e) = update_tray_menu(&app_handle, false) {
+                                eprintln!("Failed to update tray menu: {}", e);
+                            }
+                        }
+                    }
+                });
             }
 
             // Validate kubeconfig on startup
