@@ -46,6 +46,13 @@ export function useWindowBehavior() {
     const handleBlur = () => {
       console.log('[useWindowBehavior] Window blur detected, scheduling hide in 100ms');
       
+      // Check if a modal is open - don't hide if modal is open
+      const modalOverlay = document.querySelector('[data-mantine-modal-overlay]');
+      if (modalOverlay) {
+        console.log('[useWindowBehavior] Modal is open, not hiding on blur');
+        return;
+      }
+      
       // Clear any existing timeout
       if (focusLossTimeout !== null) {
         clearTimeout(focusLossTimeout);
