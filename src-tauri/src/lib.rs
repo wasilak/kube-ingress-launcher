@@ -359,7 +359,13 @@ fn setup_global_shortcut(app: &tauri::App) -> Result<(), Box<dyn std::error::Err
 
     // Always try to register the shortcut
     // The system will handle permission prompts if needed
-    match app.global_shortcut().on_shortcut(shortcut, |app, _shortcut, _event| {
+    match app.global_shortcut().on_shortcut(shortcut, |app, _shortcut, event| {
+        // Only respond to key press (down), not release (up)
+        use tauri_plugin_global_shortcut::ShortcutState;
+        if event.state != ShortcutState::Pressed {
+            return;
+        }
+        
         eprintln!("Global shortcut triggered!");
         if let Some(window) = app.get_webview_window("main") {
             match window.is_visible() {

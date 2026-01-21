@@ -16,11 +16,14 @@ import { invoke } from '@tauri-apps/api/core';
 
 export function useWindowBehavior() {
   useEffect(() => {
+    console.log('[useWindowBehavior] Hook initialized');
     const window = getCurrentWindow();
     let focusLossTimeout: number | null = null;
 
     // Handle Escape key press
     const handleKeyDown = async (event: KeyboardEvent) => {
+      console.log('[useWindowBehavior] Key pressed:', event.key, 'code:', event.code);
+      
       if (event.key === 'Escape') {
         // Check if any modal or dialog is open by checking for Mantine modal overlay
         const modalOverlay = document.querySelector('[data-mantine-modal-overlay]');
@@ -32,12 +35,16 @@ export function useWindowBehavior() {
         console.log('[useWindowBehavior] Escape key pressed, hiding window');
         event.preventDefault();
         event.stopPropagation();
-        await window.hide();
-        // Update tray menu to show "Show"
+        
         try {
+          await window.hide();
+          console.log('[useWindowBehavior] Window hidden successfully');
+          
+          // Update tray menu to show "Show"
           await invoke('update_tray_menu_state', { isVisible: false });
+          console.log('[useWindowBehavior] Tray menu updated');
         } catch (err) {
-          console.error('[useWindowBehavior] Failed to update tray menu:', err);
+          console.error('[useWindowBehavior] Error hiding window or updating tray:', err);
         }
       }
     };
@@ -83,16 +90,20 @@ export function useWindowBehavior() {
     };
 
     console.log('[useWindowBehavior] Setting up event listeners');
+    console.log('[useWindowBehavior] Document:', document);
+    console.log('[useWindowBehavior] Window:', globalThis.window);
 
     // Add event listeners
-    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('keydown', handleKeyDown, true); // Use capture phase
     globalThis.window.addEventListener('blur', handleBlur);
     globalThis.window.addEventListener('focus', handleFocus);
+    
+    console.log('[useWindowBehavior] Event listeners attached successfully');
 
     // Cleanup
     return () => {
       console.log('[useWindowBehavior] Cleaning up event listeners');
-      document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('keydown', handleKeyDown, true);
       globalThis.window.removeEventListener('blur', handleBlur);
       globalThis.window.removeEventListener('focus', handleFocus);
       
