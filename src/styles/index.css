@@ -56,6 +56,7 @@ body {
  * - Subtle border for definition
  * - Full viewport height
  * - Transparent corners for proper window shape
+ * - Top padding to avoid traffic light buttons on macOS
  * 
  * Requirements: 1.9, 12.3, 12.10
  */
@@ -81,6 +82,8 @@ body {
   isolation: isolate;
   /* Ensure container respects window shape */
   box-sizing: border-box;
+  /* Add padding at top for macOS traffic light buttons */
+  padding-top: 40px;
 }
 
 /**

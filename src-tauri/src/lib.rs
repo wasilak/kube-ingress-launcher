@@ -60,12 +60,18 @@ pub fn run() {
                         // Enable rounded corners by setting the appropriate style mask
                         let mut style_mask: NSWindowStyleMask = ns_window.styleMask();
                         style_mask |= NSWindowStyleMask::NSFullSizeContentViewWindowMask;
+                        // Add titled window mask to enable rounded corners
+                        style_mask |= NSWindowStyleMask::NSTitledWindowMask;
                         ns_window.setStyleMask_(style_mask);
+                        
+                        // Hide the title bar but keep rounded corners
+                        let _: () = msg_send![ns_window, setTitlebarAppearsTransparent: YES];
+                        let _: () = msg_send![ns_window, setTitleVisibility: 1]; // NSWindowTitleHidden = 1
                         
                         // Ensure the window has a shadow for depth
                         let _: () = msg_send![ns_window, setHasShadow: YES];
                         
-                        // Apply corner radius to content view layer
+                        // Apply corner radius to content view layer for extra clipping
                         let content_view: id = ns_window.contentView();
                         let _: () = msg_send![content_view, setWantsLayer: YES];
                         let layer: id = msg_send![content_view, layer];

@@ -16,12 +16,13 @@
         "width": 600,
         "height": 400,
         "resizable": true,
-        "decorations": false,
+        "decorations": true,
         "transparent": true,
         "alwaysOnTop": true,
         "skipTaskbar": true,
         "visible": false,
-        "center": true
+        "center": true,
+        "titleBarStyle": "Overlay"
       }
     ],
     "macOSPrivateApi": true,
