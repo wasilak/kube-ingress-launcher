@@ -39,9 +39,9 @@ pub fn run() {
                 #[cfg(target_os = "macos")]
                 {
                     use window_vibrancy::{apply_vibrancy, NSVisualEffectMaterial};
-                    use cocoa::appkit::{NSWindow, NSWindowStyleMask, NSColor};
-                    use cocoa::base::{id, nil, NO, YES};
-                    use objc::{msg_send, sel, sel_impl};
+                    use objc2::rc::Retained;
+                    use objc2::runtime::AnyObject;
+                    use objc2_app_kit::{NSWindow, NSColor, NSWindowStyleMask, NSWindowTitleVisibility};
                     
                     // Apply vibrancy effect
                     if let Err(e) = apply_vibrancy(&window, NSVisualEffectMaterial::HudWindow, None, None) {
@@ -49,34 +49,38 @@ pub fn run() {
                     }
                     
                     // Get the native NSWindow
-                    let ns_window = window.ns_window().unwrap() as id;
+                    let ns_window_ptr = window.ns_window().unwrap() as *mut AnyObject;
+                    let ns_window: Retained<NSWindow> = unsafe { Retained::retain(ns_window_ptr.cast()).unwrap() };
                     
                     unsafe {
                         // Make window fully transparent
-                        let _: () = msg_send![ns_window, setOpaque: NO];
-                        let clear_color: id = NSColor::clearColor(nil);
-                        let _: () = msg_send![ns_window, setBackgroundColor: clear_color];
+                        ns_window.setOpaque(false);
+                        let clear_color = NSColor::clearColor();
+                        ns_window.setBackgroundColor(Some(&clear_color));
                         
                         // Enable rounded corners by setting the appropriate style mask
-                        let mut style_mask: NSWindowStyleMask = ns_window.styleMask();
-                        style_mask |= NSWindowStyleMask::NSFullSizeContentViewWindowMask;
+                        let mut style_mask = ns_window.styleMask();
+                        style_mask |= NSWindowStyleMask::FullSizeContentView;
                         // Add titled window mask to enable rounded corners
-                        style_mask |= NSWindowStyleMask::NSTitledWindowMask;
-                        ns_window.setStyleMask_(style_mask);
+                        style_mask |= NSWindowStyleMask::Titled;
+                        ns_window.setStyleMask(style_mask);
                         
                         // Hide the title bar but keep rounded corners
-                        let _: () = msg_send![ns_window, setTitlebarAppearsTransparent: YES];
-                        let _: () = msg_send![ns_window, setTitleVisibility: 1]; // NSWindowTitleHidden = 1
+                        ns_window.setTitlebarAppearsTransparent(true);
+                        // NSWindowTitleHidden = 1
+                        ns_window.setTitleVisibility(NSWindowTitleVisibility(1));
                         
                         // Ensure the window has a shadow for depth
-                        let _: () = msg_send![ns_window, setHasShadow: YES];
+                        ns_window.setHasShadow(true);
                         
                         // Apply corner radius to content view layer for extra clipping
-                        let content_view: id = ns_window.contentView();
-                        let _: () = msg_send![content_view, setWantsLayer: YES];
-                        let layer: id = msg_send![content_view, layer];
-                        let _: () = msg_send![layer, setCornerRadius: 16.0f64];
-                        let _: () = msg_send![layer, setMasksToBounds: YES];
+                        if let Some(content_view) = ns_window.contentView() {
+                            content_view.setWantsLayer(true);
+                            if let Some(layer) = content_view.layer() {
+                                layer.setCornerRadius(16.0);
+                                layer.setMasksToBounds(true);
+                            }
+                        }
                     }
                 }
             }
