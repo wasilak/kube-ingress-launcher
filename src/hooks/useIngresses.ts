@@ -19,6 +19,7 @@ interface UseIngressesReturn {
   loading: boolean;
   error: ErrorInfo | null;
   lastUpdated: string | null;
+  refresh: () => Promise<void>;
 }
 
 export function useIngresses(): UseIngressesReturn {
@@ -64,5 +65,5 @@ export function useIngresses(): UseIngressesReturn {
     };
   }, []);
 
-  return { ingresses, loading, error, lastUpdated };
+  return { ingresses, loading, error, lastUpdated, refresh: fetchIngresses };
 }

@@ -39,7 +39,7 @@ import { useEffect } from 'react';
  */
 export function App() {
   // Fetch ingresses data and manage loading/error states
-  const { ingresses, loading, error } = useIngresses();
+  const { ingresses, loading, error, refresh } = useIngresses();
   
   // Search/filter functionality
   const { searchTerm, setSearchTerm, filteredIngresses } = useSearch(ingresses);
@@ -105,6 +105,8 @@ export function App() {
             ingresses={filteredIngresses}
             onSelect={handleIngressSelect}
             selectedIndex={selectedIndex}
+            onRefresh={refresh}
+            loading={loading}
           />
         </div>
       </Stack>
