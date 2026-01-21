@@ -3,7 +3,7 @@
  * 
  * Includes:
  * - Tailwind CSS base, components, and utilities
- * - Custom styles for vibrancy background
+ * - Custom glass morphism styles inspired by Apple's design language
  * - Rounded corners for window
  * - Ingress item hover effects
  * 
@@ -18,6 +18,7 @@
  * Base styles
  * 
  * Reset margins and padding, set up font smoothing
+ * Transparent background for proper corner rendering
  */
 body {
   margin: 0;
@@ -28,39 +29,73 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow: hidden;
+  background: transparent;
 }
 
 /**
  * Root element
  * 
- * Ensures full viewport height
+ * Ensures full viewport height and transparent background
  */
 #root {
   width: 100%;
   height: 100vh;
   overflow: hidden;
+  background: transparent;
 }
 
 /**
- * App container with vibrancy effect
+ * App container with glass morphism effect
  * 
  * Features:
- * - Semi-transparent dark background (rgba(0, 0, 0, 0.7))
- * - Rounded corners (12px border-radius)
- * - Backdrop blur for vibrancy effect
+ * - Liquid glass effect with subtle gradient
+ * - Rounded corners (16px border-radius)
+ * - Enhanced backdrop blur for depth
+ * - Subtle border for definition
  * - Full viewport height
- * - Draggable region for window movement
+ * - Transparent corners for proper window shape
  * 
  * Requirements: 1.9, 12.3, 12.10
  */
 .app-container {
-  background: rgba(0, 0, 0, 0.7);
-  border-radius: 12px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0.04) 50%,
+    rgba(255, 255, 255, 0.02) 100%
+  );
+  border-radius: 16px;
   min-height: 100vh;
   width: 100%;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 
+    0 8px 32px 0 rgba(0, 0, 0, 0.37),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
   overflow: hidden;
+  position: relative;
+  /* Ensure corners are transparent */
+  -webkit-mask-image: -webkit-radial-gradient(white, black);
+  mask-image: radial-gradient(white, black);
+}
+
+/**
+ * Glass effect overlay for additional depth
+ */
+.app-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
 }
 
 /**
@@ -85,51 +120,150 @@ body {
 }
 
 /**
- * Ingress item hover effect
+ * Ingress item hover effect with glass morphism
  * 
  * Provides visual feedback when hovering over ingress items
  * 
  * Requirements: 12.6
  */
 .ingress-item {
-  transition: background-color 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 .ingress-item:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.12);
+  transform: translateY(-1px);
+  box-shadow: 
+    0 4px 16px 0 rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
 }
 
 /**
- * Scrollbar styling for dark theme
+ * Glass card effect for components
+ */
+.glass-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  box-shadow: 
+    0 4px 16px 0 rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+}
+
+/**
+ * Scrollbar styling for glass theme
  * 
- * Custom scrollbar to match the dark vibrancy theme
+ * Custom scrollbar to match the glass morphism theme
  */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 10px;
+  margin: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.25);
+  border: 2px solid transparent;
+  background-clip: padding-box;
 }
 
 /**
- * Focus styles
+ * Focus styles with glass effect
  * 
  * Ensure focus indicators are visible for accessibility
  */
 *:focus-visible {
-  outline: 2px solid rgba(99, 179, 237, 0.8);
+  outline: 2px solid rgba(99, 179, 237, 0.6);
   outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(99, 179, 237, 0.1);
+}
+
+/**
+ * Input fields with glass effect
+ */
+input[type="text"],
+input[type="search"] {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+input[type="text"]:focus,
+input[type="search"]:focus {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(99, 179, 237, 0.4) !important;
+  box-shadow: 0 0 0 3px rgba(99, 179, 237, 0.1);
+}
+
+/**
+ * Badge glass effect
+ */
+.mantine-Badge-root {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/**
+ * Alert/Error banner glass effect
+ */
+.mantine-Alert-root {
+  background: rgba(239, 68, 68, 0.1) !important;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/**
+ * Modal glass effect
+ */
+.mantine-Modal-content {
+  background: rgba(30, 30, 30, 0.95) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  box-shadow: 
+    0 20px 60px 0 rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+}
+
+/**
+ * Smooth animations
+ */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-out;
 }
