@@ -5,9 +5,9 @@
     <key>LSUIElement</key>
     <true/>
     <key>CFBundleName</key>
-    <string>Kubernetes Ingress Search</string>
+    <string>Kube Ingress Launcher</string>
     <key>CFBundleDisplayName</key>
-    <string>Kubernetes Ingress Search</string>
+    <string>Kube Ingress Launcher</string>
     <key>CFBundleIdentifier</key>
     <string>com.piotrek.kube-ingress-desktop</string>
     <key>CFBundleVersion</key>
