@@ -262,8 +262,20 @@ export function SettingsDialog({ opened, onClose }: SettingsDialogProps) {
       opened={opened}
       onClose={onClose}
       title="Settings"
-      size="md"
+      size="xl"
       centered
+      fullScreen
+      styles={{
+        content: {
+          height: '400px',
+          width: '600px',
+          margin: 'auto',
+        },
+        body: {
+          height: 'calc(100% - 60px)',
+          overflow: 'auto',
+        },
+      }}
     >
       <Stack gap="md">
         {error && (

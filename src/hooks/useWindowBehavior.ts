@@ -3,6 +3,7 @@
  * 
  * Handles:
  * - Escape key to hide window
+ * - Cmd+, to open settings (macOS standard)
  * - Focus loss to hide window (with 100ms delay)
  * - Window centering on show
  * - Tray menu updates on visibility changes
@@ -13,6 +14,7 @@
 import { useEffect } from 'react';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { invoke } from '@tauri-apps/api/core';
+import { emit } from '@tauri-apps/api/event';
 
 export function useWindowBehavior() {
   useEffect(() => {
@@ -20,9 +22,24 @@ export function useWindowBehavior() {
     const window = getCurrentWindow();
     let focusLossTimeout: number | null = null;
 
-    // Handle Escape key press
+    // Handle Escape key press and Cmd+, for settings
     const handleKeyDown = async (event: KeyboardEvent) => {
       console.log('[useWindowBehavior] Key pressed:', event.key, 'code:', event.code);
+      
+      // Handle Cmd+, (or Ctrl+, on non-Mac) to open settings
+      if (event.key === ',' && (event.metaKey || event.ctrlKey)) {
+        console.log('[useWindowBehavior] Cmd+, pressed, opening settings');
+        event.preventDefault();
+        event.stopPropagation();
+        
+        try {
+          await emit('open-settings');
+          console.log('[useWindowBehavior] Settings event emitted');
+        } catch (err) {
+          console.error('[useWindowBehavior] Error emitting settings event:', err);
+        }
+        return;
+      }
       
       if (event.key === 'Escape') {
         // Check if any modal or dialog is open by checking for Mantine modal overlay

@@ -185,7 +185,7 @@ fn setup_tray(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
 
     // Create initial menu with "Show" (window starts hidden)
     let show_item = MenuItemBuilder::with_id("show", "Show (⌘⇧K)").build(app)?;
-    let options_item = MenuItemBuilder::with_id("options", "Options...").build(app)?;
+    let options_item = MenuItemBuilder::with_id("options", "Options").build(app)?;
     let quit_item = MenuItemBuilder::with_id("quit", "Quit").build(app)?;
 
     let menu = Menu::with_items(app, &[&show_item, &options_item, &quit_item])?;
@@ -312,7 +312,7 @@ fn update_tray_menu(app: &tauri::AppHandle, is_visible: bool) -> Result<(), Box<
 
     // Rebuild menu with updated text
     let show_item = MenuItemBuilder::with_id("show", show_text).build(app)?;
-    let options_item = MenuItemBuilder::with_id("options", "Options...").build(app)?;
+    let options_item = MenuItemBuilder::with_id("options", "Options").build(app)?;
     let quit_item = MenuItemBuilder::with_id("quit", "Quit").build(app)?;
 
     let menu = Menu::with_items(app, &[&show_item, &options_item, &quit_item])?;
