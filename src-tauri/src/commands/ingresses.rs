@@ -73,7 +73,7 @@ pub async fn open_url(url: String, app: tauri::AppHandle) -> Result<(), String> 
         .build(&app)
         .map_err(|e| format!("Failed to build menu item: {}", e))?;
     
-    let options_item = MenuItemBuilder::with_id("options", "Options...")
+    let options_item = MenuItemBuilder::with_id("options", "Options")
         .build(&app)
         .map_err(|e| format!("Failed to build menu item: {}", e))?;
     
@@ -87,6 +87,27 @@ pub async fn open_url(url: String, app: tauri::AppHandle) -> Result<(), String> 
     if let Some(tray) = app.tray_by_id("main") {
         let _ = tray.set_menu(Some(menu));
     }
+    
+    Ok(())
+}
+
+/// Manually trigger a refresh of ingress data from Kubernetes
+///
+/// This command forces an immediate refresh of ingress data from the Kubernetes cluster,
+/// bypassing the normal periodic refresh interval. Useful for troubleshooting or when
+/// the user wants to see the latest data immediately.
+///
+/// # Requirements
+/// - Triggers immediate fetch from Kubernetes
+/// - Updates application state
+/// - Emits ingresses-updated event
+#[tauri::command]
+pub async fn refresh_ingresses(
+    state: State<'_, AppState>,
+    app: tauri::AppHandle,
+) -> Result<(), String> {
+    // Trigger the fetch and update
+    crate::refresh::task::fetch_and_update(&app, &state).await?;
     
     Ok(())
 }

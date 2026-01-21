@@ -155,6 +155,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             commands::ingresses::get_ingresses,
             commands::ingresses::open_url,
+            commands::ingresses::refresh_ingresses,
             commands::settings::get_settings,
             commands::settings::update_settings,
             commands::kubernetes::get_contexts,

@@ -93,7 +93,7 @@ pub async fn start_refresh_task(app_handle: AppHandle) {
 /// # Requirements
 ///
 /// Implements requirements 6.1, 6.4-6.8, 11.1, 11.2, 11.7
-async fn fetch_and_update(
+pub async fn fetch_and_update(
     app_handle: &AppHandle,
     state: &AppState,
 ) -> Result<(), String> {

@@ -45,6 +45,23 @@ export function useIngresses(): UseIngressesReturn {
     }
   };
 
+  const refreshIngresses = async () => {
+    try {
+      setLoading(true);
+      // Trigger backend refresh from Kubernetes
+      await invoke('refresh_ingresses');
+      // Fetch the updated data
+      await fetchIngresses();
+    } catch (err) {
+      setError({
+        message: 'Failed to refresh ingresses',
+        details: err instanceof Error ? err.message : String(err),
+        timestamp: new Date().toISOString(),
+      });
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     // Initial fetch
     fetchIngresses();
@@ -65,5 +82,5 @@ export function useIngresses(): UseIngressesReturn {
     };
   }, []);
 
-  return { ingresses, loading, error, lastUpdated, refresh: fetchIngresses };
+  return { ingresses, loading, error, lastUpdated, refresh: refreshIngresses };
 }
