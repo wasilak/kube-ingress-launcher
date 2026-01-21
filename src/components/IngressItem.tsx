@@ -1,8 +1,6 @@
 import { useState } from 'react';
-import { Stack, Group, Text, Badge, Button } from '@mantine/core';
-import { IconExternalLink } from '@tabler/icons-react';
+import { Stack, Group, Text, Badge } from '@mantine/core';
 import { IngressData } from '../types/ingress';
-import { invoke } from '@tauri-apps/api/core';
 
 /**
  * Props for the IngressItem component
@@ -25,8 +23,7 @@ interface IngressItemProps {
  * 
  * Features:
  * - Displays name, namespace, hosts, and TLS badge
- * - Expandable URL list (click to expand/collapse)
- * - Opens URLs in default browser via Tauri command
+ * - Clicking opens the URL in default browser
  * - Hover effect for better UX
  * - Semi-transparent background for vibrancy effect
  * - Visual highlight when selected via keyboard navigation
@@ -34,31 +31,12 @@ interface IngressItemProps {
  * Requirements: 7.5, 7.6, 8.1-8.4, 12.6, 8.5, 11.4
  */
 export function IngressItem({ ingress, onSelect, isSelected = false }: IngressItemProps) {
-  const [expanded, setExpanded] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
 
   /**
-   * Opens a URL in the default system browser
-   * Calls the open_url Tauri command and hides the window
-   * 
-   * Requirements: 8.1-8.4
-   */
-  const handleUrlClick = async (url: string, event: React.MouseEvent) => {
-    event.stopPropagation(); // Prevent item expansion when clicking URL
-    
-    try {
-      await invoke('open_url', { url });
-      // Window will be hidden by the Tauri command
-    } catch (error) {
-      console.error('Failed to open URL:', error);
-    }
-  };
-
-  /**
-   * Toggles the expanded state to show/hide URLs
+   * Handles item click - calls onSelect which will open the URL
    */
   const handleItemClick = () => {
-    setExpanded(!expanded);
     onSelect();
   };
 
@@ -105,23 +83,6 @@ export function IngressItem({ ingress, onSelect, isSelected = false }: IngressIt
           </Text>
         </Stack>
       </Group>
-
-      {expanded && ingress.urls.length > 0 && (
-        <Stack gap="xs" mt="sm">
-          {ingress.urls.map((url) => (
-            <Button
-              key={url}
-              variant="subtle"
-              size="xs"
-              leftSection={<IconExternalLink size={14} />}
-              onClick={(e) => handleUrlClick(url, e)}
-              style={{ justifyContent: 'flex-start' }}
-            >
-              {url}
-            </Button>
-          ))}
-        </Stack>
-      )}
     </div>
   );
 }
