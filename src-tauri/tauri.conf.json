@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "kube-ingress-desktop",
+  "productName": "Kubernetes Ingress Search",
   "version": "0.1.0",
   "identifier": "com.piotrek.kube-ingress-desktop",
   "build": {
