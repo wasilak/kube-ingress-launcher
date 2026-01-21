@@ -39,8 +39,41 @@ pub fn run() {
                 #[cfg(target_os = "macos")]
                 {
                     use window_vibrancy::{apply_vibrancy, NSVisualEffectMaterial};
-                    if let Err(e) = apply_vibrancy(&window, NSVisualEffectMaterial::HudWindow, None, Some(16.0)) {
+                    use cocoa::appkit::{NSWindow, NSWindowStyleMask, NSColor};
+                    use cocoa::base::{id, nil, NO, YES};
+                    use objc::{msg_send, sel, sel_impl};
+                    
+                    // Apply vibrancy effect
+                    if let Err(e) = apply_vibrancy(&window, NSVisualEffectMaterial::HudWindow, None, None) {
                         eprintln!("Failed to apply vibrancy: {}", e);
+                    }
+                    
+                    // Get the native NSWindow
+                    let ns_window = window.ns_window().unwrap() as id;
+                    
+                    unsafe {
+                        // Make window fully transparent
+                        let _: () = msg_send![ns_window, setOpaque: NO];
+                        let clear_color: id = NSColor::clearColor(nil);
+                        let _: () = msg_send![ns_window, setBackgroundColor: clear_color];
+                        
+                        // Enable rounded corners by setting the appropriate style mask
+                        let mut style_mask: NSWindowStyleMask = ns_window.styleMask();
+                        style_mask |= NSWindowStyleMask::NSFullSizeContentViewWindowMask;
+                        ns_window.setStyleMask_(style_mask);
+                        
+                        // Set corner radius (16px to match CSS)
+                        let _: () = msg_send![ns_window, setCornerRadius: 16.0f64];
+                        
+                        // Ensure the window has a shadow for depth
+                        let _: () = msg_send![ns_window, setHasShadow: YES];
+                        
+                        // Make sure content view respects the corner radius
+                        let content_view: id = ns_window.contentView();
+                        let _: () = msg_send![content_view, setWantsLayer: YES];
+                        let layer: id = msg_send![content_view, layer];
+                        let _: () = msg_send![layer, setCornerRadius: 16.0f64];
+                        let _: () = msg_send![layer, setMasksToBounds: YES];
                     }
                 }
             }

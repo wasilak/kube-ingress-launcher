@@ -6,6 +6,11 @@
   "permissions": [
     "core:default",
     "core:window:allow-start-dragging",
-    "opener:default"
+    "opener:default",
+    "global-shortcut:allow-is-registered",
+    "global-shortcut:allow-register",
+    "global-shortcut:allow-register-all",
+    "global-shortcut:allow-unregister",
+    "global-shortcut:allow-unregister-all"
   ]
 }
