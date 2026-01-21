@@ -85,8 +85,8 @@ export function App() {
   });
 
   return (
-    <div className="app-container">
-      <Stack gap="md" p="md">
+    <div className="app-container" data-tauri-drag-region>
+      <Stack gap="md" p="md" className="no-drag">
         {/* Error banner - shown when there's an error */}
         {error && <ErrorBanner error={error} />}
         

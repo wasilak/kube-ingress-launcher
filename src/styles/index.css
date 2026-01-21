@@ -49,6 +49,7 @@ body {
  * - Rounded corners (12px border-radius)
  * - Backdrop blur for vibrancy effect
  * - Full viewport height
+ * - Draggable region for window movement
  * 
  * Requirements: 1.9, 12.3, 12.10
  */
@@ -60,6 +61,27 @@ body {
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   overflow: hidden;
+}
+
+/**
+ * Drag region for window movement
+ * 
+ * Allows dragging the window by clicking on the background
+ * Uses Tauri's data-tauri-drag-region attribute
+ */
+.drag-region {
+  -webkit-app-region: drag;
+  app-region: drag;
+}
+
+/**
+ * Non-draggable region
+ * 
+ * Prevents dragging on interactive elements
+ */
+.no-drag {
+  -webkit-app-region: no-drag;
+  app-region: no-drag;
 }
 
 /**

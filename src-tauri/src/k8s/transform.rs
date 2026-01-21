@@ -121,6 +121,53 @@ pub fn transform_ingress(k8s_ingress: &Ingress) -> IngressData {
     }
 }
 
+/// Splits an ingress into multiple entries, one per host.
+///
+/// This function takes an ingress with multiple hosts and creates separate
+/// IngressData entries for each host, with only the URLs relevant to that host.
+///
+/// # Arguments
+///
+/// * `ingress` - The IngressData to split by host
+///
+/// # Returns
+///
+/// A vector of IngressData, one for each host in the original ingress
+pub fn split_ingress_by_host(ingress: &IngressData) -> Vec<IngressData> {
+    if ingress.hosts.is_empty() {
+        // If no hosts, return the original ingress as-is
+        return vec![ingress.clone()];
+    }
+
+    if ingress.hosts.len() == 1 {
+        // If only one host, return the original ingress as-is
+        return vec![ingress.clone()];
+    }
+
+    // Create one entry per host
+    ingress.hosts.iter().map(|host| {
+        // Filter URLs to only include those for this host
+        let host_urls: Vec<String> = ingress.urls.iter()
+            .filter(|url| url.contains(host))
+            .cloned()
+            .collect();
+
+        IngressData {
+            id: format!("{}-{}", ingress.id, host),
+            name: ingress.name.clone(),
+            namespace: ingress.namespace.clone(),
+            hosts: vec![host.clone()],
+            paths: ingress.paths.clone(),
+            urls: host_urls,
+            annotations: ingress.annotations.clone(),
+            creation_timestamp: ingress.creation_timestamp.clone(),
+            tls: ingress.tls,
+            status: ingress.status.clone(),
+            labels: ingress.labels.clone(),
+        }
+    }).collect()
+}
+
 /// Filters out auto-generated annotations from Kubernetes.
 ///
 /// Removes annotations with the following prefixes:

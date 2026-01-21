@@ -11,7 +11,7 @@
 
 use tokio::time::{interval, Duration, sleep};
 use crate::k8s::client::Client;
-use crate::k8s::transform::transform_ingress;
+use crate::k8s::transform::{transform_ingress, split_ingress_by_host};
 use crate::state::{AppState, ErrorInfo};
 use chrono::Utc;
 use tauri::{AppHandle, Manager, Emitter};
@@ -167,10 +167,11 @@ async fn fetch_and_update(
             error_msg
         })?;
 
-    // Transform ingresses into our internal format
+    // Transform ingresses into our internal format and split by host
     let ingresses: Vec<_> = k8s_ingresses
         .iter()
         .map(transform_ingress)
+        .flat_map(|ingress| split_ingress_by_host(&ingress))
         .collect();
 
     // Update state with new data (Requirement 6.4)
