@@ -106,7 +106,14 @@ body {
  * 
  * Allows dragging the window by clicking on the background
  * Uses Tauri's data-tauri-drag-region attribute
+ * 
+ * CRITICAL: This CSS rule is required for data-tauri-drag-region to work
  */
+*[data-tauri-drag-region] {
+  -webkit-app-region: drag;
+  app-region: drag;
+}
+
 .drag-region {
   -webkit-app-region: drag;
   app-region: drag;

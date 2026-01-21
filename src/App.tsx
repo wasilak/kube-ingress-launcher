@@ -86,27 +86,23 @@ export function App() {
 
   return (
     <div className="app-container" data-tauri-drag-region>
-      <Stack gap="md" p="md" style={{ pointerEvents: 'none' }}>
+      <Stack gap="md" p="md" className="no-drag">
         {/* Error banner - shown when there's an error */}
-        {error && <div style={{ pointerEvents: 'auto' }}><ErrorBanner error={error} /></div>}
+        {error && <ErrorBanner error={error} />}
         
         {/* Search input - auto-focused for immediate typing */}
-        <div style={{ pointerEvents: 'auto' }}>
-          <SearchInput
-            value={searchTerm}
-            onChange={setSearchTerm}
-            loading={loading}
-          />
-        </div>
+        <SearchInput
+          value={searchTerm}
+          onChange={setSearchTerm}
+          loading={loading}
+        />
         
         {/* Ingress list - displays filtered results */}
-        <div style={{ pointerEvents: 'auto' }}>
-          <IngressList
-            ingresses={filteredIngresses}
-            onSelect={handleIngressSelect}
-            selectedIndex={selectedIndex}
-          />
-        </div>
+        <IngressList
+          ingresses={filteredIngresses}
+          onSelect={handleIngressSelect}
+          selectedIndex={selectedIndex}
+        />
       </Stack>
 
       {/* Settings dialog - modal for configuration */}
