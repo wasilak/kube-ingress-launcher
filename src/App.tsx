@@ -86,23 +86,27 @@ export function App() {
 
   return (
     <div className="app-container" data-tauri-drag-region>
-      <Stack gap="md" p="md" className="no-drag">
+      <Stack gap="md" p="md">
         {/* Error banner - shown when there's an error */}
         {error && <ErrorBanner error={error} />}
         
         {/* Search input - auto-focused for immediate typing */}
-        <SearchInput
-          value={searchTerm}
-          onChange={setSearchTerm}
-          loading={loading}
-        />
+        <div className="no-drag">
+          <SearchInput
+            value={searchTerm}
+            onChange={setSearchTerm}
+            loading={loading}
+          />
+        </div>
         
         {/* Ingress list - displays filtered results */}
-        <IngressList
-          ingresses={filteredIngresses}
-          onSelect={handleIngressSelect}
-          selectedIndex={selectedIndex}
-        />
+        <div className="no-drag">
+          <IngressList
+            ingresses={filteredIngresses}
+            onSelect={handleIngressSelect}
+            selectedIndex={selectedIndex}
+          />
+        </div>
       </Stack>
 
       {/* Settings dialog - modal for configuration */}

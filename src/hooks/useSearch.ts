@@ -5,11 +5,13 @@
  * - Accepts a list of ingresses and a search term
  * - Filters by name, namespace, host, or URL (case-insensitive substring match)
  * - Uses useMemo for performance optimization
+ * - Debounces search term with 150ms delay
  * 
  * Requirements: 7.3
  */
 
 import { useState, useMemo } from 'react';
+import { useDebouncedValue } from '@mantine/hooks';
 import { IngressData } from '../types/ingress';
 
 interface UseSearchReturn {
@@ -20,13 +22,14 @@ interface UseSearchReturn {
 
 export function useSearch(ingresses: IngressData[]): UseSearchReturn {
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm] = useDebouncedValue(searchTerm, 150);
 
   const filteredIngresses = useMemo(() => {
-    if (!searchTerm) {
+    if (!debouncedSearchTerm) {
       return ingresses;
     }
 
-    const term = searchTerm.toLowerCase();
+    const term = debouncedSearchTerm.toLowerCase();
 
     return ingresses.filter((ingress) => {
       // Match against name
@@ -51,7 +54,7 @@ export function useSearch(ingresses: IngressData[]): UseSearchReturn {
 
       return false;
     });
-  }, [ingresses, searchTerm]);
+  }, [ingresses, debouncedSearchTerm]);
 
   return { searchTerm, setSearchTerm, filteredIngresses };
 }

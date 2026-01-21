@@ -79,6 +79,23 @@ pub fn run() {
                         let _: () = msg_send![layer, setMasksToBounds: YES];
                     }
                 }
+                
+                // Handle window close event to hide instead of quit
+                let app_handle_close = app.handle().clone();
+                window.on_window_event(move |event| {
+                    if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+                        // Prevent the window from closing
+                        api.prevent_close();
+                        
+                        // Hide the window instead
+                        if let Some(window) = app_handle_close.get_webview_window("main") {
+                            let _ = window.hide();
+                            
+                            // Update tray menu to show "Show"
+                            let _ = update_tray_menu(&app_handle_close, false);
+                        }
+                    }
+                });
             }
 
             // Setup menu bar tray
