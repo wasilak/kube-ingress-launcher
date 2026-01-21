@@ -34,12 +34,12 @@ pub fn run() {
             let settings_state = SettingsState::new();
             app.manage(settings_state);
 
-            // Setup window vibrancy (macOS only)
+            // Setup window vibrancy and corner radius (macOS only)
             if let Some(window) = app.get_webview_window("main") {
                 #[cfg(target_os = "macos")]
                 {
                     use window_vibrancy::{apply_vibrancy, NSVisualEffectMaterial};
-                    if let Err(e) = apply_vibrancy(&window, NSVisualEffectMaterial::HudWindow, None, None) {
+                    if let Err(e) = apply_vibrancy(&window, NSVisualEffectMaterial::HudWindow, None, Some(16.0)) {
                         eprintln!("Failed to apply vibrancy: {}", e);
                     }
                 }
