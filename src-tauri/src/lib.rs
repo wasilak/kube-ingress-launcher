@@ -62,13 +62,10 @@ pub fn run() {
                         style_mask |= NSWindowStyleMask::NSFullSizeContentViewWindowMask;
                         ns_window.setStyleMask_(style_mask);
                         
-                        // Set corner radius (16px to match CSS)
-                        let _: () = msg_send![ns_window, setCornerRadius: 16.0f64];
-                        
                         // Ensure the window has a shadow for depth
                         let _: () = msg_send![ns_window, setHasShadow: YES];
                         
-                        // Make sure content view respects the corner radius
+                        // Apply corner radius to content view layer
                         let content_view: id = ns_window.contentView();
                         let _: () = msg_send![content_view, setWantsLayer: YES];
                         let layer: id = msg_send![content_view, layer];
