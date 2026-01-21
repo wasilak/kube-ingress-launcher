@@ -149,14 +149,22 @@ export function SettingsDialog({ opened, onClose }: SettingsDialogProps) {
     setRecording(true);
     setError(null);
     
+    let timeoutId: number | null = null;
+    
     // Listen for the next key combination
     const handleKeyDown = (event: KeyboardEvent) => {
+      // Ignore if only modifier keys are pressed
+      if (['Control', 'Meta', 'Shift', 'Alt', 'Command'].includes(event.key)) {
+        return;
+      }
+      
       event.preventDefault();
       event.stopPropagation();
       
       // Build shortcut string
       const parts: string[] = [];
       
+      // Add modifiers in consistent order
       if (event.ctrlKey || event.metaKey) {
         parts.push('CmdOrCtrl');
       }
@@ -167,11 +175,10 @@ export function SettingsDialog({ opened, onClose }: SettingsDialogProps) {
         parts.push('Alt');
       }
       
-      // Add the main key (ignore modifier keys themselves)
-      if (!['Control', 'Meta', 'Shift', 'Alt'].includes(event.key)) {
-        parts.push(event.key.toUpperCase());
-      }
+      // Add the main key
+      parts.push(event.key.toUpperCase());
       
+      // Require at least one modifier + main key (minimum 2 parts)
       if (parts.length >= 2) {
         const shortcut = parts.join('+');
         
@@ -190,6 +197,7 @@ export function SettingsDialog({ opened, onClose }: SettingsDialogProps) {
           setError(`Shortcut ${shortcut} is reserved by the system`);
           setRecording(false);
           window.removeEventListener('keydown', handleKeyDown);
+          if (timeoutId) clearTimeout(timeoutId);
           return;
         }
         
@@ -197,18 +205,17 @@ export function SettingsDialog({ opened, onClose }: SettingsDialogProps) {
         handleSettingChange('globalShortcut', shortcut);
         setRecording(false);
         window.removeEventListener('keydown', handleKeyDown);
+        if (timeoutId) clearTimeout(timeoutId);
       }
     };
     
     window.addEventListener('keydown', handleKeyDown);
     
     // Auto-cancel after 5 seconds
-    setTimeout(() => {
-      if (recording) {
-        setRecording(false);
-        window.removeEventListener('keydown', handleKeyDown);
-      }
-    }, 5000);
+    timeoutId = setTimeout(() => {
+      setRecording(false);
+      window.removeEventListener('keydown', handleKeyDown);
+    }, 5000) as unknown as number;
   };
 
   /**
