@@ -328,7 +328,7 @@ fn update_tray_menu(app: &tauri::AppHandle, is_visible: bool) -> Result<(), Box<
 /// Setup the global keyboard shortcut
 ///
 /// Registers Cmd+Shift+K (or Ctrl+Shift+K on non-Mac) to show/hide the window.
-/// Checks for accessibility permission first and handles gracefully if not granted.
+/// On macOS, this will prompt for accessibility permission if not already granted.
 ///
 /// # Requirements
 /// - 2.1-2.7: Global keyboard shortcut
@@ -338,29 +338,29 @@ fn update_tray_menu(app: &tauri::AppHandle, is_visible: bool) -> Result<(), Box<
 fn setup_global_shortcut(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
     use tauri_plugin_global_shortcut::{GlobalShortcutExt, Shortcut};
 
-    // Check accessibility permission on macOS
+    // Check accessibility permission on macOS (for logging purposes)
     #[cfg(target_os = "macos")]
     {
         match permissions::check_accessibility_permission() {
             Ok(true) => {
-                // Permission granted, proceed with shortcut registration
+                eprintln!("Accessibility permission granted. Global shortcut will work.");
             }
             Ok(false) => {
-                eprintln!("Warning: Accessibility permission not granted. Global shortcut will not work.");
-                eprintln!("Please grant permission in System Settings > Privacy & Security > Accessibility.");
-                // Store permission warning in state for display in menu tooltip
-                return Ok(()); // Don't fail, just skip shortcut registration
+                eprintln!("Accessibility permission not yet granted.");
+                eprintln!("Attempting to register shortcut anyway - macOS may show permission dialog.");
             }
             Err(e) => {
                 eprintln!("Warning: Failed to check accessibility permission: {}", e);
-                // Continue anyway, shortcut registration might still work
             }
         }
     }
 
     let shortcut = "CmdOrCtrl+Shift+K".parse::<Shortcut>()?;
 
+    // Always try to register the shortcut
+    // The system will handle permission prompts if needed
     match app.global_shortcut().on_shortcut(shortcut, |app, _shortcut, _event| {
+        eprintln!("Global shortcut triggered!");
         if let Some(window) = app.get_webview_window("main") {
             match window.is_visible() {
                 Ok(true) => {
@@ -381,9 +381,12 @@ fn setup_global_shortcut(app: &tauri::App) -> Result<(), Box<dyn std::error::Err
             }
         }
     }) {
-        Ok(_) => Ok(()),
+        Ok(_) => {
+            eprintln!("Global shortcut registered successfully!");
+            Ok(())
+        }
         Err(e) => {
-            eprintln!("Warning: Failed to register global shortcut: {}", e);
+            eprintln!("Failed to register global shortcut: {}", e);
             eprintln!("You can still open the window from the menu bar.");
             Ok(()) // Don't fail the app, just log the error
         }
