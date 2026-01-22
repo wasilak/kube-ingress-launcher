@@ -9,8 +9,48 @@ permissions:
   contents: write
 
 jobs:
-  build-and-release:
+  # Job 1: Run tests and checks first
+  test:
     runs-on: macos-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run frontend tests
+        run: npm test
+      
+      - name: Run backend tests
+        run: cargo test --manifest-path src-tauri/Cargo.toml
+      
+      - name: Check frontend build
+        run: npm run build
+      
+      - name: Check backend build
+        run: cargo build --manifest-path src-tauri/Cargo.toml
+      
+      - name: Lint (Clippy)
+        run: cargo clippy --manifest-path src-tauri/Cargo.toml -- -D warnings
+
+  # Job 2: Build and create release (only if tests pass)
+  build-and-release:
+    needs: test
+    runs-on: macos-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      universal_sha: ${{ steps.checksum.outputs.universal_sha }}
     
     steps:
       - name: Checkout
@@ -72,9 +112,15 @@ jobs:
           ls -lh "$DMG_FILE"
       
       - name: Calculate checksums
+        id: checksum
         run: |
           shasum -a 256 *.dmg > checksums.txt
           cat checksums.txt
+          
+          # Extract checksum for tap update
+          UNIVERSAL_SHA=$(grep "kube-ingress-launcher.*universal.*\.dmg" checksums.txt | awk '{print $1}')
+          echo "universal_sha=$UNIVERSAL_SHA" >> $GITHUB_OUTPUT
+          echo "Universal SHA256: $UNIVERSAL_SHA"
       
       - name: Upload to release
         uses: softprops/action-gh-release@v1
@@ -87,3 +133,52 @@ jobs:
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Job 3: Update Homebrew tap (only if build succeeds)
+  update-homebrew-tap:
+    needs: build-and-release
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout tap repository
+        uses: actions/checkout@v4
+        with:
+          repository: wasilak/homebrew-kube-ingress-launcher
+          token: ${{ secrets.TAP_GITHUB_TOKEN }}
+      
+      - name: Update Cask formula
+        run: |
+          # Update version
+          sed -i "s/version \".*\"/version \"${{ needs.build-and-release.outputs.version }}\"/" Casks/kube-ingress-launcher.rb
+          
+          # Update checksum
+          sed -i "s/sha256 \".*\"/sha256 \"${{ needs.build-and-release.outputs.universal_sha }}\"/" Casks/kube-ingress-launcher.rb
+          
+          echo "Updated Cask formula:"
+          cat Casks/kube-ingress-launcher.rb
+      
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git add Casks/kube-ingress-launcher.rb
+          git commit -m "chore: update to version ${{ needs.build-and-release.outputs.version }}
+
+          - Update version to ${{ needs.build-and-release.outputs.version }}
+          - Update Universal SHA256: ${{ needs.build-and-release.outputs.universal_sha }}
+          
+          Automated update from release: https://github.com/${{ github.repository }}/releases/tag/v${{ needs.build-and-release.outputs.version }}"
+          
+          git push origin main
+      
+      - name: Summary
+        run: |
+          echo "✅ Homebrew tap updated successfully!"
+          echo ""
+          echo "Version: ${{ needs.build-and-release.outputs.version }}"
+          echo "Universal SHA256: ${{ needs.build-and-release.outputs.universal_sha }}"
+          echo ""
+          echo "Users can now update with:"
+          echo "  brew update"
+          echo "  brew upgrade --cask kube-ingress-launcher"
