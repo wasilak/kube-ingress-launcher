@@ -1,7 +1,7 @@
-import { Modal, Stack, TextInput, NumberInput, Switch, Select, Button, Group, Text, Alert } from '@mantine/core';
+import { Modal, Stack, TextInput, NumberInput, Switch, Select, Button, Group, Text, Alert, Divider, Badge } from '@mantine/core';
 import { useState, useEffect } from 'react';
 import { invoke } from '@tauri-apps/api/core';
-import { Settings } from '../types/ingress';
+import { Settings, VersionInfo } from '../types/ingress';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { PermissionsDialog } from './PermissionsDialog';
 
@@ -46,10 +46,12 @@ export function SettingsDialog({ opened, onClose }: SettingsDialogProps) {
   const [permissionsDialogOpen, setPermissionsDialogOpen] = useState(false);
   const [permissionType, setPermissionType] = useState<'accessibility' | 'autostart'>('accessibility');
   const [accessibilityGranted, setAccessibilityGranted] = useState(false);
+  const [versionInfo, setVersionInfo] = useState<VersionInfo | null>(null);
 
   /**
    * Load settings and contexts when dialog opens
    * Check accessibility permission
+   * Load version information
    * 
    * Requirements: 9.1-9.20, 10.1
    */
@@ -58,6 +60,7 @@ export function SettingsDialog({ opened, onClose }: SettingsDialogProps) {
       loadSettings();
       loadContexts();
       checkAccessibility();
+      loadVersionInfo();
     }
   }, [opened]);
 
@@ -73,6 +76,18 @@ export function SettingsDialog({ opened, onClose }: SettingsDialogProps) {
     } catch (err) {
       console.error('Failed to check accessibility permission:', err);
       setAccessibilityGranted(false);
+    }
+  };
+
+  /**
+   * Load version information
+   */
+  const loadVersionInfo = async () => {
+    try {
+      const info = await invoke<VersionInfo>('get_version_info');
+      setVersionInfo(info);
+    } catch (err) {
+      console.error('Failed to load version info:', err);
     }
   };
 
@@ -367,6 +382,49 @@ export function SettingsDialog({ opened, onClose }: SettingsDialogProps) {
           <Text size="xs" c="dimmed">
             No Kubernetes contexts found. Make sure your kubeconfig is properly configured.
           </Text>
+        )}
+
+        {/* Version Information */}
+        <Divider my="md" />
+        
+        {versionInfo && (
+          <Stack gap="xs">
+            <Text size="sm" fw={500}>
+              Version Information
+            </Text>
+            
+            <Group gap="xs">
+              <Text size="sm" c="dimmed">Version:</Text>
+              <Badge variant="light" size="sm">{versionInfo.version}</Badge>
+            </Group>
+            
+            {versionInfo.gitBranch && (
+              <Group gap="xs">
+                <Text size="sm" c="dimmed">Branch:</Text>
+                <Badge variant="light" color="blue" size="sm">{versionInfo.gitBranch}</Badge>
+              </Group>
+            )}
+            
+            {versionInfo.gitCommit && (
+              <Group gap="xs">
+                <Text size="sm" c="dimmed">Commit:</Text>
+                <Badge variant="light" color="gray" size="sm" style={{ fontFamily: 'monospace' }}>
+                  {versionInfo.gitCommit}
+                </Badge>
+              </Group>
+            )}
+            
+            <Group gap="xs">
+              <Text size="sm" c="dimmed">Build:</Text>
+              <Badge 
+                variant="light" 
+                color={versionInfo.buildProfile === 'release' ? 'green' : 'orange'} 
+                size="sm"
+              >
+                {versionInfo.buildProfile}
+              </Badge>
+            </Group>
+          </Stack>
         )}
       </Stack>
       

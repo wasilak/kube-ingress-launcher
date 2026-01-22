@@ -95,3 +95,22 @@ export interface IngressResponse {
   /** ISO 8601 timestamp of last successful update */
   lastUpdated: string | null;
 }
+
+/**
+ * Version information for the application
+ * 
+ * Contains version number, git branch (when running locally), and build info.
+ */
+export interface VersionInfo {
+  /** Application version from Cargo.toml */
+  version: string;
+  
+  /** Git branch (if available) */
+  gitBranch: string | null;
+  
+  /** Git commit hash (if available) */
+  gitCommit: string | null;
+  
+  /** Build profile (debug or release) */
+  buildProfile: string;
+}

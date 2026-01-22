@@ -24,6 +24,74 @@ pub async fn get_settings(state: State<'_, SettingsState>) -> Result<Settings, S
     Ok(settings.clone())
 }
 
+/// Version information for the application
+///
+/// Contains version number, git branch (when running locally), and build info.
+#[derive(Debug, Clone, serde::Serialize)]
+pub struct VersionInfo {
+    /// Application version from Cargo.toml
+    pub version: String,
+    /// Git branch (if available)
+    pub git_branch: Option<String>,
+    /// Git commit hash (if available)
+    pub git_commit: Option<String>,
+    /// Build profile (debug or release)
+    pub build_profile: String,
+}
+
+/// Get application version and build information
+///
+/// Returns version from Cargo.toml, git branch/commit when running locally,
+/// and build profile information.
+///
+/// # Requirements
+/// - Display version in Settings dialog
+/// - Show git branch when running locally
+#[tauri::command]
+pub async fn get_version_info() -> Result<VersionInfo, String> {
+    let version = env!("CARGO_PKG_VERSION").to_string();
+    
+    // Try to get git branch
+    let git_branch = std::process::Command::new("git")
+        .args(["rev-parse", "--abbrev-ref", "HEAD"])
+        .output()
+        .ok()
+        .and_then(|output| {
+            if output.status.success() {
+                String::from_utf8(output.stdout).ok().map(|s| s.trim().to_string())
+            } else {
+                None
+            }
+        });
+    
+    // Try to get git commit hash
+    let git_commit = std::process::Command::new("git")
+        .args(["rev-parse", "--short", "HEAD"])
+        .output()
+        .ok()
+        .and_then(|output| {
+            if output.status.success() {
+                String::from_utf8(output.stdout).ok().map(|s| s.trim().to_string())
+            } else {
+                None
+            }
+        });
+    
+    // Determine build profile
+    let build_profile = if cfg!(debug_assertions) {
+        "debug".to_string()
+    } else {
+        "release".to_string()
+    };
+    
+    Ok(VersionInfo {
+        version,
+        git_branch,
+        git_commit,
+        build_profile,
+    })
+}
+
 /// Update application settings with validation
 ///
 /// Validates the new settings and persists them to disk using tauri-plugin-store.

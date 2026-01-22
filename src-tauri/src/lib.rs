@@ -162,6 +162,7 @@ pub fn run() {
             commands::ingresses::refresh_ingresses,
             commands::settings::get_settings,
             commands::settings::update_settings,
+            commands::settings::get_version_info,
             commands::kubernetes::get_contexts,
             commands::kubernetes::switch_context,
             commands::permissions::check_accessibility,
