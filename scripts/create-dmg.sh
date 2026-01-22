@@ -6,6 +6,7 @@
 # Usage: ./scripts/create-dmg.sh <app_bundle_path> <version> <architecture>
 # Example: ./scripts/create-dmg.sh "target/release/bundle/macos/Kube Ingress Launcher.app" "0.1.0" "x86_64-apple-darwin"
 # Example: ./scripts/create-dmg.sh "target/release/bundle/macos/Kube Ingress Launcher.app" "0.1.0" "aarch64-apple-darwin"
+# Example: ./scripts/create-dmg.sh "target/release/bundle/macos/Kube Ingress Launcher.app" "0.1.0" "universal-apple-darwin"
 
 set -e  # Exit on error
 set -u  # Exit on undefined variable
@@ -34,6 +35,7 @@ if [ $# -ne 3 ]; then
     log_error "Usage: $0 <app_bundle_path> <version> <architecture>"
     log_error "Example: $0 \"target/release/bundle/macos/Kube Ingress Launcher.app\" \"0.1.0\" \"x86_64-apple-darwin\""
     log_error "Example: $0 \"target/release/bundle/macos/Kube Ingress Launcher.app\" \"0.1.0\" \"aarch64-apple-darwin\""
+    log_error "Example: $0 \"target/release/bundle/macos/Kube Ingress Launcher.app\" \"0.1.0\" \"universal-apple-darwin\""
     exit 1
 fi
 
@@ -58,12 +60,15 @@ if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
     log_warning "Version does not follow semantic versioning format (MAJOR.MINOR.PATCH): $VERSION"
 fi
 
-# Validate architecture (accept both short and full format)
+# Validate architecture (accept short format, full format, and universal)
 if [[ "$ARCH" =~ ^(x86_64|aarch64)$ ]]; then
     # Convert short format to full format
     ARCH="${ARCH}-apple-darwin"
-elif [[ ! "$ARCH" =~ ^(x86_64-apple-darwin|aarch64-apple-darwin)$ ]]; then
-    log_error "Architecture must be 'x86_64', 'aarch64', 'x86_64-apple-darwin', or 'aarch64-apple-darwin', got: $ARCH"
+elif [[ "$ARCH" == "universal" ]]; then
+    # Convert to full universal format
+    ARCH="universal-apple-darwin"
+elif [[ ! "$ARCH" =~ ^(x86_64-apple-darwin|aarch64-apple-darwin|universal-apple-darwin)$ ]]; then
+    log_error "Architecture must be 'x86_64', 'aarch64', 'universal', 'x86_64-apple-darwin', 'aarch64-apple-darwin', or 'universal-apple-darwin', got: $ARCH"
     exit 1
 fi
 
