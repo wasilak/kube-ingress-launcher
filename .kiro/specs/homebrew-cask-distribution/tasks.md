@@ -11,46 +11,46 @@
 
 ### Task 1.2: Create DMG Build Script
 - [x] Create `scripts/create-dmg.sh` script for DMG generation
-- [~] Implement logic to copy .app bundle to temporary directory
-- [~] Add hdiutil command to create compressed DMG (UDZO format, compression level 9)
-- [~] Implement proper naming convention: `kube-ingress-launcher-{version}-{arch}.dmg`
-- [~] Add cleanup logic to remove temporary files
-- [~] Make script executable: `chmod +x scripts/create-dmg.sh`
+- [x] Implement logic to copy .app bundle to temporary directory
+- [x] Add hdiutil command to create compressed DMG (UDZO format, compression level 9)
+- [x] Implement proper naming convention: `kube-ingress-launcher-{version}-{arch}.dmg`
+- [x] Add cleanup logic to remove temporary files
+- [x] Make script executable: `chmod +x scripts/create-dmg.sh`
 - [~] Test script locally with both architectures
 
 ### Task 1.3: Create Version Extraction Script
-- [~] Create `scripts/get-version.sh` to extract version from Cargo.toml
-- [~] Implement grep/sed logic to parse version field
-- [~] Test script returns correct version format
-- [~] Make script executable: `chmod +x scripts/get-version.sh`
+- [x] Create `scripts/get-version.sh` to extract version from Cargo.toml
+- [x] Implement grep/sed logic to parse version field
+- [x] Test script returns correct version format
+- [x] Make script executable: `chmod +x scripts/get-version.sh`
 
 ## Phase 2: GitHub Actions CI/CD Pipeline
 
 ### Task 2.1: Create Release Workflow File
-- [~] Create `.github/workflows/release.yml`
-- [~] Configure workflow to trigger on version tags (pattern: `v*`)
-- [~] Set up matrix strategy for both architectures (x86_64-apple-darwin, aarch64-apple-darwin)
-- [~] Use `macos-latest` runner
+- [x] Create `.github/workflows/release.yml`
+- [x] Configure workflow to trigger on version tags (pattern: `v*`)
+- [x] Set up matrix strategy for both architectures (x86_64-apple-darwin, aarch64-apple-darwin)
+- [x] Use `macos-latest` runner
 
 ### Task 2.2: Implement Build Job Steps
-- [~] Add checkout step using `actions/checkout@v4`
-- [~] Add Rust setup using `dtolnay/rust-toolchain@stable` with target matrix
-- [~] Add Node.js setup using `actions/setup-node@v4` with version 18 and npm cache
-- [~] Add npm dependencies installation step: `npm ci`
-- [~] Add Tauri build step with target flag: `npm run tauri build -- --target ${{ matrix.target }}`
+- [x] Add checkout step using `actions/checkout@v4`
+- [x] Add Rust setup using `dtolnay/rust-toolchain@stable` with target matrix
+- [x] Add Node.js setup using `actions/setup-node@v4` with version 18 and npm cache
+- [x] Add npm dependencies installation step: `npm ci`
+- [x] Add Tauri build step with target flag: `npm run tauri build -- --target ${{ matrix.target }}`
 
 ### Task 2.3: Implement DMG Creation and Checksum Steps
-- [~] Add step to locate built .app bundle from Tauri output
-- [~] Add step to run DMG creation script with proper parameters
-- [~] Add step to calculate SHA256 checksums: `shasum -a 256 *.dmg > checksums-${{ matrix.target }}.txt`
-- [~] Add step to verify DMG files were created successfully
+- [x] Add step to locate built .app bundle from Tauri output
+- [x] Add step to run DMG creation script with proper parameters
+- [x] Add step to calculate SHA256 checksums: `shasum -a 256 *.dmg > checksums-${{ matrix.target }}.txt`
+- [x] Add step to verify DMG files were created successfully
 
 ### Task 2.4: Implement Release Upload
-- [~] Add release upload step using `softprops/action-gh-release@v1`
-- [~] Configure to upload DMG files and checksum files
-- [~] Set GITHUB_TOKEN from secrets
-- [~] Configure to create release if it doesn't exist
-- [~] Add release notes generation from git log or changelog
+- [x] Add release upload step using `softprops/action-gh-release@v1`
+- [x] Configure to upload DMG files and checksum files
+- [x] Set GITHUB_TOKEN from secrets
+- [x] Configure to create release if it doesn't exist
+- [x] Add release notes generation from git log or changelog
 
 ### Task 2.5: Test CI/CD Pipeline
 - [~] Create a test tag and push to trigger workflow
@@ -63,37 +63,37 @@
 
 ### Task 3.1: Create Tap Repository
 - [~] Create new GitHub repository: `homebrew-kube-ingress-launcher`
-- [~] Initialize with README.md explaining tap purpose
-- [~] Create `Casks/` directory
-- [~] Add `.gitignore` for macOS and Homebrew-specific files
+- [x] Initialize with README.md explaining tap purpose
+- [x] Create `Casks/` directory
+- [x] Add `.gitignore` for macOS and Homebrew-specific files
 
 ### Task 3.2: Create Initial Cask Formula
-- [~] Create `Casks/kube-ingress-launcher.rb`
-- [~] Implement version variable
-- [~] Implement architecture detection (arm/intel)
-- [~] Add download URL template using GitHub releases
-- [~] Add placeholder SHA256 checksums (to be updated after first release)
-- [~] Add app name, description, and homepage
-- [~] Add `app` stanza to install .app bundle
-- [~] Add `zap` stanza for complete uninstallation
+- [x] Create `Casks/kube-ingress-launcher.rb`
+- [x] Implement version variable
+- [x] Implement architecture detection (arm/intel)
+- [x] Add download URL template using GitHub releases
+- [x] Add placeholder SHA256 checksums (to be updated after first release)
+- [x] Add app name, description, and homepage
+- [x] Add `app` stanza to install .app bundle
+- [x] Add `zap` stanza for complete uninstallation
 
 ### Task 3.3: Create Tap Documentation
-- [~] Write README.md with installation instructions
-- [~] Document how to add the tap: `brew tap wasilak/kube-ingress-launcher`
-- [~] Document how to install: `brew install --cask kube-ingress-launcher`
-- [~] Add section on Gatekeeper bypass for unsigned apps
-- [~] Add troubleshooting section
-- [~] Add update and uninstall instructions
+- [x] Write README.md with installation instructions
+- [x] Document how to add the tap: `brew tap wasilak/kube-ingress-launcher`
+- [x] Document how to install: `brew install --cask kube-ingress-launcher`
+- [x] Add section on Gatekeeper bypass for unsigned apps
+- [x] Add troubleshooting section
+- [x] Add update and uninstall instructions
 
 ## Phase 4: Formula Update Automation
 
 ### Task 4.1: Create Formula Update Script
-- [~] Create `scripts/update-formula.sh` in main repository
-- [~] Implement logic to extract version from Cargo.toml
-- [~] Implement logic to download checksums from GitHub release
-- [~] Implement logic to update formula file with new version and checksums
-- [~] Add git commit and push logic
-- [~] Make script executable: `chmod +x scripts/update-formula.sh`
+- [x] Create `scripts/update-formula.sh` in main repository
+- [x] Implement logic to extract version from Cargo.toml
+- [x] Implement logic to download checksums from GitHub release
+- [x] Implement logic to update formula file with new version and checksums
+- [x] Add git commit and push logic
+- [x] Make script executable: `chmod +x scripts/update-formula.sh`
 
 ### Task 4.2: Create Formula Update Workflow
 - [~] Create `.github/workflows/update-tap.yml` in tap repository
@@ -140,27 +140,27 @@
 ## Phase 6: Documentation and Release
 
 ### Task 6.1: Update Main Repository README
-- [~] Add "Installation" section with Homebrew instructions
-- [~] Add instructions for adding the tap
-- [~] Add instructions for installing via Homebrew Cask
+- [x] Add "Installation" section with Homebrew instructions
+- [x] Add instructions for adding the tap
+- [x] Add instructions for installing via Homebrew Cask
 - [ ] Add section on Gatekeeper bypass for unsigned apps
-- [~] Add troubleshooting section for common issues
+- [x] Add troubleshooting section for common issues
 - [ ] Add update and uninstall instructions
-- [~] Add badges for latest release version
+- [x] Add badges for latest release version
 
 ### Task 6.2: Create Release Documentation
-- [~] Create `RELEASING.md` with step-by-step release process
-- [~] Document version bumping procedure
-- [~] Document tag creation and pushing
-- [~] Document verification steps
-- [~] Document rollback procedures
+- [x] Create `RELEASING.md` with step-by-step release process
+- [x] Document version bumping procedure
+- [x] Document tag creation and pushing
+- [x] Document verification steps
+- [x] Document rollback procedures
 
 ### Task 6.3: Create User Guide for Gatekeeper Bypass
-- [~] Document step-by-step Gatekeeper bypass process
-- [~] Add screenshots showing security dialogs
-- [~] Explain security implications of unsigned apps
-- [~] Provide alternative installation methods if needed
-- [~] Add FAQ section for common security questions
+- [x] Document step-by-step Gatekeeper bypass process
+- [x] Add screenshots showing security dialogs
+- [x] Explain security implications of unsigned apps
+- [x] Provide alternative installation methods if needed
+- [x] Add FAQ section for common security questions
 
 ### Task 6.4: Perform First Official Release
 - [~] Bump version in Cargo.toml to 1.0.0
@@ -177,13 +177,13 @@
 - [~] Configure GitHub notifications for workflow failures
 - [~] Set up monitoring for tap repository issues
 - [~] Create issue templates for installation problems
-- [~] Document common failure scenarios and solutions
+- [x] Document common failure scenarios and solutions
 
 ### Task 7.2: Create Maintenance Procedures
-- [~] Document how to manually update formula if automation fails
-- [~] Document how to fix broken releases
-- [~] Document how to handle architecture-specific issues
-- [~] Create runbook for common maintenance tasks
+- [x] Document how to manually update formula if automation fails
+- [x] Document how to fix broken releases
+- [x] Document how to handle architecture-specific issues
+- [x] Create runbook for common maintenance tasks
 
 ## Notes
 
