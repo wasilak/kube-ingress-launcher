@@ -60,7 +60,7 @@ jobs:
     
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
@@ -153,7 +153,7 @@ jobs:
     
     steps:
       - name: Checkout tap repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: wasilak/homebrew-kube-ingress-launcher
           token: ${{ secrets.TAP_GITHUB_TOKEN }}
