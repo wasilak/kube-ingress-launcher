@@ -73,6 +73,19 @@ export function SettingsDialog({ opened, onClose }: SettingsDialogProps) {
     try {
       const granted = await invoke<boolean>('check_accessibility');
       setAccessibilityGranted(granted);
+      
+      // If permission is not granted but shortcut works, recheck after a delay
+      // This handles the case where macOS hasn't updated the permission status yet
+      if (!granted) {
+        setTimeout(async () => {
+          try {
+            const recheckGranted = await invoke<boolean>('check_accessibility');
+            setAccessibilityGranted(recheckGranted);
+          } catch (err) {
+            console.error('Failed to recheck accessibility permission:', err);
+          }
+        }, 1000);
+      }
     } catch (err) {
       console.error('Failed to check accessibility permission:', err);
       setAccessibilityGranted(false);
@@ -110,6 +123,7 @@ export function SettingsDialog({ opened, onClose }: SettingsDialogProps) {
 
   /**
    * Load available Kubernetes contexts
+   * Auto-select first context if none is selected
    * 
    * Requirements: 9.15-9.17
    */
@@ -117,6 +131,11 @@ export function SettingsDialog({ opened, onClose }: SettingsDialogProps) {
     try {
       const ctxs = await invoke<string[]>('get_contexts');
       setContexts(ctxs);
+      
+      // If contexts are available and no context is selected, select the first one
+      if (ctxs.length > 0 && !settings.kubeContext) {
+        handleSettingChange('kubeContext', ctxs[0]);
+      }
     } catch (err) {
       console.error('Failed to load contexts:', err);
       // Don't show error for contexts - it's not critical
@@ -305,17 +324,25 @@ export function SettingsDialog({ opened, onClose }: SettingsDialogProps) {
             <Text size="sm">
               Accessibility permission not granted. Global shortcuts will not work.
             </Text>
-            <Button
-              size="xs"
-              variant="light"
-              mt="xs"
-              onClick={() => {
-                setPermissionType('accessibility');
-                setPermissionsDialogOpen(true);
-              }}
-            >
-              Grant Permission
-            </Button>
+            <Group mt="xs" gap="xs">
+              <Button
+                size="xs"
+                variant="light"
+                onClick={() => {
+                  setPermissionType('accessibility');
+                  setPermissionsDialogOpen(true);
+                }}
+              >
+                Grant Permission
+              </Button>
+              <Button
+                size="xs"
+                variant="subtle"
+                onClick={checkAccessibility}
+              >
+                Recheck
+              </Button>
+            </Group>
           </Alert>
         )}
         
@@ -375,7 +402,6 @@ export function SettingsDialog({ opened, onClose }: SettingsDialogProps) {
           placeholder={contexts.length === 0 ? 'No contexts available' : 'Select a context'}
           disabled={loading || contexts.length === 0}
           searchable
-          clearable
         />
         
         {contexts.length === 0 && (
@@ -413,17 +439,6 @@ export function SettingsDialog({ opened, onClose }: SettingsDialogProps) {
                 </Badge>
               </Group>
             )}
-            
-            <Group gap="xs">
-              <Text size="sm" c="dimmed">Build:</Text>
-              <Badge 
-                variant="light" 
-                color={versionInfo.buildProfile === 'release' ? 'green' : 'orange'} 
-                size="sm"
-              >
-                {versionInfo.buildProfile}
-              </Badge>
-            </Group>
           </Stack>
         )}
       </Stack>
