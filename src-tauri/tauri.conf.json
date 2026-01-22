@@ -40,6 +40,9 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
+    "category": "DeveloperTool",
+    "shortDescription": "Kubernetes Ingress Launcher",
+    "longDescription": "A desktop launcher for quickly searching and opening Kubernetes ingress resources",
     "macOS": {
       "minimumSystemVersion": "10.13",
       "infoPlist": "./Info.plist"
