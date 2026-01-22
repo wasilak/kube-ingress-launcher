@@ -12,10 +12,6 @@ jobs:
   build-and-release:
     runs-on: macos-latest
     
-    strategy:
-      matrix:
-        target: [x86_64-apple-darwin, aarch64-apple-darwin]
-    
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -23,7 +19,7 @@ jobs:
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: ${{ matrix.target }}
+          targets: x86_64-apple-darwin,aarch64-apple-darwin
       
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -41,14 +37,14 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Version: $VERSION"
       
-      - name: Build Tauri app
+      - name: Build Tauri app (Universal Binary)
         run: |
-          npm run tauri build -- --target ${{ matrix.target }}
+          npm run tauri build -- --target universal-apple-darwin
       
       - name: Locate app bundle
         id: locate
         run: |
-          APP_BUNDLE=$(find src-tauri/target/${{ matrix.target }}/release/bundle/macos -name "*.app" -type d | head -n 1)
+          APP_BUNDLE=$(find src-tauri/target/universal-apple-darwin/release/bundle/macos -name "*.app" -type d | head -n 1)
           echo "app_bundle=$APP_BUNDLE" >> $GITHUB_OUTPUT
           echo "Found app bundle: $APP_BUNDLE"
           
@@ -56,14 +52,18 @@ jobs:
             echo "Error: App bundle not found"
             exit 1
           fi
+          
+          # Verify it's a universal binary
+          echo "Verifying universal binary..."
+          lipo -info "$APP_BUNDLE/Contents/MacOS/"* || true
       
       - name: Create DMG
         run: |
-          ./scripts/create-dmg.sh "${{ steps.locate.outputs.app_bundle }}" "${{ steps.version.outputs.version }}" "${{ matrix.target }}"
+          ./scripts/create-dmg.sh "${{ steps.locate.outputs.app_bundle }}" "${{ steps.version.outputs.version }}" "universal-apple-darwin"
       
       - name: Verify DMG created
         run: |
-          DMG_FILE="kube-ingress-launcher-${{ steps.version.outputs.version }}-${{ matrix.target }}.dmg"
+          DMG_FILE="kube-ingress-launcher-${{ steps.version.outputs.version }}-universal-apple-darwin.dmg"
           if [ ! -f "$DMG_FILE" ]; then
             echo "Error: DMG file not created: $DMG_FILE"
             exit 1
@@ -73,15 +73,15 @@ jobs:
       
       - name: Calculate checksums
         run: |
-          shasum -a 256 *.dmg > checksums-${{ matrix.target }}.txt
-          cat checksums-${{ matrix.target }}.txt
+          shasum -a 256 *.dmg > checksums.txt
+          cat checksums.txt
       
       - name: Upload to release
         uses: softprops/action-gh-release@v1
         with:
           files: |
             *.dmg
-            checksums-*.txt
+            checksums.txt
           draft: false
           prerelease: false
           generate_release_notes: true

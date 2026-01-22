@@ -22,30 +22,23 @@ jobs:
       
       - name: Download checksums from release
         run: |
-          # Download checksum files from the release
-          curl -sL "https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/checksums-x86_64-apple-darwin.txt" -o checksums-intel.txt
-          curl -sL "https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/checksums-aarch64-apple-darwin.txt" -o checksums-arm.txt
+          # Download checksum file from the release
+          curl -sL "https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/checksums.txt" -o checksums.txt
           
-          echo "Intel checksums:"
-          cat checksums-intel.txt
-          echo ""
-          echo "ARM checksums:"
-          cat checksums-arm.txt
+          echo "Checksums:"
+          cat checksums.txt
       
-      - name: Extract SHA256 checksums
+      - name: Extract SHA256 checksum
         id: checksums
         run: |
-          INTEL_SHA=$(grep "kube-ingress-launcher.*x86_64.*\.dmg" checksums-intel.txt | awk '{print $1}')
-          ARM_SHA=$(grep "kube-ingress-launcher.*aarch64.*\.dmg" checksums-arm.txt | awk '{print $1}')
+          UNIVERSAL_SHA=$(grep "kube-ingress-launcher.*universal.*\.dmg" checksums.txt | awk '{print $1}')
           
-          echo "intel_sha=$INTEL_SHA" >> $GITHUB_OUTPUT
-          echo "arm_sha=$ARM_SHA" >> $GITHUB_OUTPUT
+          echo "universal_sha=$UNIVERSAL_SHA" >> $GITHUB_OUTPUT
           
-          echo "Intel SHA256: $INTEL_SHA"
-          echo "ARM SHA256: $ARM_SHA"
+          echo "Universal SHA256: $UNIVERSAL_SHA"
           
-          if [ -z "$INTEL_SHA" ] || [ -z "$ARM_SHA" ]; then
-            echo "Error: Failed to extract checksums"
+          if [ -z "$UNIVERSAL_SHA" ]; then
+            echo "Error: Failed to extract checksum"
             exit 1
           fi
       
@@ -63,9 +56,8 @@ jobs:
           # Update version
           sed -i "s/version \".*\"/version \"${{ steps.version.outputs.version }}\"/" Casks/kube-ingress-launcher.rb
           
-          # Update checksums
-          sed -i "s/sha256 arm:   \".*\",/sha256 arm:   \"${{ steps.checksums.outputs.arm_sha }}\",/" Casks/kube-ingress-launcher.rb
-          sed -i "s/intel: \".*\"/intel: \"${{ steps.checksums.outputs.intel_sha }}\"/" Casks/kube-ingress-launcher.rb
+          # Update checksum
+          sed -i "s/sha256 \".*\"/sha256 \"${{ steps.checksums.outputs.universal_sha }}\"/" Casks/kube-ingress-launcher.rb
           
           echo "Updated Cask formula:"
           cat Casks/kube-ingress-launcher.rb
@@ -81,8 +73,7 @@ jobs:
           git commit -m "chore: update to version ${{ steps.version.outputs.version }}
 
           - Update version to ${{ steps.version.outputs.version }}
-          - Update Intel SHA256: ${{ steps.checksums.outputs.intel_sha }}
-          - Update ARM SHA256: ${{ steps.checksums.outputs.arm_sha }}
+          - Update Universal SHA256: ${{ steps.checksums.outputs.universal_sha }}
           
           Automated update from release: ${{ github.event.release.html_url }}"
           
@@ -93,8 +84,7 @@ jobs:
           echo "✅ Homebrew tap updated successfully!"
           echo ""
           echo "Version: ${{ steps.version.outputs.version }}"
-          echo "Intel SHA256: ${{ steps.checksums.outputs.intel_sha }}"
-          echo "ARM SHA256: ${{ steps.checksums.outputs.arm_sha }}"
+          echo "Universal SHA256: ${{ steps.checksums.outputs.universal_sha }}"
           echo ""
           echo "Users can now update with:"
           echo "  brew update"

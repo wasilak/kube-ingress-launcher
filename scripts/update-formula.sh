@@ -99,32 +99,25 @@ trap "rm -rf $TEMP_DIR" EXIT
 
 cd "$TEMP_DIR"
 
-if ! curl -sL "https://github.com/$GITHUB_REPO/releases/download/v${VERSION}/checksums-x86_64-apple-darwin.txt" -o checksums-intel.txt; then
-    log_error "Failed to download Intel checksums"
-    log_warning "Make sure the release v$VERSION exists and includes checksum files"
-    exit 1
-fi
-
-if ! curl -sL "https://github.com/$GITHUB_REPO/releases/download/v${VERSION}/checksums-aarch64-apple-darwin.txt" -o checksums-arm.txt; then
-    log_error "Failed to download ARM checksums"
+if ! curl -sL "https://github.com/$GITHUB_REPO/releases/download/v${VERSION}/checksums.txt" -o checksums.txt; then
+    log_error "Failed to download checksums"
+    log_warning "Make sure the release v$VERSION exists and includes checksum file"
     exit 1
 fi
 
 log_info "Checksums downloaded"
 
 # Extract checksums
-log_step "Extracting SHA256 checksums..."
+log_step "Extracting SHA256 checksum..."
 
-INTEL_SHA=$(grep "kube-ingress-launcher.*x86_64.*\.dmg" checksums-intel.txt | awk '{print $1}')
-ARM_SHA=$(grep "kube-ingress-launcher.*aarch64.*\.dmg" checksums-arm.txt | awk '{print $1}')
+UNIVERSAL_SHA=$(grep "kube-ingress-launcher.*universal.*\.dmg" checksums.txt | awk '{print $1}')
 
-if [ -z "$INTEL_SHA" ] || [ -z "$ARM_SHA" ]; then
-    log_error "Failed to extract checksums from downloaded files"
+if [ -z "$UNIVERSAL_SHA" ]; then
+    log_error "Failed to extract checksum from downloaded file"
     exit 1
 fi
 
-log_info "Intel SHA256: $INTEL_SHA"
-log_info "ARM SHA256: $ARM_SHA"
+log_info "Universal SHA256: $UNIVERSAL_SHA"
 echo ""
 
 # Update the Cask file
@@ -135,9 +128,8 @@ cd "$TAP_REPO"
 # Update version
 sed -i '' "s/version \".*\"/version \"$VERSION\"/" "$CASK_FILE"
 
-# Update checksums
-sed -i '' "s/sha256 arm:   \".*\",/sha256 arm:   \"$ARM_SHA\",/" "$CASK_FILE"
-sed -i '' "s/intel: \".*\"/intel: \"$INTEL_SHA\"/" "$CASK_FILE"
+# Update checksum
+sed -i '' "s/sha256 \".*\"/sha256 \"$UNIVERSAL_SHA\"/" "$CASK_FILE"
 
 log_info "Cask formula updated"
 echo ""
@@ -155,8 +147,7 @@ git add "$CASK_FILE"
 git commit -m "chore: update Homebrew Cask formula to version $VERSION
 
 - Update version to $VERSION
-- Update Intel SHA256: $INTEL_SHA
-- Update ARM SHA256: $ARM_SHA"
+- Update Universal SHA256: $UNIVERSAL_SHA"
 
 log_info "Changes committed"
 echo ""
