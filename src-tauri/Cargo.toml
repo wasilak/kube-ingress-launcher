@@ -27,15 +27,15 @@ tauri-plugin-autostart = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 tokio = { version = "1", features = ["full"] }
-kube = { version = "0.97", features = ["client", "rustls-tls"] }
-k8s-openapi = { version = "0.23", features = ["v1_31"] }
+kube = { version = "3.0", features = ["client", "rustls-tls"] }
+k8s-openapi = { version = "0.27", features = ["v1_31"] }
 chrono = { version = "0.4", features = ["serde"] }
 thiserror = "2"
-window-vibrancy = "0.5"
+window-vibrancy = "0.7"
 
 [target."cfg(target_os = \"macos\")".dependencies]
-objc2 = "0.5"
-objc2-app-kit = { version = "0.2", features = ["NSWindow", "NSColor", "NSView", "objc2-quartz-core"] }
-objc2-foundation = "0.2"
-objc2-quartz-core = { version = "0.2", features = ["CALayer"] }
+objc2 = "0.6"
+objc2-app-kit = { version = "0.3", features = ["NSWindow", "NSColor", "NSView", "objc2-quartz-core"] }
+objc2-foundation = "0.3"
+objc2-quartz-core = { version = "0.3", features = ["CALayer"] }
 

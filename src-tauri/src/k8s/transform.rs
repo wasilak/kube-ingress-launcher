@@ -103,7 +103,7 @@ pub fn transform_ingress(k8s_ingress: &Ingress) -> IngressData {
     // Extract creation timestamp (Requirement 5.1)
     let creation_timestamp = metadata.creation_timestamp
         .as_ref()
-        .map(|ts| ts.0.to_rfc3339())
+        .map(|ts| ts.0.to_string())
         .unwrap_or_else(|| chrono::Utc::now().to_rfc3339());
 
     IngressData {

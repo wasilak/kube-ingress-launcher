@@ -52,34 +52,32 @@ pub fn run() {
                     let ns_window_ptr = window.ns_window().unwrap() as *mut AnyObject;
                     let ns_window: Retained<NSWindow> = unsafe { Retained::retain(ns_window_ptr.cast()).unwrap() };
                     
-                    unsafe {
-                        // Make window fully transparent
-                        ns_window.setOpaque(false);
-                        let clear_color = NSColor::clearColor();
-                        ns_window.setBackgroundColor(Some(&clear_color));
-                        
-                        // Enable rounded corners by setting the appropriate style mask
-                        let mut style_mask = ns_window.styleMask();
-                        style_mask |= NSWindowStyleMask::FullSizeContentView;
-                        // Add titled window mask to enable rounded corners
-                        style_mask |= NSWindowStyleMask::Titled;
-                        ns_window.setStyleMask(style_mask);
-                        
-                        // Hide the title bar but keep rounded corners
-                        ns_window.setTitlebarAppearsTransparent(true);
-                        // NSWindowTitleHidden = 1
-                        ns_window.setTitleVisibility(NSWindowTitleVisibility(1));
-                        
-                        // Ensure the window has a shadow for depth
-                        ns_window.setHasShadow(true);
-                        
-                        // Apply corner radius to content view layer for extra clipping
-                        if let Some(content_view) = ns_window.contentView() {
-                            content_view.setWantsLayer(true);
-                            if let Some(layer) = content_view.layer() {
-                                layer.setCornerRadius(16.0);
-                                layer.setMasksToBounds(true);
-                            }
+                    // Make window fully transparent
+                    ns_window.setOpaque(false);
+                    let clear_color = NSColor::clearColor();
+                    ns_window.setBackgroundColor(Some(&clear_color));
+                    
+                    // Enable rounded corners by setting the appropriate style mask
+                    let mut style_mask = ns_window.styleMask();
+                    style_mask |= NSWindowStyleMask::FullSizeContentView;
+                    // Add titled window mask to enable rounded corners
+                    style_mask |= NSWindowStyleMask::Titled;
+                    ns_window.setStyleMask(style_mask);
+                    
+                    // Hide the title bar but keep rounded corners
+                    ns_window.setTitlebarAppearsTransparent(true);
+                    // NSWindowTitleHidden = 1
+                    ns_window.setTitleVisibility(NSWindowTitleVisibility(1));
+                    
+                    // Ensure the window has a shadow for depth
+                    ns_window.setHasShadow(true);
+                    
+                    // Apply corner radius to content view layer for extra clipping
+                    if let Some(content_view) = ns_window.contentView() {
+                        content_view.setWantsLayer(true);
+                        if let Some(layer) = content_view.layer() {
+                            layer.setCornerRadius(16.0);
+                            layer.setMasksToBounds(true);
                         }
                     }
                 }
