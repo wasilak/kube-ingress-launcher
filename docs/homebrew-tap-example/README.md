@@ -1,6 +1,6 @@
 # Homebrew Tap for Kube Ingress Launcher
 
-This is the Homebrew tap repository for [Kube Ingress Launcher](https://github.com/wasilak/kube-ingress-desktop), a desktop application for quickly searching and opening Kubernetes ingress resources.
+This is the Homebrew tap repository for [Kube Ingress Launcher](https://github.com/wasilak/kube-ingress-launcher), a desktop application for quickly searching and opening Kubernetes ingress resources.
 
 ## Installation
 
@@ -37,7 +37,7 @@ Kube Ingress Launcher is distributed unsigned (without an Apple Developer certif
 3. Click **"Open Anyway"** in the Security section
 4. Confirm by clicking **"Open"**
 
-For detailed instructions, see the [Gatekeeper Bypass Guide](https://github.com/wasilak/kube-ingress-desktop/blob/main/docs/GATEKEEPER_BYPASS.md).
+For detailed instructions, see the [Gatekeeper Bypass Guide](https://github.com/wasilak/kube-ingress-launcher/blob/main/docs/GATEKEEPER_BYPASS.md).
 
 ## Troubleshooting
 
@@ -91,16 +91,16 @@ The Cask formula automatically detects your architecture and installs the correc
 
 ## Links
 
-- **Main Repository**: https://github.com/wasilak/kube-ingress-desktop
-- **Issues**: https://github.com/wasilak/kube-ingress-desktop/issues
-- **Releases**: https://github.com/wasilak/kube-ingress-desktop/releases
-- **Documentation**: https://github.com/wasilak/kube-ingress-desktop/blob/main/README.md
+- **Main Repository**: https://github.com/wasilak/kube-ingress-launcher
+- **Issues**: https://github.com/wasilak/kube-ingress-launcher/issues
+- **Releases**: https://github.com/wasilak/kube-ingress-launcher/releases
+- **Documentation**: https://github.com/wasilak/kube-ingress-launcher/blob/main/README.md
 
 ## Contributing
 
 If you find issues with the Homebrew formula, please open an issue in this repository.
 
-For issues with the application itself, please use the [main repository](https://github.com/wasilak/kube-ingress-desktop/issues).
+For issues with the application itself, please use the [main repository](https://github.com/wasilak/kube-ingress-launcher/issues).
 
 ## License
 
