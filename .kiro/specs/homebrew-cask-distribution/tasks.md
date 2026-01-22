@@ -10,7 +10,7 @@
 - [x] Test local build with `npm run tauri build`
 
 ### Task 1.2: Create DMG Build Script
-- [~] Create `scripts/create-dmg.sh` script for DMG generation
+- [x] Create `scripts/create-dmg.sh` script for DMG generation
 - [~] Implement logic to copy .app bundle to temporary directory
 - [~] Add hdiutil command to create compressed DMG (UDZO format, compression level 9)
 - [~] Implement proper naming convention: `kube-ingress-launcher-{version}-{arch}.dmg`
