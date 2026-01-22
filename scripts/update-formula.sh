@@ -1,13 +1,14 @@
 #!/bin/bash
 # scripts/update-formula.sh
 # 
-# Updates the Homebrew Cask formula with new version and checksums
+# Updates the Homebrew Cask formula in the separate tap repository
 # 
-# Usage: ./scripts/update-formula.sh <version>
-# Example: ./scripts/update-formula.sh 0.2.0
+# Usage: ./scripts/update-formula.sh <version> [tap-repo-path]
+# Example: ./scripts/update-formula.sh 0.2.0 ../homebrew-kube-ingress-launcher
 # 
 # Prerequisites:
 # - New release must be published on GitHub with DMG files and checksums
+# - Tap repository must be cloned locally
 
 set -e  # Exit on error
 set -u  # Exit on undefined variable
@@ -39,22 +40,49 @@ log_step() {
 # Configuration
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-CASK_FILE="$PROJECT_ROOT/Casks/kube-ingress-launcher.rb"
 GITHUB_REPO="wasilak/kube-ingress-launcher"
 
 # Check if version argument is provided
-VERSION=$1
-
-if [ -z "$VERSION" ]; then
+if [ $# -lt 1 ]; then
     log_error "Version number required"
     echo ""
-    echo "Usage: $0 <version>"
-    echo "Example: $0 0.2.0"
+    echo "Usage: $0 <version> [tap-repo-path]"
+    echo "Example: $0 0.2.0 ../homebrew-kube-ingress-launcher"
+    echo ""
+    echo "If tap-repo-path is not provided, will look for:"
+    echo "  - ../homebrew-kube-ingress-launcher"
+    echo "  - ~/git/homebrew-kube-ingress-launcher"
     echo ""
     exit 1
 fi
 
+VERSION=$1
+
+# Determine tap repository path
+if [ $# -ge 2 ]; then
+    TAP_REPO="$2"
+else
+    # Try common locations
+    if [ -d "$PROJECT_ROOT/../homebrew-kube-ingress-launcher" ]; then
+        TAP_REPO="$PROJECT_ROOT/../homebrew-kube-ingress-launcher"
+    elif [ -d "$HOME/git/homebrew-kube-ingress-launcher" ]; then
+        TAP_REPO="$HOME/git/homebrew-kube-ingress-launcher"
+    else
+        log_error "Tap repository not found"
+        echo ""
+        echo "Please specify the path to the tap repository:"
+        echo "  $0 $VERSION /path/to/homebrew-kube-ingress-launcher"
+        echo ""
+        exit 1
+    fi
+fi
+
+# Resolve to absolute path
+TAP_REPO="$(cd "$TAP_REPO" && pwd)"
+CASK_FILE="$TAP_REPO/Casks/kube-ingress-launcher.rb"
+
 log_info "Updating Homebrew Cask formula for version $VERSION"
+log_info "Tap repository: $TAP_REPO"
 echo ""
 
 # Check if cask file exists
@@ -102,7 +130,7 @@ echo ""
 # Update the Cask file
 log_step "Updating Cask formula..."
 
-cd "$PROJECT_ROOT"
+cd "$TAP_REPO"
 
 # Update version
 sed -i '' "s/version \".*\"/version \"$VERSION\"/" "$CASK_FILE"
@@ -136,9 +164,10 @@ echo ""
 log_info "Formula update complete!"
 echo ""
 echo "Next steps:"
-echo "  1. Review the changes: git show HEAD"
-echo "  2. Push to GitHub: git push origin main"
+echo "  1. Review the changes: git -C $TAP_REPO show HEAD"
+echo "  2. Push to GitHub: git -C $TAP_REPO push origin main"
 echo ""
 echo "Users can then update with:"
+echo "  brew update"
 echo "  brew upgrade --cask kube-ingress-launcher"
 echo ""

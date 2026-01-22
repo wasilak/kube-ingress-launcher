@@ -1,21 +1,30 @@
 # Homebrew Tap Setup Guide
 
-This guide explains how the Homebrew tap is configured for Kube Ingress Launcher using the **same repository** approach.
+This guide explains how the Homebrew tap is configured for Kube Ingress Launcher using a **dedicated tap repository**.
 
 ## Overview
 
-The Cask formula lives in the main repository under the `Casks/` directory. This simplifies maintenance by keeping everything in one place—no separate tap repository needed!
+The Cask formula lives in a separate repository: [homebrew-kube-ingress-launcher](https://github.com/wasilak/homebrew-kube-ingress-launcher)
+
+This follows the traditional Homebrew tap convention where tap repositories are named with the `homebrew-` prefix.
 
 ## Repository Structure
 
+**Main Repository** (`kube-ingress-launcher`):
 ```
 kube-ingress-launcher/
-├── Casks/
-│   └── kube-ingress-launcher.rb    # Homebrew Cask formula
 ├── src/
 ├── src-tauri/
 ├── docs/
 └── ...
+```
+
+**Tap Repository** (`homebrew-kube-ingress-launcher`):
+```
+homebrew-kube-ingress-launcher/
+├── Casks/
+│   └── kube-ingress-launcher.rb    # Homebrew Cask formula
+└── README.md
 ```
 
 ## How It Works
@@ -26,12 +35,12 @@ brew tap wasilak/kube-ingress-launcher
 ```
 
 Homebrew:
-1. Clones the main `kube-ingress-launcher` repository
-2. Looks for the `Casks/` directory
-3. Finds `kube-ingress-launcher.rb`
+1. Automatically looks for `github.com/wasilak/homebrew-kube-ingress-launcher`
+2. Clones the tap repository
+3. Finds `Casks/kube-ingress-launcher.rb`
 4. Uses that formula to install the app
 
-The DMG files are downloaded from GitHub Releases, not stored in the repository.
+The DMG files are downloaded from GitHub Releases in the main repository, not stored in the tap repository.
 
 ## Installation for Users
 
@@ -51,26 +60,31 @@ brew uninstall --cask kube-ingress-launcher
 
 ## Updating the Formula
 
-After creating a new release, update the formula with the new version and checksums:
+After creating a new release in the main repository, update the formula in the tap repository:
 
 ```bash
+# From the main kube-ingress-launcher repository
 ./scripts/update-formula.sh 0.2.0
+
+# Or specify the tap repository path explicitly
+./scripts/update-formula.sh 0.2.0 /path/to/homebrew-kube-ingress-launcher
 ```
 
 This script will:
 1. Download checksums from the GitHub release
-2. Update the version in `Casks/kube-ingress-launcher.rb`
+2. Update the version in the tap repository's `Casks/kube-ingress-launcher.rb`
 3. Update the SHA256 checksums for both architectures
-4. Commit the changes
+4. Commit the changes in the tap repository
 
-Then push:
+Then push from the tap repository:
 ```bash
+cd /path/to/homebrew-kube-ingress-launcher
 git push origin main
 ```
 
 ## Manual Formula Update
 
-If you prefer to update manually:
+If you prefer to update manually in the tap repository:
 
 ### 1. Download Checksums
 
@@ -89,7 +103,7 @@ echo "ARM SHA256: $ARM_SHA"
 
 ### 2. Update the Cask File
 
-Edit `Casks/kube-ingress-launcher.rb`:
+In the tap repository, edit `Casks/kube-ingress-launcher.rb`:
 
 ```ruby
 cask "kube-ingress-launcher" do
@@ -108,6 +122,7 @@ end
 ### 3. Commit and Push
 
 ```bash
+cd /path/to/homebrew-kube-ingress-launcher
 git add Casks/kube-ingress-launcher.rb
 git commit -m "chore: update Homebrew Cask formula to version 0.2.0"
 git push origin main
@@ -115,17 +130,19 @@ git push origin main
 
 ## Testing the Formula
 
-Before pushing, test the formula locally:
+Before pushing to the tap repository, test the formula locally:
 
 ```bash
+cd /path/to/homebrew-kube-ingress-launcher
+
 # Audit the formula
 brew audit --cask --online Casks/kube-ingress-launcher.rb
 
-# Test installation (if you have the tap already)
-brew reinstall --cask kube-ingress-launcher
-
-# Or test from local file
+# Test installation from local file
 brew install --cask Casks/kube-ingress-launcher.rb
+
+# After pushing to GitHub, test from tap
+brew reinstall --cask kube-ingress-launcher
 ```
 
 ## Formula Anatomy
@@ -191,13 +208,13 @@ Common issues:
 - **404 Error**: DMG file not found at the URL
 - **Checksum Error**: SHA256 doesn't match the downloaded file
 
-## Benefits of Same-Repo Approach
+## Benefits of Dedicated Tap Repository
 
-✅ **Simpler** - One repository to maintain
-✅ **Atomic updates** - Formula updates happen with code changes
-✅ **Easier CI/CD** - Can update formula in the same workflow
-✅ **Version sync** - Formula version always matches code version
-✅ **Less overhead** - No separate repository to manage
+✅ **Standard Convention** - Follows Homebrew's naming convention (`homebrew-` prefix)
+✅ **Simpler Installation** - Users don't need to specify full URL
+✅ **Cleaner Main Repo** - Keeps formula separate from application code
+✅ **Easier Discovery** - Homebrew can find the tap automatically
+✅ **Better Organization** - Clear separation of concerns
 
 ## Resources
 
