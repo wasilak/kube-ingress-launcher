@@ -5,7 +5,6 @@
 /// - Login item registration for autostart
 ///
 /// Requirements: 10.1-10.5
-
 pub mod accessibility;
 pub mod autostart;
 

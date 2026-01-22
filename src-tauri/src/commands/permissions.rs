@@ -3,7 +3,6 @@
 /// Provides commands for checking and requesting macOS permissions.
 ///
 /// Requirements: 10.1-10.5
-
 use tauri::AppHandle;
 use crate::permissions::{
     check_accessibility_permission,

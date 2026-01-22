@@ -4,7 +4,6 @@
 /// global keyboard shortcuts.
 ///
 /// Requirements: 10.1-10.3
-
 use crate::error::AppError;
 
 /// Check if the application has accessibility permission

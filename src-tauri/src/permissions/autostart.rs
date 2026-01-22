@@ -3,7 +3,6 @@
 /// Handles enabling/disabling autostart (login item registration) for the application.
 ///
 /// Requirements: 10.4-10.5
-
 use crate::error::AppError;
 use tauri_plugin_autostart::ManagerExt;
 

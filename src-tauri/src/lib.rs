@@ -281,14 +281,11 @@ fn setup_tray(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
         
         // Listen for window show events
         window.on_window_event(move |event| {
-            match event {
-                tauri::WindowEvent::Focused(focused) => {
-                    // Update menu when window gains or loses focus
-                    if let Err(e) = update_tray_menu(&app_handle, *focused) {
-                        eprintln!("Failed to update tray menu: {}", e);
-                    }
+            if let tauri::WindowEvent::Focused(focused) = event {
+                // Update menu when window gains or loses focus
+                if let Err(e) = update_tray_menu(&app_handle, *focused) {
+                    eprintln!("Failed to update tray menu: {}", e);
                 }
-                _ => {}
             }
         });
     }
