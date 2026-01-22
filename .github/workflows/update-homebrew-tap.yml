@@ -1,0 +1,101 @@
+name: Update Homebrew Tap
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  update-tap:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout main repository
+        uses: actions/checkout@v4
+      
+      - name: Extract version from tag
+        id: version
+        run: |
+          # Remove 'v' prefix from tag
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Updating tap for version: $VERSION"
+      
+      - name: Download checksums from release
+        run: |
+          # Download checksum files from the release
+          curl -sL "https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/checksums-x86_64-apple-darwin.txt" -o checksums-intel.txt
+          curl -sL "https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/checksums-aarch64-apple-darwin.txt" -o checksums-arm.txt
+          
+          echo "Intel checksums:"
+          cat checksums-intel.txt
+          echo ""
+          echo "ARM checksums:"
+          cat checksums-arm.txt
+      
+      - name: Extract SHA256 checksums
+        id: checksums
+        run: |
+          INTEL_SHA=$(grep "kube-ingress-launcher.*x86_64.*\.dmg" checksums-intel.txt | awk '{print $1}')
+          ARM_SHA=$(grep "kube-ingress-launcher.*aarch64.*\.dmg" checksums-arm.txt | awk '{print $1}')
+          
+          echo "intel_sha=$INTEL_SHA" >> $GITHUB_OUTPUT
+          echo "arm_sha=$ARM_SHA" >> $GITHUB_OUTPUT
+          
+          echo "Intel SHA256: $INTEL_SHA"
+          echo "ARM SHA256: $ARM_SHA"
+          
+          if [ -z "$INTEL_SHA" ] || [ -z "$ARM_SHA" ]; then
+            echo "Error: Failed to extract checksums"
+            exit 1
+          fi
+      
+      - name: Checkout tap repository
+        uses: actions/checkout@v4
+        with:
+          repository: wasilak/homebrew-kube-ingress-launcher
+          token: ${{ secrets.TAP_GITHUB_TOKEN }}
+          path: tap
+      
+      - name: Update Cask formula
+        run: |
+          cd tap
+          
+          # Update version
+          sed -i "s/version \".*\"/version \"${{ steps.version.outputs.version }}\"/" Casks/kube-ingress-launcher.rb
+          
+          # Update checksums
+          sed -i "s/sha256 arm:   \".*\",/sha256 arm:   \"${{ steps.checksums.outputs.arm_sha }}\",/" Casks/kube-ingress-launcher.rb
+          sed -i "s/intel: \".*\"/intel: \"${{ steps.checksums.outputs.intel_sha }}\"/" Casks/kube-ingress-launcher.rb
+          
+          echo "Updated Cask formula:"
+          cat Casks/kube-ingress-launcher.rb
+      
+      - name: Commit and push changes
+        run: |
+          cd tap
+          
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git add Casks/kube-ingress-launcher.rb
+          git commit -m "chore: update to version ${{ steps.version.outputs.version }}
+
+          - Update version to ${{ steps.version.outputs.version }}
+          - Update Intel SHA256: ${{ steps.checksums.outputs.intel_sha }}
+          - Update ARM SHA256: ${{ steps.checksums.outputs.arm_sha }}
+          
+          Automated update from release: ${{ github.event.release.html_url }}"
+          
+          git push origin main
+      
+      - name: Summary
+        run: |
+          echo "✅ Homebrew tap updated successfully!"
+          echo ""
+          echo "Version: ${{ steps.version.outputs.version }}"
+          echo "Intel SHA256: ${{ steps.checksums.outputs.intel_sha }}"
+          echo "ARM SHA256: ${{ steps.checksums.outputs.arm_sha }}"
+          echo ""
+          echo "Users can now update with:"
+          echo "  brew update"
+          echo "  brew upgrade --cask kube-ingress-launcher"

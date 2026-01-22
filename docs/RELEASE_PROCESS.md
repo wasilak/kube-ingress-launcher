@@ -104,30 +104,39 @@ When you push a tag (e.g., `v0.2.0`), GitHub Actions automatically:
    - `checksums-aarch64-apple-darwin.txt`
    - `checksums-x86_64-apple-darwin.txt`
 
-4. **Creates a GitHub Release**:
+4. **Creates and publishes a GitHub Release**:
    - Release title: `v0.2.0`
    - Uploads all DMG files and checksums
-   - Marks as draft (you need to publish it)
+   - Generates release notes automatically
 
-5. **You manually**:
-   - Edit the release notes
-   - Publish the release
-   - Update Homebrew tap (if needed)
+5. **Updates Homebrew Tap automatically** 🎉:
+   - Downloads checksums from the release
+   - Updates the Cask formula with new version and checksums
+   - Commits and pushes to the tap repository
 
-## Updating Homebrew Tap
+**Everything is automated!** No manual intervention needed after pushing the tag.
 
-After publishing a release, update the Homebrew tap:
+## Homebrew Tap Updates
+
+The Homebrew tap is **automatically updated** when you publish a release! 🎉
+
+The automation workflow:
+1. Triggers when a release is published
+2. Downloads checksums from the release
+3. Updates the Cask formula in the tap repository
+4. Commits and pushes the changes
+
+**No manual action required!**
+
+### Manual Override (if needed)
+
+If automation fails, you can update manually:
 
 ```bash
 ./scripts/update-formula.sh 0.2.0
 ```
 
-This will:
-1. Download checksums from the GitHub release
-2. Update the Cask formula with new version and checksums
-3. Commit and push to the tap repository
-
-See [HOMEBREW_TAP_SETUP.md](HOMEBREW_TAP_SETUP.md) for details.
+See [Automated Homebrew Updates](AUTOMATED_HOMEBREW_UPDATES.md) for full details and troubleshooting.
 
 ## Release Checklist
 
@@ -143,13 +152,11 @@ Before creating a release:
 
 After pushing the tag:
 
-- [ ] Wait for GitHub Actions to complete
-- [ ] Verify DMG files are created
+- [ ] Wait for GitHub Actions to complete (both release and tap update)
+- [ ] Verify DMG files are created in the release
+- [ ] Verify Homebrew tap was updated automatically
+- [ ] Test Homebrew installation: `brew update && brew upgrade --cask kube-ingress-launcher`
 - [ ] Download and test DMG files on both architectures (if possible)
-- [ ] Edit release notes on GitHub
-- [ ] Publish the GitHub release
-- [ ] Update Homebrew tap
-- [ ] Test Homebrew installation: `brew upgrade --cask kube-ingress-launcher`
 - [ ] Announce the release (if applicable)
 
 ## Troubleshooting

@@ -60,7 +60,30 @@ brew uninstall --cask kube-ingress-launcher
 
 ## Updating the Formula
 
-After creating a new release in the main repository, update the formula in the tap repository:
+### Automated Updates (Recommended)
+
+The tap is **automatically updated** when you create a new release! 🎉
+
+Simply push a tag and the automation handles everything:
+
+```bash
+# Bump version and create tag
+./scripts/bump-version.sh 0.2.0
+
+# Push the tag (triggers release + tap update)
+git push origin v0.2.0
+```
+
+The GitHub Actions workflow will:
+1. Build DMG files and create release
+2. Automatically update the tap repository with new version and checksums
+3. Commit and push the changes
+
+See [Automated Homebrew Updates](AUTOMATED_HOMEBREW_UPDATES.md) for full details.
+
+### Manual Updates (Fallback)
+
+If automation fails or you prefer manual control:
 
 ```bash
 # From the main kube-ingress-launcher repository
