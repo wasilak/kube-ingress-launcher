@@ -9,7 +9,7 @@
     <key>CFBundleDisplayName</key>
     <string>Kube Ingress Launcher</string>
     <key>CFBundleIdentifier</key>
-    <string>com.piotrek.kube-ingress-desktop</string>
+    <string>foo.otteryak.kube-ingress-desktop</string>
     <key>CFBundleVersion</key>
     <string>0.1.0</string>
     <key>CFBundleShortVersionString</key>

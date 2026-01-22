@@ -7,7 +7,7 @@
 - [x] Verify bundle configuration includes proper metadata (name, description, category)
 - [x] Ensure minimum macOS version is set to 10.13
 - [x] Confirm signing identity is set to null for unsigned distribution
-- [~] Test local build with `npm run tauri build`
+- [x] Test local build with `npm run tauri build`
 
 ### Task 1.2: Create DMG Build Script
 - [~] Create `scripts/create-dmg.sh` script for DMG generation
