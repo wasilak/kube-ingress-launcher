@@ -5,7 +5,7 @@
 ### Task 1.1: Update Tauri Bundle Configuration
 - [x] Update `src-tauri/tauri.conf.json` with correct bundle identifier `foo.otteryak.kube-ingress-desktop`
 - [x] Verify bundle configuration includes proper metadata (name, description, category)
-- [~] Ensure minimum macOS version is set to 10.13
+- [x] Ensure minimum macOS version is set to 10.13
 - [~] Confirm signing identity is set to null for unsigned distribution
 - [~] Test local build with `npm run tauri build`
 
