@@ -34,6 +34,69 @@ Before you begin, ensure you have the following installed:
 
 ## Installation
 
+### Option 1: Install via Homebrew (Recommended)
+
+The easiest way to install Kube Ingress Launcher is via Homebrew Cask:
+
+```bash
+# Add the tap (first time only)
+brew tap wasilak/kube-ingress-launcher
+
+# Install the application
+brew install --cask kube-ingress-launcher
+```
+
+**Important: Bypassing macOS Gatekeeper**
+
+Since this application is distributed unsigned (no Apple Developer certificate), you'll need to bypass Gatekeeper security warnings:
+
+1. After installation, try to open the application from `/Applications`
+2. macOS will show a security warning: "Kube Ingress Launcher cannot be opened because it is from an unidentified developer"
+3. Click "OK" to dismiss the warning
+4. Open **System Settings** > **Privacy & Security**
+5. Scroll down to the **Security** section
+6. You'll see a message: "Kube Ingress Launcher was blocked from use because it is not from an identified developer"
+7. Click **"Open Anyway"**
+8. Confirm by clicking **"Open"** in the dialog
+
+You only need to do this once. After the first launch, macOS will remember your choice.
+
+**Updating**:
+```bash
+brew upgrade --cask kube-ingress-launcher
+```
+
+**Uninstalling**:
+```bash
+brew uninstall --cask kube-ingress-launcher
+```
+
+### Option 2: Install from GitHub Releases
+
+Download the latest DMG file from the [Releases page](https://github.com/wasilak/kube-ingress-desktop/releases):
+
+1. Download the appropriate DMG for your Mac:
+   - **Apple Silicon (M1/M2/M3)**: `kube-ingress-launcher-X.Y.Z-aarch64-apple-darwin.dmg`
+   - **Intel**: `kube-ingress-launcher-X.Y.Z-x86_64-apple-darwin.dmg`
+
+2. Open the DMG file and drag the application to your Applications folder
+
+3. Follow the Gatekeeper bypass steps above
+
+**Verifying the Download**:
+
+Each release includes SHA256 checksums. To verify your download:
+
+```bash
+# Download the checksum file
+curl -LO https://github.com/wasilak/kube-ingress-desktop/releases/download/vX.Y.Z/checksums-aarch64-apple-darwin.txt
+
+# Verify the DMG
+shasum -a 256 -c checksums-aarch64-apple-darwin.txt
+```
+
+### Option 3: Build from Source
+
 1. **Clone the repository**:
    ```bash
    git clone <repository-url>

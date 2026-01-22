@@ -1,0 +1,86 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-and-release:
+    runs-on: macos-latest
+    
+    strategy:
+      matrix:
+        target: [x86_64-apple-darwin, aarch64-apple-darwin]
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Extract version
+        id: version
+        run: |
+          VERSION=$(./scripts/get-version.sh)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+      
+      - name: Build Tauri app
+        run: |
+          npm run tauri build -- --target ${{ matrix.target }}
+      
+      - name: Locate app bundle
+        id: locate
+        run: |
+          APP_BUNDLE=$(find src-tauri/target/${{ matrix.target }}/release/bundle/macos -name "*.app" -type d | head -n 1)
+          echo "app_bundle=$APP_BUNDLE" >> $GITHUB_OUTPUT
+          echo "Found app bundle: $APP_BUNDLE"
+          
+          if [ ! -d "$APP_BUNDLE" ]; then
+            echo "Error: App bundle not found"
+            exit 1
+          fi
+      
+      - name: Create DMG
+        run: |
+          ./scripts/create-dmg.sh "${{ steps.locate.outputs.app_bundle }}" "${{ steps.version.outputs.version }}" "${{ matrix.target }}"
+      
+      - name: Verify DMG created
+        run: |
+          DMG_FILE="kube-ingress-launcher-${{ steps.version.outputs.version }}-${{ matrix.target }}.dmg"
+          if [ ! -f "$DMG_FILE" ]; then
+            echo "Error: DMG file not created: $DMG_FILE"
+            exit 1
+          fi
+          echo "DMG created successfully: $DMG_FILE"
+          ls -lh "$DMG_FILE"
+      
+      - name: Calculate checksums
+        run: |
+          shasum -a 256 *.dmg > checksums-${{ matrix.target }}.txt
+          cat checksums-${{ matrix.target }}.txt
+      
+      - name: Upload to release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            *.dmg
+            checksums-*.txt
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

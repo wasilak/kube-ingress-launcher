@@ -4,7 +4,8 @@
 # Creates a DMG file from a macOS .app bundle for distribution via Homebrew Cask
 # 
 # Usage: ./scripts/create-dmg.sh <app_bundle_path> <version> <architecture>
-# Example: ./scripts/create-dmg.sh "target/release/bundle/macos/Kube Ingress Launcher.app" "0.1.0" "x86_64"
+# Example: ./scripts/create-dmg.sh "target/release/bundle/macos/Kube Ingress Launcher.app" "0.1.0" "x86_64-apple-darwin"
+# Example: ./scripts/create-dmg.sh "target/release/bundle/macos/Kube Ingress Launcher.app" "0.1.0" "aarch64-apple-darwin"
 
 set -e  # Exit on error
 set -u  # Exit on undefined variable
@@ -31,7 +32,8 @@ log_warning() {
 # Validate arguments
 if [ $# -ne 3 ]; then
     log_error "Usage: $0 <app_bundle_path> <version> <architecture>"
-    log_error "Example: $0 \"target/release/bundle/macos/Kube Ingress Launcher.app\" \"0.1.0\" \"x86_64\""
+    log_error "Example: $0 \"target/release/bundle/macos/Kube Ingress Launcher.app\" \"0.1.0\" \"x86_64-apple-darwin\""
+    log_error "Example: $0 \"target/release/bundle/macos/Kube Ingress Launcher.app\" \"0.1.0\" \"aarch64-apple-darwin\""
     exit 1
 fi
 
@@ -56,9 +58,12 @@ if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
     log_warning "Version does not follow semantic versioning format (MAJOR.MINOR.PATCH): $VERSION"
 fi
 
-# Validate architecture
-if [[ ! "$ARCH" =~ ^(x86_64|aarch64)$ ]]; then
-    log_error "Architecture must be either 'x86_64' or 'aarch64', got: $ARCH"
+# Validate architecture (accept both short and full format)
+if [[ "$ARCH" =~ ^(x86_64|aarch64)$ ]]; then
+    # Convert short format to full format
+    ARCH="${ARCH}-apple-darwin"
+elif [[ ! "$ARCH" =~ ^(x86_64-apple-darwin|aarch64-apple-darwin)$ ]]; then
+    log_error "Architecture must be 'x86_64', 'aarch64', 'x86_64-apple-darwin', or 'aarch64-apple-darwin', got: $ARCH"
     exit 1
 fi
 
@@ -105,13 +110,14 @@ if [ -f "$DMG_NAME" ]; then
     rm -f "$DMG_NAME"
 fi
 
-# Create DMG using hdiutil
-log_info "Creating DMG with maximum compression..."
+# Create DMG using hdiutil with maximum compression (level 9)
+log_info "Creating DMG with maximum compression (level 9)..."
 hdiutil create \
     -volname "$APP_NAME" \
     -srcfolder "$TEMP_DIR" \
     -ov \
     -format UDZO \
+    -imagekey zlib-level=9 \
     -fs HFS+ \
     "$DMG_NAME" || {
     log_error "Failed to create DMG"
