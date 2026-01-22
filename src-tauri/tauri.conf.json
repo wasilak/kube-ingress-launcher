@@ -45,6 +45,7 @@
     "longDescription": "A desktop launcher for quickly searching and opening Kubernetes ingress resources",
     "macOS": {
       "minimumSystemVersion": "10.13",
+      "signingIdentity": null,
       "infoPlist": "./Info.plist"
     }
   }
