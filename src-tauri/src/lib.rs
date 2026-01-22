@@ -20,12 +20,6 @@ pub fn run() {
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .plugin(tauri_plugin_autostart::init(tauri_plugin_autostart::MacosLauncher::LaunchAgent, Some(vec!["--flag1", "--flag2"])))
         .setup(|app| {
-            // Set activation policy to accessory to hide from dock (macOS only)
-            #[cfg(target_os = "macos")]
-            {
-                app.set_activation_policy(tauri::ActivationPolicy::Accessory);
-            }
-
             // Initialize application state
             let app_state = AppState::new();
             app.manage(app_state.clone());
