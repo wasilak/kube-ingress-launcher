@@ -16,7 +16,7 @@
 - [x] Implement proper naming convention: `kube-ingress-launcher-{version}-{arch}.dmg`
 - [x] Add cleanup logic to remove temporary files
 - [x] Make script executable: `chmod +x scripts/create-dmg.sh`
-- [~] Test script locally with both architectures
+- [x] Test script locally with both architectures
 
 ### Task 1.3: Create Version Extraction Script
 - [x] Create `scripts/get-version.sh` to extract version from Cargo.toml
@@ -174,9 +174,9 @@
 ## Phase 7: Monitoring and Maintenance
 
 ### Task 7.1: Set Up Release Monitoring
-- [~] Configure GitHub notifications for workflow failures
-- [~] Set up monitoring for tap repository issues
-- [~] Create issue templates for installation problems
+- [x] Configure GitHub notifications for workflow failures
+- [x] Set up monitoring for tap repository issues
+- [x] Create issue templates for installation problems
 - [x] Document common failure scenarios and solutions
 
 ### Task 7.2: Create Maintenance Procedures
