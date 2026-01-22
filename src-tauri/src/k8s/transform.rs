@@ -204,7 +204,7 @@ mod tests {
     use super::*;
     use k8s_openapi::api::networking::v1::{IngressSpec, IngressRule, HTTPIngressRuleValue, HTTPIngressPath, IngressBackend, IngressServiceBackend, ServiceBackendPort, IngressTLS};
     use k8s_openapi::apimachinery::pkg::apis::meta::v1::ObjectMeta;
-    use k8s_openapi::chrono::Utc;
+    use k8s_openapi::jiff::Timestamp;
     use std::collections::BTreeMap;
 
     fn create_test_ingress(name: &str, namespace: &str, hosts: Vec<&str>) -> Ingress {
@@ -237,7 +237,7 @@ mod tests {
                 name: Some(name.to_string()),
                 namespace: Some(namespace.to_string()),
                 uid: Some(format!("uid-{}", name)),
-                creation_timestamp: Some(k8s_openapi::apimachinery::pkg::apis::meta::v1::Time(Utc::now())),
+                creation_timestamp: Some(k8s_openapi::apimachinery::pkg::apis::meta::v1::Time(Timestamp::now())),
                 ..Default::default()
             },
             spec: Some(IngressSpec {
