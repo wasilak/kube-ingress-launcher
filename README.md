@@ -221,8 +221,17 @@ Access settings via the menu bar "Options" item:
 - **Refresh Interval**: Set how often to refresh ingress data (10-3600 seconds)
 - **Autostart**: Enable/disable launching at login
 - **Kubernetes Context**: Switch between different Kubernetes contexts
+- **Version Information**: View application version, git branch (when running locally), commit hash, and build profile
 
 All settings are automatically saved when changed.
+
+**Version Display**: The Settings dialog shows comprehensive version information at the bottom:
+- Application version from Cargo.toml
+- Git branch (when running from source)
+- Git commit hash (when running from source)
+- Build profile (debug or release)
+
+This information is useful for debugging and support purposes.
 
 ## Troubleshooting
 
