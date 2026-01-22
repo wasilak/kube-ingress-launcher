@@ -9,7 +9,7 @@
     <key>CFBundleDisplayName</key>
     <string>Kube Ingress Launcher</string>
     <key>CFBundleIdentifier</key>
-    <string>foo.otteryak.kube-ingress-desktop</string>
+    <string>foo.otteryak.kube-ingress-launcher</string>
     <key>CFBundleVersion</key>
     <string>0.1.0</string>
     <key>CFBundleShortVersionString</key>
@@ -19,7 +19,7 @@
     <key>CFBundleSignature</key>
     <string>????</string>
     <key>CFBundleExecutable</key>
-    <string>kube-ingress-desktop</string>
+    <string>kube-ingress-launcher</string>
     <key>NSHighResolutionCapable</key>
     <true/>
     <key>LSApplicationCategoryType</key>

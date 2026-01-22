@@ -73,7 +73,7 @@ brew uninstall --cask kube-ingress-launcher
 
 ### Option 2: Install from GitHub Releases
 
-Download the latest DMG file from the [Releases page](https://github.com/wasilak/kube-ingress-desktop/releases):
+Download the latest DMG file from the [Releases page](https://github.com/wasilak/kube-ingress-launcher/releases):
 
 1. Download the appropriate DMG for your Mac:
    - **Apple Silicon (M1/M2/M3)**: `kube-ingress-launcher-X.Y.Z-aarch64-apple-darwin.dmg`
@@ -89,7 +89,7 @@ Each release includes SHA256 checksums. To verify your download:
 
 ```bash
 # Download the checksum file
-curl -LO https://github.com/wasilak/kube-ingress-desktop/releases/download/vX.Y.Z/checksums-aarch64-apple-darwin.txt
+curl -LO https://github.com/wasilak/kube-ingress-launcher/releases/download/vX.Y.Z/checksums-aarch64-apple-darwin.txt
 
 # Verify the DMG
 shasum -a 256 -c checksums-aarch64-apple-darwin.txt
@@ -100,7 +100,7 @@ shasum -a 256 -c checksums-aarch64-apple-darwin.txt
 1. **Clone the repository**:
    ```bash
    git clone <repository-url>
-   cd kube-ingress-desktop
+   cd kube-ingress-launcher
    ```
 
 2. **Install frontend dependencies**:
@@ -134,7 +134,7 @@ This will:
 ### Project Structure
 
 ```
-kube-ingress-desktop/
+kube-ingress-launcher/
 ├── src/                      # React frontend source
 │   ├── components/          # React components
 │   ├── hooks/               # Custom React hooks
@@ -165,7 +165,7 @@ npm run tauri build
 ```
 
 The application bundle will be created in:
-- macOS: `src-tauri/target/release/bundle/macos/kube-ingress-desktop.app`
+- macOS: `src-tauri/target/release/bundle/macos/kube-ingress-launcher.app`
 
 ### Running Tests
 
@@ -310,7 +310,7 @@ This information is useful for debugging and support purposes.
 **Symptoms**: Settings reset after restarting the application
 
 **Solutions**:
-- Check file permissions in `~/Library/Application Support/kube-ingress-desktop/`
+- Check file permissions in `~/Library/Application Support/kube-ingress-launcher/`
 - Verify the application has write permissions
 - Try manually deleting the settings file and reconfiguring
 - Check console logs for storage errors

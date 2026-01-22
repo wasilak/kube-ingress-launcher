@@ -121,10 +121,10 @@ Before bypassing Gatekeeper, verify the DMG file is authentic:
 
 ```bash
 # For Apple Silicon (M1/M2/M3)
-curl -LO https://github.com/wasilak/kube-ingress-desktop/releases/download/vX.Y.Z/checksums-aarch64-apple-darwin.txt
+curl -LO https://github.com/wasilak/kube-ingress-launcher/releases/download/vX.Y.Z/checksums-aarch64-apple-darwin.txt
 
 # For Intel
-curl -LO https://github.com/wasilak/kube-ingress-desktop/releases/download/vX.Y.Z/checksums-x86_64-apple-darwin.txt
+curl -LO https://github.com/wasilak/kube-ingress-launcher/releases/download/vX.Y.Z/checksums-x86_64-apple-darwin.txt
 ```
 
 ### Step 2: Verify Checksum
@@ -203,8 +203,8 @@ If you're uncomfortable bypassing Gatekeeper:
 Build the application yourself from source code:
 
 ```bash
-git clone https://github.com/wasilak/kube-ingress-desktop.git
-cd kube-ingress-desktop
+git clone https://github.com/wasilak/kube-ingress-launcher.git
+cd kube-ingress-launcher
 npm install
 npm run tauri build
 ```

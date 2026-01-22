@@ -39,9 +39,9 @@ cd homebrew-kube-ingress-launcher
 mkdir -p Casks
 
 # Copy example files from main repository
-cp ../kube-ingress-desktop/docs/homebrew-tap-example/Casks/kube-ingress-launcher.rb Casks/
-cp ../kube-ingress-desktop/docs/homebrew-tap-example/README.md .
-cp ../kube-ingress-desktop/docs/homebrew-tap-example/.gitignore .
+cp ../kube-ingress-launcher/docs/homebrew-tap-example/Casks/kube-ingress-launcher.rb Casks/
+cp ../kube-ingress-launcher/docs/homebrew-tap-example/README.md .
+cp ../kube-ingress-launcher/docs/homebrew-tap-example/.gitignore .
 ```
 
 ### 2.2 Directory Structure
@@ -64,8 +64,8 @@ After creating your first release (v0.1.0), download the checksums:
 
 ```bash
 # Download checksum files
-curl -LO https://github.com/wasilak/kube-ingress-desktop/releases/download/v0.1.0/checksums-x86_64-apple-darwin.txt
-curl -LO https://github.com/wasilak/kube-ingress-desktop/releases/download/v0.1.0/checksums-aarch64-apple-darwin.txt
+curl -LO https://github.com/wasilak/kube-ingress-launcher/releases/download/v0.1.0/checksums-x86_64-apple-darwin.txt
+curl -LO https://github.com/wasilak/kube-ingress-launcher/releases/download/v0.1.0/checksums-aarch64-apple-darwin.txt
 
 # Extract checksums
 INTEL_SHA=$(grep "kube-ingress-launcher" checksums-x86_64-apple-darwin.txt | cut -d' ' -f1)
@@ -85,7 +85,7 @@ cask "kube-ingress-launcher" do
   
   arch arm: "aarch64", intel: "x86_64"
   
-  url "https://github.com/wasilak/kube-ingress-desktop/releases/download/v#{version}/kube-ingress-launcher-#{version}-#{arch}-apple-darwin.dmg"
+  url "https://github.com/wasilak/kube-ingress-launcher/releases/download/v#{version}/kube-ingress-launcher-#{version}-#{arch}-apple-darwin.dmg"
   sha256 arm:   "ACTUAL_ARM64_SHA256_HERE",      # Replace with $ARM_SHA
          intel: "ACTUAL_X86_64_SHA256_HERE"     # Replace with $INTEL_SHA
   
@@ -163,8 +163,8 @@ echo "Updating formula for version: $VERSION"
 
 # Download checksums from GitHub release
 echo "Downloading checksums..."
-curl -sL "https://github.com/wasilak/kube-ingress-desktop/releases/download/v${VERSION}/checksums-x86_64-apple-darwin.txt" -o checksums-intel.txt
-curl -sL "https://github.com/wasilak/kube-ingress-desktop/releases/download/v${VERSION}/checksums-aarch64-apple-darwin.txt" -o checksums-arm.txt
+curl -sL "https://github.com/wasilak/kube-ingress-launcher/releases/download/v${VERSION}/checksums-x86_64-apple-darwin.txt" -o checksums-intel.txt
+curl -sL "https://github.com/wasilak/kube-ingress-launcher/releases/download/v${VERSION}/checksums-aarch64-apple-darwin.txt" -o checksums-arm.txt
 
 # Extract checksums
 INTEL_SHA=$(grep "kube-ingress-launcher" checksums-intel.txt | cut -d' ' -f1)
@@ -319,4 +319,4 @@ For issues with the tap setup:
 - Ask in Homebrew Discussions: https://github.com/orgs/Homebrew/discussions
 
 For issues with the application:
-- Open an issue in the main repository: https://github.com/wasilak/kube-ingress-desktop/issues
+- Open an issue in the main repository: https://github.com/wasilak/kube-ingress-launcher/issues

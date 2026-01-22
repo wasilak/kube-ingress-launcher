@@ -1,5 +1,5 @@
 {
-  "name": "kube-ingress-desktop",
+  "name": "kube-ingress-launcher",
   "private": true,
   "version": "0.1.0",
   "type": "module",

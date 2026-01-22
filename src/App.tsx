@@ -1,5 +1,5 @@
 /**
- * Main App component for Kube Ingress Desktop
+ * Main App component for Kube Ingress Launcher
  * 
  * This component orchestrates the entire UI:
  * - SearchInput for filtering ingresses

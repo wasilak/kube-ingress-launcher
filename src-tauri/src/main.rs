@@ -2,5 +2,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 fn main() {
-    kube_ingress_desktop_lib::run()
+    kube_ingress_launcher_lib::run()
 }

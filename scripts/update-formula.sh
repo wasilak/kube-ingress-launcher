@@ -42,7 +42,7 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 TAP_REPO="git@github.com:wasilak/homebrew-kube-ingress-launcher.git"
 TAP_DIR="$PROJECT_ROOT/homebrew-kube-ingress-launcher"
 CASK_FILE="Casks/kube-ingress-launcher.rb"
-GITHUB_REPO="wasilak/kube-ingress-desktop"
+GITHUB_REPO="wasilak/kube-ingress-launcher"
 
 log_info "Starting Homebrew Cask formula update process"
 
