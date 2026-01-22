@@ -92,26 +92,24 @@ Before 1.0.0, the API is considered unstable:
 
 When you push a tag (e.g., `v0.2.0`), GitHub Actions automatically:
 
-1. **Builds the application** for both architectures:
-   - Apple Silicon (aarch64)
-   - Intel (x86_64)
+1. **Builds the application** as a universal binary:
+   - Works on both Apple Silicon (M1/M2/M3) and Intel Macs
+   - Single DMG file for all architectures
 
-2. **Creates DMG files**:
-   - `kube-ingress-launcher-0.2.0-aarch64-apple-darwin.dmg`
-   - `kube-ingress-launcher-0.2.0-x86_64-apple-darwin.dmg`
+2. **Creates DMG file**:
+   - `kube-ingress-launcher-0.2.0-universal-apple-darwin.dmg`
 
-3. **Generates checksums**:
-   - `checksums-aarch64-apple-darwin.txt`
-   - `checksums-x86_64-apple-darwin.txt`
+3. **Generates checksum**:
+   - `checksums.txt`
 
 4. **Creates and publishes a GitHub Release**:
    - Release title: `v0.2.0`
-   - Uploads all DMG files and checksums
+   - Uploads DMG file and checksum
    - Generates release notes automatically
 
 5. **Updates Homebrew Tap automatically** 🎉:
-   - Downloads checksums from the release
-   - Updates the Cask formula with new version and checksums
+   - Downloads checksum from the release
+   - Updates the Cask formula with new version and checksum
    - Commits and pushes to the tap repository
 
 **Everything is automated!** No manual intervention needed after pushing the tag.
@@ -153,10 +151,10 @@ Before creating a release:
 After pushing the tag:
 
 - [ ] Wait for GitHub Actions to complete (both release and tap update)
-- [ ] Verify DMG files are created in the release
+- [ ] Verify DMG file is created in the release
 - [ ] Verify Homebrew tap was updated automatically
 - [ ] Test Homebrew installation: `brew update && brew upgrade --cask kube-ingress-launcher`
-- [ ] Download and test DMG files on both architectures (if possible)
+- [ ] Download and test DMG file (works on both Intel and Apple Silicon)
 - [ ] Announce the release (if applicable)
 
 ## Troubleshooting

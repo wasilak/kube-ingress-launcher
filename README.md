@@ -75,9 +75,9 @@ brew uninstall --cask kube-ingress-launcher
 
 Download the latest DMG file from the [Releases page](https://github.com/wasilak/kube-ingress-launcher/releases):
 
-1. Download the appropriate DMG for your Mac:
-   - **Apple Silicon (M1/M2/M3)**: `kube-ingress-launcher-X.Y.Z-aarch64-apple-darwin.dmg`
-   - **Intel**: `kube-ingress-launcher-X.Y.Z-x86_64-apple-darwin.dmg`
+1. Download the DMG file:
+   - **Universal Binary**: `kube-ingress-launcher-X.Y.Z-universal-apple-darwin.dmg`
+   - Works on both Apple Silicon (M1/M2/M3) and Intel Macs
 
 2. Open the DMG file and drag the application to your Applications folder
 
@@ -89,10 +89,10 @@ Each release includes SHA256 checksums. To verify your download:
 
 ```bash
 # Download the checksum file
-curl -LO https://github.com/wasilak/kube-ingress-launcher/releases/download/vX.Y.Z/checksums-aarch64-apple-darwin.txt
+curl -LO https://github.com/wasilak/kube-ingress-launcher/releases/download/vX.Y.Z/checksums.txt
 
 # Verify the DMG
-shasum -a 256 -c checksums-aarch64-apple-darwin.txt
+shasum -a 256 -c checksums.txt
 ```
 
 ### Option 3: Build from Source

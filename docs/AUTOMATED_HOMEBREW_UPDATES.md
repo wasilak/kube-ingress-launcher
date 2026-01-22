@@ -16,20 +16,19 @@ When you create a new release in the main repository, a GitHub Actions workflow 
 ### 1. Release Workflow (`.github/workflows/release.yml`)
 
 When you push a tag (e.g., `v0.2.0`):
-- Builds DMG files for both Intel and ARM architectures
-- Calculates SHA256 checksums
-- Creates a GitHub release with DMG files and checksum files
+- Builds a universal DMG file (works on both Intel and Apple Silicon)
+- Calculates SHA256 checksum
+- Creates a GitHub release with DMG file and checksum file
 
 ### 2. Tap Update Workflow (`.github/workflows/update-homebrew-tap.yml`)
 
 When a release is published:
 - Triggers automatically via `release: published` event
-- Downloads checksums from the release
+- Downloads checksum from the release
 - Checks out the tap repository
 - Updates `Casks/kube-ingress-launcher.rb` with:
   - New version number
-  - New Intel SHA256 checksum
-  - New ARM SHA256 checksum
+  - New SHA256 checksum
 - Commits and pushes to the tap repository
 
 ## Setup Requirements
@@ -101,14 +100,14 @@ git push origin v0.2.0
 1. Developer pushes tag (v0.2.0)
    ↓
 2. Release workflow runs
-   - Builds DMG files
-   - Calculates checksums
+   - Builds universal DMG file
+   - Calculates checksum
    - Creates GitHub release
    ↓
 3. Release is published
    ↓
 4. Tap update workflow triggers
-   - Downloads checksums
+   - Downloads checksum
    - Updates Cask formula
    - Commits to tap repository
    ↓
