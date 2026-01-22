@@ -160,13 +160,15 @@ jobs:
       
       - name: Update Cask formula
         run: |
-          # Update version
-          sed -i "s/version \".*\"/version \"${{ needs.build-and-release.outputs.version }}\"/" Casks/kube-ingress-launcher.rb
+          VERSION="${{ needs.build-and-release.outputs.version }}"
+          SHA256="${{ needs.build-and-release.outputs.universal_sha }}"
           
-          # Update checksum
-          sed -i "s/sha256 \".*\"/sha256 \"${{ needs.build-and-release.outputs.universal_sha }}\"/" Casks/kube-ingress-launcher.rb
+          # Update version and sha256 in one go
+          sed -i "s/version \".*\"/version \"$VERSION\"/" Casks/kube-ingress-launcher.rb
+          sed -i "s/sha256 \".*\"/sha256 \"$SHA256\"/" Casks/kube-ingress-launcher.rb
           
-          echo "Updated Cask formula:"
+          echo "✅ Updated Cask formula to version $VERSION"
+          echo ""
           cat Casks/kube-ingress-launcher.rb
       
       - name: Commit and push changes
@@ -178,19 +180,10 @@ jobs:
           git commit -m "chore: update to version ${{ needs.build-and-release.outputs.version }}
 
           - Update version to ${{ needs.build-and-release.outputs.version }}
-          - Update Universal SHA256: ${{ needs.build-and-release.outputs.universal_sha }}
+          - Update SHA256: ${{ needs.build-and-release.outputs.universal_sha }}
           
-          Automated update from release: https://github.com/${{ github.repository }}/releases/tag/v${{ needs.build-and-release.outputs.version }}"
+          Automated update from: ${{ github.server_url }}/${{ github.repository }}/releases/tag/v${{ needs.build-and-release.outputs.version }}"
           
           git push origin main
-      
-      - name: Summary
-        run: |
-          echo "✅ Homebrew tap updated successfully!"
-          echo ""
-          echo "Version: ${{ needs.build-and-release.outputs.version }}"
-          echo "Universal SHA256: ${{ needs.build-and-release.outputs.universal_sha }}"
-          echo ""
-          echo "Users can now update with:"
-          echo "  brew update"
-          echo "  brew upgrade --cask kube-ingress-launcher"
+          
+          echo "✅ Pushed changes to tap repository"
