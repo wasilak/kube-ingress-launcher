@@ -67,41 +67,47 @@ pub fn run() {
                             let width = dynamic_width.max(864);
                             let height = dynamic_height.max(576);
                             
-                            eprintln!("Screen size: {}x{}", screen_width, screen_height);
-                            eprintln!("Dynamic window size (1/3): {}x{}", dynamic_width, dynamic_height);
-                            eprintln!("Final window size: {}x{}", width, height);
-                            
                             (width, height)
                         } else {
-                            eprintln!("Could not get main screen, using default size");
                             (864, 576)
                         }
                     };
                     
-                    // Set window size
-                    if let Err(e) = window.set_size(tauri::Size::Physical(tauri::PhysicalSize {
+                    // Get the native NSWindow first
+                    let ns_window_ptr = window.ns_window().unwrap() as *mut AnyObject;
+                    let ns_window: Retained<NSWindow> = unsafe { Retained::retain(ns_window_ptr.cast()).unwrap() };
+                    
+                    // Set window size using NSWindow directly for more reliable sizing
+                    use objc2_foundation::NSSize;
+                    let size = NSSize {
+                        width: target_width as f64,
+                        height: target_height as f64,
+                    };
+                    ns_window.setContentSize(size);
+                    
+                    // Set minimum size
+                    let min_size = NSSize {
+                        width: 864.0,
+                        height: 576.0,
+                    };
+                    ns_window.setContentMinSize(min_size);
+                    
+                    // Also set via Tauri API for consistency
+                    let _ = window.set_size(tauri::Size::Physical(tauri::PhysicalSize {
                         width: target_width,
                         height: target_height,
-                    })) {
-                        eprintln!("Failed to set window size: {}", e);
-                    }
+                    }));
                     
-                    // Set minimum window size to prevent it from being too small
-                    if let Err(e) = window.set_min_size(Some(tauri::Size::Physical(tauri::PhysicalSize {
+                    let _ = window.set_min_size(Some(tauri::Size::Physical(tauri::PhysicalSize {
                         width: 864,
                         height: 576,
-                    }))) {
-                        eprintln!("Failed to set minimum window size: {}", e);
-                    }
+                    })));
                     
                     // Apply vibrancy effect
                     if let Err(e) = apply_vibrancy(&window, NSVisualEffectMaterial::HudWindow, None, None) {
                         eprintln!("Failed to apply vibrancy: {}", e);
                     }
                     
-                    // Get the native NSWindow
-                    let ns_window_ptr = window.ns_window().unwrap() as *mut AnyObject;
-                    let ns_window: Retained<NSWindow> = unsafe { Retained::retain(ns_window_ptr.cast()).unwrap() };
                     
                     // Make window fully transparent
                     ns_window.setOpaque(false);
@@ -450,7 +456,6 @@ fn setup_global_shortcut(app: &tauri::App) -> Result<(), Box<dyn std::error::Err
             return;
         }
         
-        eprintln!("Global shortcut triggered!");
         if let Some(window) = app.get_webview_window("main") {
             match window.is_visible() {
                 Ok(true) => {
