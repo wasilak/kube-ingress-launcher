@@ -7,13 +7,24 @@
 default:
     @just --list
 
-# Development workflow - build and auto-sign for consistent permissions
+# Development workflow - build, sign, then you can run manually
 dev:
     @echo "🚀 Building for development..."
-    npm run tauri dev
+    npm run tauri build -- --debug
     @echo "🔐 Signing app bundle..."
     ./scripts/dev-sign.sh
-    @echo "✅ Ready! Grant accessibility permission if needed."
+    @echo "✅ Ready! Run the app with 'just open' or from Applications"
+    @echo ""
+    @echo "To run: just open"
+
+# Build, sign, and open the app
+dev-run: dev open
+
+# Run the dev server with hot reload (no signing, permission resets)
+dev-server:
+    @echo "🚀 Starting dev server with hot reload..."
+    @echo "⚠️  Note: Accessibility permission will reset on rebuild"
+    npm run tauri dev
 
 # Build universal binary for production
 build:
