@@ -96,7 +96,7 @@ This implementation plan outlines the tasks for migrating the Kube Ingress Launc
     - Test that any active route is highlighted in drawer
     - _Requirements: 7.4_
 
-- [-] 6. Update backend menu event emissions
+- [x] 6. Update backend menu event emissions
   - [x] 6.1 Update Rust menu handlers (src-tauri/src/menu.rs)
     - Replace "open-settings" event with "navigate" event
     - Replace "open-statistics" event with "navigate" event
