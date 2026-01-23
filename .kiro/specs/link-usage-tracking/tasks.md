@@ -97,7 +97,7 @@ This implementation plan breaks down the link usage tracking and statistics feat
     - Test usage tracker is accessible from state
     - _Requirements: 17.3_
 
-- [-] 5. Tauri Commands for Usage Tracking
+- [x] 5. Tauri Commands for Usage Tracking
   - [x] 5.1 Create usage tracking commands
     - Create `src-tauri/src/commands/usage.rs`
     - Implement `record_link_open(host, state, app_handle)` command
@@ -123,8 +123,8 @@ This implementation plan breaks down the link usage tracking and statistics feat
     - Test get_all_counts returns correct counts
     - _Requirements: 17.3_
 
-- [ ] 6. Integrate Cleanup with Refresh Task
-  - [ ] 6.1 Add cleanup to refresh task
+- [x] 6. Integrate Cleanup with Refresh Task
+  - [x] 6.1 Add cleanup to refresh task
     - Modify `src-tauri/src/refresh/task.rs`
     - Call `cleanup_old_datapoints()` before fetching ingresses
     - Log number of datapoints removed
@@ -138,8 +138,8 @@ This implementation plan breaks down the link usage tracking and statistics feat
     - Test event emitted after cleanup
     - _Requirements: 17.3_
 
-- [ ] 7. Frontend TypeScript Types
-  - [ ] 7.1 Create usage tracking types
+- [-] 7. Frontend TypeScript Types
+  - [x] 7.1 Create usage tracking types
     - Create `src/types/usage.ts`
     - Define `UsageDatapoint` interface
     - Define `TimeBucket` interface
