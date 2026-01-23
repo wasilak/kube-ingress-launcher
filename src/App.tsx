@@ -112,6 +112,7 @@ export function App() {
             selectedIndex={selectedIndex}
             onRefresh={refresh}
             loading={loading}
+            searchTerm={searchTerm}
           />
         </div>
       </Stack>

@@ -223,8 +223,8 @@ This implementation plan breaks down the link usage tracking and statistics feat
     - Test badge updates after recording open
     - _Requirements: 17.4_
 
-- [ ] 12. Implement Top 10 Sorting in IngressList
-  - [ ] 12.1 Modify IngressList component
+- [-] 12. Implement Top 10 Sorting in IngressList
+  - [x] 12.1 Modify IngressList component
     - Import `useUsageCounts` hook
     - Get counts from hook
     - Use `useMemo` to sort ingresses
