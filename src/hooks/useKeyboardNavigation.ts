@@ -5,11 +5,13 @@
  * - Arrow Up/Down to navigate items
  * - Enter to select the current item
  * - Escape to close window (handled by useWindowBehavior)
+ * - Route-aware enabling: only active on search route
  * 
- * Requirements: 8.5, 11.4
+ * Requirements: 8.5, 10.1, 10.2, 10.3, 11.4
  */
 
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { IngressData } from '../types/ingress';
 
 interface UseKeyboardNavigationProps {
@@ -19,7 +21,7 @@ interface UseKeyboardNavigationProps {
   /** Callback when an item is selected with Enter key */
   onSelect: (item: IngressData) => void;
   
-  /** Whether keyboard navigation is enabled */
+  /** Whether keyboard navigation is enabled (overrides route-based logic) */
   enabled?: boolean;
 }
 
@@ -29,6 +31,12 @@ export function useKeyboardNavigation({
   enabled = true,
 }: UseKeyboardNavigationProps) {
   const [selectedIndex, setSelectedIndex] = useState<number>(-1);
+  const location = useLocation();
+
+  // Determine if keyboard navigation should be enabled based on route
+  // Requirements: 10.1, 10.2, 10.3
+  const isSearchRoute = location.pathname === '/';
+  const isKeyboardEnabled = enabled && isSearchRoute;
 
   // Reset selected index when items change
   useEffect(() => {
@@ -37,7 +45,7 @@ export function useKeyboardNavigation({
 
   // Handle keyboard events
   useEffect(() => {
-    if (!enabled || items.length === 0) {
+    if (!isKeyboardEnabled || items.length === 0) {
       return;
     }
 
@@ -73,7 +81,7 @@ export function useKeyboardNavigation({
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [enabled, items, selectedIndex, onSelect]);
+  }, [isKeyboardEnabled, items, selectedIndex, onSelect]);
 
   return {
     selectedIndex,

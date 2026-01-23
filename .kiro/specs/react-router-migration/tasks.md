@@ -135,8 +135,8 @@ This implementation plan outlines the tasks for migrating the Kube Ingress Launc
     - Update tauri.conf.json to remove statistics window
     - _Requirements: 8.5_
 
-- [ ] 8. Update keyboard navigation for routes
-  - [ ] 8.1 Update useKeyboardNavigation hook
+- [x] 8. Update keyboard navigation for routes
+  - [x] 8.1 Update useKeyboardNavigation hook
     - Add route-aware enabled logic
     - Enable only on search route
     - Disable on statistics and settings routes
