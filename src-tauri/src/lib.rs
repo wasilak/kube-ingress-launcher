@@ -38,7 +38,46 @@ pub fn run() {
                     use window_vibrancy::{apply_vibrancy, NSVisualEffectMaterial};
                     use objc2::rc::Retained;
                     use objc2::runtime::AnyObject;
-                    use objc2_app_kit::{NSWindow, NSColor, NSWindowStyleMask, NSWindowTitleVisibility};
+                    use objc2_app_kit::{NSWindow, NSColor, NSWindowStyleMask, NSWindowTitleVisibility, NSScreen};
+                    use objc2::MainThreadMarker;
+                    
+                    // Calculate dynamic window size (1/3 of screen, but no less than 864x576)
+                    let (target_width, target_height) = {
+                        // Get main thread marker (we're on the main thread during setup)
+                        let mtm = unsafe { MainThreadMarker::new_unchecked() };
+                        let main_screen = NSScreen::mainScreen(mtm);
+                        
+                        if let Some(screen) = main_screen {
+                            let frame = screen.frame();
+                            let screen_width = frame.size.width;
+                            let screen_height = frame.size.height;
+                            
+                            // Calculate 1/3 of screen size
+                            let dynamic_width = (screen_width / 3.0) as u32;
+                            let dynamic_height = (screen_height / 3.0) as u32;
+                            
+                            // Use maximum of dynamic size or minimum size
+                            let width = dynamic_width.max(864);
+                            let height = dynamic_height.max(576);
+                            
+                            eprintln!("Screen size: {}x{}", screen_width, screen_height);
+                            eprintln!("Dynamic window size (1/3): {}x{}", dynamic_width, dynamic_height);
+                            eprintln!("Final window size: {}x{}", width, height);
+                            
+                            (width, height)
+                        } else {
+                            eprintln!("Could not get main screen, using default size");
+                            (864, 576)
+                        }
+                    };
+                    
+                    // Set window size
+                    if let Err(e) = window.set_size(tauri::Size::Physical(tauri::PhysicalSize {
+                        width: target_width,
+                        height: target_height,
+                    })) {
+                        eprintln!("Failed to set window size: {}", e);
+                    }
                     
                     // Apply vibrancy effect
                     if let Err(e) = apply_vibrancy(&window, NSVisualEffectMaterial::HudWindow, None, None) {
