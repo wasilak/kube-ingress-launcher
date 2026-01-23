@@ -48,7 +48,7 @@ pub fn run() {
                     use objc2_app_kit::{NSWindow, NSColor, NSWindowStyleMask, NSWindowTitleVisibility, NSScreen};
                     use objc2::MainThreadMarker;
                     
-                    // Calculate dynamic window size (roughly 1/3 of screen width, 1/2 of screen height)
+                    // Calculate dynamic window size accounting for Retina displays
                     let (target_width, target_height) = {
                         // Get main thread marker (we're on the main thread during setup)
                         let mtm = unsafe { MainThreadMarker::new_unchecked() };
@@ -56,12 +56,25 @@ pub fn run() {
                         
                         if let Some(screen) = main_screen {
                             let frame = screen.frame();
-                            let screen_width = frame.size.width;
-                            let screen_height = frame.size.height;
+                            let backing_scale = screen.backingScaleFactor();
                             
-                            // Use 40% of screen width and 50% of screen height for better sizing
-                            let width = (screen_width * 0.4) as u32;
-                            let height = (screen_height * 0.5) as u32;
+                            // Get logical resolution
+                            let logical_width = frame.size.width;
+                            let logical_height = frame.size.height;
+                            
+                            // Calculate physical resolution
+                            let physical_width = logical_width * backing_scale;
+                            let physical_height = logical_height * backing_scale;
+                            
+                            eprintln!("Logical resolution: {}x{}", logical_width, logical_height);
+                            eprintln!("Backing scale factor: {}", backing_scale);
+                            eprintln!("Physical resolution: {}x{}", physical_width, physical_height);
+                            
+                            // Use 1/3 of physical resolution for window size
+                            let width = (physical_width / 3.0) as u32;
+                            let height = (physical_height / 3.0) as u32;
+                            
+                            eprintln!("Target window size: {}x{}", width, height);
                             
                             (width, height)
                         } else {
