@@ -223,7 +223,7 @@ This implementation plan breaks down the link usage tracking and statistics feat
     - Test badge updates after recording open
     - _Requirements: 17.4_
 
-- [-] 12. Implement Top 10 Sorting in IngressList
+- [x] 12. Implement Top 10 Sorting in IngressList
   - [x] 12.1 Modify IngressList component
     - Import `useUsageCounts` hook
     - Get counts from hook
@@ -245,8 +245,8 @@ This implementation plan breaks down the link usage tracking and statistics feat
     - Test no sorting when search not empty
     - _Requirements: 17.4_
 
-- [ ] 13. Statistics Item Component
-  - [ ] 13.1 Create StatisticsItem component
+- [x] 13. Statistics Item Component
+  - [x] 13.1 Create StatisticsItem component
     - Create `src/components/StatisticsItem.tsx`
     - Accept `stat`, `timeRange`, `onClear`, `onSparklineClick` props
     - Use Mantine Paper component with border

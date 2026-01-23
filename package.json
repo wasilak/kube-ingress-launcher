@@ -11,6 +11,7 @@
     "test": "echo \"Tests will be added in later tasks\" && exit 0"
   },
   "dependencies": {
+    "@mantine/charts": "^8.3.13",
     "@mantine/core": "^8.3.13",
     "@mantine/hooks": "^8.3.13",
     "@tabler/icons-react": "^3.36.1",
