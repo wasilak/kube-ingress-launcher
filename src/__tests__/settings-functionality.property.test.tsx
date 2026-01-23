@@ -67,7 +67,7 @@ describe('Settings Functionality Preservation', () => {
         }),
         async (settings: Settings) => {
           // Mock the backend to return the saved settings
-          mockInvoke.mockImplementation((command: string, args?: any) => {
+          mockInvoke.mockImplementation((command: string, _args?: any) => {
             if (command === 'update_settings') {
               return Promise.resolve();
             }
@@ -121,7 +121,7 @@ describe('Settings Functionality Preservation', () => {
             theme,
           };
 
-          mockInvoke.mockImplementation((command: string, args?: any) => {
+          mockInvoke.mockImplementation((command: string, _args?: any) => {
             if (command === 'update_settings') {
               return Promise.resolve();
             }
@@ -158,7 +158,7 @@ describe('Settings Functionality Preservation', () => {
             theme: 'auto',
           };
 
-          mockInvoke.mockImplementation((command: string, args?: any) => {
+          mockInvoke.mockImplementation((command: string, _args?: any) => {
             if (command === 'update_settings') {
               return Promise.resolve();
             }
@@ -200,7 +200,7 @@ describe('Settings Functionality Preservation', () => {
           theme: fc.constantFrom('light', 'dark', 'auto'),
         }),
         async (originalSettings: Settings) => {
-          mockInvoke.mockImplementation((command: string, args?: any) => {
+          mockInvoke.mockImplementation((command: string, _args?: any) => {
             if (command === 'update_settings') {
               return Promise.resolve();
             }

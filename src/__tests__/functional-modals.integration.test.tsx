@@ -216,9 +216,9 @@ describe('AreaChartModal', () => {
   });
 
   it('should render with loading state initially', async () => {
-    let resolvePromise: (value: any) => void;
     const promise = new Promise((resolve) => {
-      resolvePromise = resolve;
+      // Promise intentionally not resolved to test loading state
+      void resolve;
     });
     
     mockInvoke.mockReturnValue(promise);
@@ -227,7 +227,7 @@ describe('AreaChartModal', () => {
     renderWithMantine(
       <AreaChartModal
         host="example.com"
-        timeRange="24h"
+        timeRange={'24h' as any}
         onClose={onClose}
       />
     );
@@ -257,7 +257,7 @@ describe('AreaChartModal', () => {
     renderWithMantine(
       <AreaChartModal
         host="example.com"
-        timeRange="24h"
+        timeRange={'24h' as any}
         onClose={onClose}
       />
     );
@@ -282,7 +282,7 @@ describe('AreaChartModal', () => {
     renderWithMantine(
       <AreaChartModal
         host="example.com"
-        timeRange="24h"
+        timeRange={'24h' as any}
         onClose={onClose}
       />
     );
@@ -303,7 +303,7 @@ describe('AreaChartModal', () => {
     const { container } = renderWithMantine(
       <AreaChartModal
         host="example.com"
-        timeRange="24h"
+        timeRange={'24h' as any}
         onClose={onClose}
       />
     );
