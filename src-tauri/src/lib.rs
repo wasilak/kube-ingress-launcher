@@ -86,6 +86,14 @@ pub fn run() {
                         eprintln!("Failed to set window size: {}", e);
                     }
                     
+                    // Set minimum window size to prevent it from being too small
+                    if let Err(e) = window.set_min_size(Some(tauri::Size::Physical(tauri::PhysicalSize {
+                        width: 864,
+                        height: 576,
+                    }))) {
+                        eprintln!("Failed to set minimum window size: {}", e);
+                    }
+                    
                     // Apply vibrancy effect
                     if let Err(e) = apply_vibrancy(&window, NSVisualEffectMaterial::HudWindow, None, None) {
                         eprintln!("Failed to apply vibrancy: {}", e);

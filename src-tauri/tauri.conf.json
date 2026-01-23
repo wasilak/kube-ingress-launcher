@@ -15,6 +15,8 @@
         "title": "Kube Ingress Launcher",
         "width": 864,
         "height": 576,
+        "minWidth": 864,
+        "minHeight": 576,
         "resizable": true,
         "decorations": true,
         "transparent": true,
