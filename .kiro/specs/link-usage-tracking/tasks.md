@@ -207,7 +207,7 @@ This implementation plan breaks down the link usage tracking and statistics feat
     - Test uses correct color for 0 vs >0
     - _Requirements: 17.4_
 
-- [-] 11. Integrate Usage Badge with IngressItem
+- [x] 11. Integrate Usage Badge with IngressItem
   - [x] 11.1 Modify IngressItem component
     - Import `useUsageCounts` hook
     - Import `UsageBadge` component
