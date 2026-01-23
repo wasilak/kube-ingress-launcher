@@ -6,6 +6,7 @@ pub mod refresh;
 pub mod commands;
 pub mod settings;
 pub mod permissions;
+pub mod usage;
 
 use tauri::{Manager, Emitter};
 use state::AppState;
