@@ -117,9 +117,44 @@ shasum -a 256 -c checksums.txt
 
 ## Development
 
+### Task Automation with `just`
+
+This project uses [`just`](https://github.com/casey/just) for task automation. Install it first:
+
+```bash
+brew install just
+```
+
+Then use these common commands:
+
+```bash
+# Development (build + sign for consistent permissions)
+just dev
+
+# Run all tests
+just test
+
+# Lint code
+just lint
+
+# Build universal binary
+just build
+
+# See all available commands
+just --list
+```
+
+See [docs/JUSTFILE.md](docs/JUSTFILE.md) for complete documentation.
+
 ### Running in Development Mode
 
-Start the development server with hot reload:
+**Recommended**: Use `just` for automatic signing:
+
+```bash
+just dev
+```
+
+**Manual**: Run without signing (permission will reset on each rebuild):
 
 ```bash
 npm run tauri dev
@@ -130,6 +165,8 @@ This will:
 - Build and run the Rust backend
 - Open the application window
 - Enable hot reload for both frontend and backend changes
+
+**Note**: See [docs/ACCESSIBILITY_PERMISSION_DEV.md](docs/ACCESSIBILITY_PERMISSION_DEV.md) for information about accessibility permissions in development.
 
 ### Project Structure
 
