@@ -48,7 +48,7 @@ pub fn run() {
                     use objc2_app_kit::{NSWindow, NSColor, NSWindowStyleMask, NSWindowTitleVisibility, NSScreen};
                     use objc2::MainThreadMarker;
                     
-                    // Calculate dynamic window size (1/3 of screen, but no less than 864x576)
+                    // Calculate dynamic window size (1/3 of screen, but no less than 600x400)
                     let (target_width, target_height) = {
                         // Get main thread marker (we're on the main thread during setup)
                         let mtm = unsafe { MainThreadMarker::new_unchecked() };
@@ -63,13 +63,14 @@ pub fn run() {
                             let dynamic_width = (screen_width / 3.0) as u32;
                             let dynamic_height = (screen_height / 3.0) as u32;
                             
-                            // Use maximum of dynamic size or minimum size
-                            let width = dynamic_width.max(864);
-                            let height = dynamic_height.max(576);
+                            // Use maximum of dynamic size or reasonable minimum size
+                            // Minimum is now 600x400 instead of 864x576 to work better with smaller screens
+                            let width = dynamic_width.max(600);
+                            let height = dynamic_height.max(400);
                             
                             (width, height)
                         } else {
-                            (864, 576)
+                            (800, 600)
                         }
                     };
                     
@@ -85,10 +86,15 @@ pub fn run() {
                     };
                     ns_window.setContentSize(size);
                     
+                    // Verify the size was set
+                    let actual_size = ns_window.frame().size;
+                    eprintln!("Set window size to: {}x{}", target_width, target_height);
+                    eprintln!("Actual window size: {}x{}", actual_size.width, actual_size.height);
+                    
                     // Set minimum size
                     let min_size = NSSize {
-                        width: 864.0,
-                        height: 576.0,
+                        width: 600.0,
+                        height: 400.0,
                     };
                     ns_window.setContentMinSize(min_size);
                     
@@ -99,8 +105,8 @@ pub fn run() {
                     }));
                     
                     let _ = window.set_min_size(Some(tauri::Size::Physical(tauri::PhysicalSize {
-                        width: 864,
-                        height: 576,
+                        width: 600,
+                        height: 400,
                     })));
                     
                     // Apply vibrancy effect

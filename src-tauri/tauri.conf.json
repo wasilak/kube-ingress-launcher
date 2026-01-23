@@ -13,10 +13,10 @@
     "windows": [
       {
         "title": "Kube Ingress Launcher",
-        "width": 864,
-        "height": 576,
-        "minWidth": 864,
-        "minHeight": 576,
+        "width": 800,
+        "height": 600,
+        "minWidth": 600,
+        "minHeight": 400,
         "resizable": true,
         "decorations": true,
         "transparent": true,
