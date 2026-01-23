@@ -322,11 +322,20 @@ export function SettingsDialog({ opened, onClose }: SettingsDialogProps) {
         {!accessibilityGranted && (
           <Alert color="yellow" icon={<IconAlertCircle />}>
             <Text size="sm" fw={500} mb="xs">
-              Accessibility permission may not be detected
+              Accessibility permission check failed
             </Text>
             <Text size="sm" mb="xs">
-              If the global shortcut (Cmd+Shift+K) works, permission is actually granted.
-              This warning can appear for ad-hoc signed development builds.
+              This can happen when the app's code signature changes (e.g., after rebuilding).
+              macOS caches the signature and needs the permission to be refreshed.
+            </Text>
+            <Text size="sm" fw={500} mb="xs">
+              To fix:
+            </Text>
+            <Text size="sm" component="ol" style={{ paddingLeft: '1.5rem', margin: 0 }}>
+              <li>Open System Settings → Privacy & Security → Accessibility</li>
+              <li>Find "Kube Ingress Launcher" in the list</li>
+              <li>Uncheck the box, then check it again</li>
+              <li>Click "Recheck" below to verify</li>
             </Text>
             <Group mt="xs" gap="xs">
               <Button

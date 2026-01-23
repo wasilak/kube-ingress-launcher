@@ -2,102 +2,80 @@
 
 ## The Problem
 
-When developing the app, you may notice that **accessibility permission gets unchecked automatically** every time you rebuild the app. This is **expected macOS behavior**, not a bug in the application.
+The app shows "Accessibility permission check failed" even though the checkbox is checked in System Settings → Privacy & Security → Accessibility.
 
 ## Why This Happens
 
-macOS uses code signatures to identify applications for security permissions like accessibility. When you rebuild an unsigned app in development:
+macOS stores a **code signature requirement blob** (`csreq`) in the TCC (Transparency, Consent, and Control) database when you grant accessibility permission. This is a fingerprint of your app's exact code signature.
 
-1. The app binary changes
-2. The code signature changes (or remains absent)
-3. macOS treats it as a "different" app
-4. macOS revokes the accessibility permission for security
+When you rebuild the app:
+1. The code signature changes (even with ad-hoc signing)
+2. The TCC database still has the OLD signature cached
+3. `AXIsProcessTrusted()` returns false because signatures don't match
+4. The checkbox stays checked, but the permission doesn't actually work
 
-This is a security feature to prevent malicious apps from maintaining permissions after being modified.
+This is documented behavior: [Stack Overflow #29078325](https://stackoverflow.com/questions/29078325/)
 
-## Solutions
+## The Solution
 
-### Option 1: Ad-hoc Signing (Recommended for Development)
-
-Sign the development build with an ad-hoc signature to maintain consistency:
-
-```bash
-# After building
-./scripts/dev-sign.sh
-```
-
-This gives the app a consistent signature across rebuilds. You'll need to:
-1. Build the app: `npm run tauri dev`
-2. Sign it: `./scripts/dev-sign.sh`
-3. Grant accessibility permission once
-4. Permission will persist across future rebuilds (as long as you sign after each build)
-
-**Workflow**:
-```bash
-# Each time you rebuild:
-npm run tauri dev
-./scripts/dev-sign.sh
-# Permission persists!
-```
-
-### Option 2: Manual Re-Grant (Simplest but Repetitive)
-
-After each rebuild, manually re-grant permission:
+**Uncheck and recheck the permission** after each rebuild:
 
 1. Open **System Settings** → **Privacy & Security** → **Accessibility**
 2. Find "Kube Ingress Launcher" in the list
-3. Check the checkbox to grant permission
-4. The global shortcut (Cmd+Shift+K) will work again
+3. **Uncheck** the box
+4. **Check** it again immediately
+5. Done! The cached signature is refreshed
 
-### Option 3: Use Helper Script (Quick Fix)
+This clears the cached `csreq` blob and stores the new signature.
 
-Run the provided script after rebuilding:
+## Development Workflow
 
 ```bash
-./scripts/grant-accessibility-dev.sh
+# Build and sign
+just dev-run
+
+# First time or after rebuild:
+# 1. App shows permission warning
+# 2. Go to System Settings → Accessibility
+# 3. Uncheck "Kube Ingress Launcher"
+# 4. Check it again
+# 5. Click "Recheck" in the app
+# 6. Warning disappears!
 ```
 
-This script uses `sudo` to directly modify the TCC (Transparency, Consent, and Control) database to grant permission.
+## Why Ad-hoc Signing Doesn't Fully Solve This
 
-**Note**: This requires administrator access and modifies system files. Use with caution.
+Ad-hoc signing (`codesign -s -`) creates a signature based on the binary content. Every rebuild changes the binary, so the signature changes. The TCC database caches the old signature, causing the mismatch.
 
-### Option 4: Apple Developer Certificate (Production)
+**Only a real Apple Developer certificate** provides a truly consistent identity across rebuilds.
 
-For production builds, sign with an Apple Developer certificate:
+## Alternative: Remove and Re-add
 
-1. Get an Apple Developer account ($99/year)
-2. Create a Developer ID Application certificate
-3. Update `tauri.conf.json`:
+Instead of unchecking/rechecking, you can:
+1. Remove "Kube Ingress Launcher" from the Accessibility list (click `-`)
+2. Click `+` and add it back
+3. This also clears the cached signature
 
-```json
-{
-  "bundle": {
-    "macOS": {
-      "signingIdentity": "Developer ID Application: Your Name (TEAM_ID)"
-    }
-  }
-}
+But unchecking/rechecking is faster.
+
+## For Production
+
+Production builds signed with an Apple Developer certificate maintain a consistent identity. Users won't experience this issue - permission persists across updates.
+
+## Technical Details
+
+The TCC database is at `/Library/Application Support/com.apple.TCC/TCC.db` and contains:
+
+```sql
+SELECT client, auth_value, csreq FROM access WHERE service = 'kTCCServiceAccessibility';
 ```
 
-Properly signed apps maintain permissions across updates.
-
-## In Production
-
-Production builds created by the GitHub Actions workflow are properly signed (when configured), so end users won't experience this issue. The permission will persist across app updates.
-
-## Why Not Fix This in Code?
-
-This is not something that can be "fixed" in the application code. It's a macOS security feature that applies to all apps requesting accessibility permission. The only solution is proper code signing.
-
-## Related Issues
-
-- [Tauri Issue #2258](https://github.com/tauri-apps/tauri/issues/2258) - Activation policy discussion
-- [Stack Overflow](https://stackoverflow.com/questions/20151177/) - AXIsProcessTrusted permission reset
+The `csreq` column contains a binary blob representing the code signature requirement. When this doesn't match the running app's signature, `AXIsProcessTrusted()` returns false.
 
 ## Summary
 
-**Recommended for Development**: Use ad-hoc signing (`./scripts/dev-sign.sh`) after each build. Grant permission once, and it persists.
+**For Development**: After each rebuild, uncheck and recheck the permission in System Settings.
 
 **For Production**: Use proper code signing with an Apple Developer certificate.
 
-This is standard behavior for macOS apps that require accessibility permission during development.
+This is standard macOS behavior for all apps requiring accessibility permission during development.
