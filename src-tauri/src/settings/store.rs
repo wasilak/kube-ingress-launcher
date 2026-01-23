@@ -94,6 +94,7 @@ mod tests {
             autostart: true,
             kube_context: "minikube".to_string(),
             theme: "dark".to_string(),
+            statistics_time_range: Some("ThirtyDays".to_string()),
         };
 
         let json = serde_json::to_string(&settings).unwrap();
@@ -108,6 +109,7 @@ mod tests {
         assert!(deserialized.autostart);
         assert_eq!(deserialized.kube_context, "minikube");
         assert_eq!(deserialized.theme, "dark");
+        assert_eq!(deserialized.statistics_time_range, Some("ThirtyDays".to_string()));
     }
 
     #[test]

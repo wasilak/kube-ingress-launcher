@@ -7,11 +7,17 @@
  * - Clear all statistics functionality with confirmation
  * - Detailed area chart modal for individual hosts
  * 
- * Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 5.1, 5.4, 7.1, 7.2, 7.9, 8.1, 9.1, 9.2, 9.3, 14.4
+ * Optimizations:
+ * - Time range changes are debounced to reduce unnecessary API calls
+ * - Callback functions are memoized with useCallback
+ * - StatisticsItem components are memoized to prevent unnecessary re-renders
+ * 
+ * Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 5.1, 5.4, 7.1, 7.2, 7.9, 8.1, 9.1, 9.2, 9.3, 13.2, 13.3, 14.4
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Stack, Group, Title, Select, Loader, Alert, ScrollArea, Button, Text } from '@mantine/core';
+import { useDebouncedValue } from '@mantine/hooks';
 import { invoke } from '@tauri-apps/api/core';
 import { StatisticsItem } from './StatisticsItem';
 import { AreaChartModal } from './AreaChartModal';
@@ -32,11 +38,19 @@ import type { Settings } from '../types/ingress';
  * - Detailed area chart modal for individual hosts
  * - Scrollable list for many statistics
  * 
- * Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 5.1, 5.4, 7.1, 7.2, 7.9, 8.1, 9.1, 9.2, 9.3, 14.4
+ * Optimizations:
+ * - Debounced time range changes (300ms) to reduce API calls
+ * - Memoized callbacks to prevent unnecessary re-renders
+ * - Memoized select data to avoid recreation on every render
+ * 
+ * Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 5.1, 5.4, 7.1, 7.2, 7.9, 8.1, 9.1, 9.2, 9.3, 13.2, 13.3, 14.4
  */
 export function StatisticsView() {
   // Time range state (default: 7 days from constants)
   const [timeRange, setTimeRange] = useState<TimeRange>(DEFAULT_TIME_RANGE);
+  
+  // Debounce time range changes to reduce API calls (300ms delay)
+  const [debouncedTimeRange] = useDebouncedValue(timeRange, 300);
   
   // Selected host for area chart modal
   const [selectedHost, setSelectedHost] = useState<string | null>(null);
@@ -61,83 +75,104 @@ export function StatisticsView() {
     loadTimeRangePreference();
   }, []);
 
-  // Save time range preference to settings when changed
-  const handleTimeRangeChange = async (value: string | null) => {
-    if (!value) return;
-    
-    const newTimeRange = value as TimeRange;
-    setTimeRange(newTimeRange);
+  // Save time range preference to settings when changed (debounced)
+  useEffect(() => {
+    const saveTimeRangePreference = async () => {
+      try {
+        const settings = await invoke<Settings>('get_settings');
+        await invoke('update_settings', {
+          settings: { ...settings, statisticsTimeRange: debouncedTimeRange },
+        });
+      } catch (err) {
+        console.error('Failed to save time range preference:', err);
+        // Continue anyway - preference just won't persist
+      }
+    };
 
-    try {
-      const settings = await invoke<Settings>('get_settings');
-      await invoke('update_settings', {
-        settings: { ...settings, statisticsTimeRange: newTimeRange },
-      });
-    } catch (err) {
-      console.error('Failed to save time range preference:', err);
-      // Continue anyway - preference just won't persist
+    // Only save if debounced value is different from initial load
+    if (debouncedTimeRange !== DEFAULT_TIME_RANGE) {
+      saveTimeRangePreference();
     }
-  };
+  }, [debouncedTimeRange]);
 
-  // Fetch usage statistics with the selected time range
-  const { stats, loading, error, clearHost, clearAll } = useUsageStats(timeRange);
+  // Fetch usage statistics with the debounced time range
+  const { stats, loading, error, clearHost, clearAll } = useUsageStats(debouncedTimeRange);
+
+  // Memoize select data to avoid recreation on every render
+  const selectData = useMemo(
+    () => TIME_RANGE_OPTIONS.map(option => ({
+      value: option.value,
+      label: option.label,
+    })),
+    []
+  );
+
+  /**
+   * Handle time range selector change
+   * Updates local state immediately for responsive UI
+   */
+  const handleTimeRangeChange = useCallback((value: string | null) => {
+    if (value) {
+      setTimeRange(value as TimeRange);
+    }
+  }, []);
 
   /**
    * Handle clear button click for individual host
    * Clears statistics for the specified host
    */
-  const handleClearHost = async (host: string) => {
+  const handleClearHost = useCallback(async (host: string) => {
     try {
       await clearHost(host);
     } catch (err) {
       console.error('Failed to clear host:', err);
     }
-  };
+  }, [clearHost]);
 
   /**
    * Handle clear all button click
    * Shows confirmation modal before clearing all statistics
    */
-  const handleClearAllClick = () => {
+  const handleClearAllClick = useCallback(() => {
     setClearAllConfirmOpen(true);
-  };
+  }, []);
 
   /**
    * Handle clear all confirmation
    * Clears all statistics and closes confirmation modal
    */
-  const handleClearAllConfirm = async () => {
+  const handleClearAllConfirm = useCallback(async () => {
     try {
       await clearAll();
       setClearAllConfirmOpen(false);
     } catch (err) {
       console.error('Failed to clear all statistics:', err);
     }
-  };
+  }, [clearAll]);
 
   /**
    * Handle clear all cancellation
    * Closes confirmation modal without clearing
    */
-  const handleClearAllCancel = () => {
+  const handleClearAllCancel = useCallback(() => {
     setClearAllConfirmOpen(false);
-  };
+  }, []);
 
   /**
    * Handle sparkline click
    * Opens area chart modal for the selected host
    */
-  const handleSparklineClick = (host: string) => {
+  const handleSparklineClick = useCallback((host: string) => {
     setSelectedHost(host);
-  };
+  }, []);
 
   /**
    * Handle area chart modal close
    * Closes the modal and clears selected host
    */
-  const handleModalClose = () => {
+  const handleModalClose = useCallback(() => {
     setSelectedHost(null);
-  };
+  }, []);
 
   return (
     <Stack p="md" h="100vh">
@@ -147,10 +182,7 @@ export function StatisticsView() {
         <Select
           value={timeRange}
           onChange={handleTimeRangeChange}
-          data={TIME_RANGE_OPTIONS.map(option => ({
-            value: option.value,
-            label: option.label,
-          }))}
+          data={selectData}
           w={150}
         />
       </Group>
@@ -216,7 +248,7 @@ export function StatisticsView() {
       {selectedHost && (
         <AreaChartModal
           host={selectedHost}
-          timeRange={timeRange}
+          timeRange={debouncedTimeRange}
           onClose={handleModalClose}
         />
       )}

@@ -15,38 +15,37 @@ impl UsageAggregator {
     ) -> Vec<AggregatedUsage> {
         let cutoff_time = Self::get_cutoff_time(time_range);
 
-        // Filter datapoints within time range
-        let filtered: Vec<&UsageDatapoint> = datapoints
-            .iter()
-            .filter(|dp| dp.timestamp >= cutoff_time)
-            .collect();
-
-        // Group by host
+        // Group by host with pre-allocated capacity estimate
+        // Use HashMap for O(1) lookups and efficient grouping
         let mut host_datapoints: HashMap<String, Vec<&UsageDatapoint>> = HashMap::new();
-        for datapoint in filtered {
-            host_datapoints
-                .entry(datapoint.host.clone())
-                .or_insert_with(Vec::new)
-                .push(datapoint);
+        
+        for datapoint in datapoints.iter() {
+            // Filter inline to avoid intermediate collection
+            if datapoint.timestamp >= cutoff_time {
+                host_datapoints
+                    .entry(datapoint.host.clone())
+                    .or_insert_with(Vec::new)
+                    .push(datapoint);
+            }
         }
 
+        // Pre-allocate results vector with known capacity
+        let mut results: Vec<AggregatedUsage> = Vec::with_capacity(host_datapoints.len());
+        
         // Aggregate each host
-        let mut results: Vec<AggregatedUsage> = host_datapoints
-            .into_iter()
-            .map(|(host, dps)| {
-                let total_count = dps.len() as u32;
-                let time_buckets = Self::create_time_buckets_with_data(&dps, time_range);
+        for (host, dps) in host_datapoints {
+            let total_count = dps.len() as u32;
+            let time_buckets = Self::create_time_buckets_with_data(&dps, time_range);
 
-                AggregatedUsage {
-                    host,
-                    total_count,
-                    time_buckets,
-                }
-            })
-            .collect();
+            results.push(AggregatedUsage {
+                host,
+                total_count,
+                time_buckets,
+            });
+        }
 
         // Sort by total count descending
-        results.sort_by(|a, b| b.total_count.cmp(&a.total_count));
+        results.sort_unstable_by(|a, b| b.total_count.cmp(&a.total_count));
 
         results
     }
@@ -106,7 +105,12 @@ impl UsageAggregator {
         let cutoff_time = Self::get_cutoff_time(time_range);
         let now = Utc::now();
 
-        let mut buckets = Vec::new();
+        // Calculate approximate number of buckets for pre-allocation
+        let duration_seconds = (now - cutoff_time).num_seconds();
+        let bucket_seconds = bucket_duration.num_seconds();
+        let estimated_buckets = (duration_seconds / bucket_seconds) as usize + 2;
+        
+        let mut buckets = Vec::with_capacity(estimated_buckets);
         let mut current = cutoff_time;
 
         // Align to bucket boundary
@@ -128,11 +132,13 @@ impl UsageAggregator {
         let bucket_duration = Self::get_bucket_duration(time_range);
         let bucket_timestamps = Self::create_time_buckets(time_range);
 
+        // Pre-allocate buckets vector with known capacity
+        let mut buckets: Vec<TimeBucket> = Vec::with_capacity(bucket_timestamps.len());
+        
         // Initialize buckets with zero counts
-        let mut buckets: Vec<TimeBucket> = bucket_timestamps
-            .iter()
-            .map(|&timestamp| TimeBucket { timestamp, count: 0 })
-            .collect();
+        for &timestamp in &bucket_timestamps {
+            buckets.push(TimeBucket { timestamp, count: 0 });
+        }
 
         // Count datapoints in each bucket
         for datapoint in datapoints {

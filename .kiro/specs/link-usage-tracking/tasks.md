@@ -407,15 +407,15 @@ This implementation plan breaks down the link usage tracking and statistics feat
     - Test clear button calls onConfirm
     - _Requirements: 17.4_
 
-- [ ] 20. Error Handling and Edge Cases
-  - [ ] 20.1 Add error handling to frontend hooks
+- [x] 20. Error Handling and Edge Cases
+  - [x] 20.1 Add error handling to frontend hooks
     - Wrap all invoke calls in try-catch
     - Set error state on failures
     - Log errors to console
     - Continue operation on non-critical errors
     - _Requirements: 14.1, 14.2, 14.4_
 
-  - [ ] 20.2 Add error handling to backend commands
+  - [x] 20.2 Add error handling to backend commands
     - Validate inputs (non-empty host, valid time range)
     - Handle storage errors gracefully
     - Log errors with context
@@ -428,14 +428,14 @@ This implementation plan breaks down the link usage tracking and statistics feat
     - Simulate storage failures, verify system continues
     - _Requirements: 17.2_
 
-- [ ] 21. Performance Optimization
-  - [ ] 21.1 Optimize aggregation performance
+- [x] 21. Performance Optimization
+  - [x] 21.1 Optimize aggregation performance
     - Use efficient data structures (HashMap for grouping)
     - Pre-allocate vectors with known capacity
     - Avoid unnecessary clones
     - _Requirements: 13.4, 13.5_
 
-  - [ ] 21.2 Optimize frontend rendering
+  - [x] 21.2 Optimize frontend rendering
     - Use React.memo for StatisticsItem
     - Use useMemo for expensive computations
     - Debounce time range selector changes

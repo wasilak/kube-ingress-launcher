@@ -1,6 +1,7 @@
 import { Paper, Group, Text, Button } from '@mantine/core';
 import { Sparkline } from '@mantine/charts';
 import { AggregatedUsage } from '../types/usage';
+import { memo, useMemo } from 'react';
 
 /**
  * Props for the StatisticsItem component
@@ -27,15 +28,22 @@ interface StatisticsItemProps {
  * - Provides clear button to remove statistics for this host
  * - Clickable sparkline opens detailed area chart modal
  * 
- * Requirements: 4.4, 5.1, 5.2, 8.1
+ * Optimizations:
+ * - Memoized with React.memo to prevent unnecessary re-renders
+ * - Sparkline data extraction memoized with useMemo
+ * 
+ * Requirements: 4.4, 5.1, 5.2, 8.1, 13.2
  */
-export function StatisticsItem({
+export const StatisticsItem = memo(function StatisticsItem({
   stat,
   onClear,
   onSparklineClick,
 }: StatisticsItemProps) {
-  // Extract sparkline data from time buckets
-  const sparklineData = stat.timeBuckets.map(bucket => bucket.count);
+  // Memoize sparkline data extraction to avoid recalculation on every render
+  const sparklineData = useMemo(
+    () => stat.timeBuckets.map(bucket => bucket.count),
+    [stat.timeBuckets]
+  );
 
   return (
     <Paper p="md" withBorder>
@@ -72,4 +80,4 @@ export function StatisticsItem({
       </div>
     </Paper>
   );
-}
+});
