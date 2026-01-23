@@ -1,5 +1,9 @@
+pub mod tracker;
+
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
+
+pub use tracker::UsageTracker;
 
 /// Individual open event record
 #[derive(Debug, Clone, Serialize, Deserialize)]
