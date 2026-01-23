@@ -10,7 +10,7 @@
  * Requirements: 4.1, 4.2, 4.3, 4.4, 4.5
  */
 
-import { Stack, ScrollArea } from '@mantine/core';
+import { Stack, ScrollArea, Container } from '@mantine/core';
 import { SearchInput } from '../components/SearchInput';
 import { IngressList } from '../components/IngressList';
 import { ErrorBanner } from '../components/ErrorBanner';
@@ -68,9 +68,10 @@ export function SearchView() {
 
   return (
     <ScrollArea h="calc(100vh - 120px)" scrollbarSize={8} scrollbars="y">
-      <Stack gap="md" pr="xs">
-        {/* Error banner - shown when there's an error */}
-        {error && <ErrorBanner error={error} />}
+      <Container size="lg" px="md">
+        <Stack gap="md">
+          {/* Error banner - shown when there's an error */}
+          {error && <ErrorBanner error={error} />}
         
         {/* Search input */}
         <SearchInput
@@ -88,7 +89,8 @@ export function SearchView() {
           loading={loading}
           searchTerm={searchTerm}
         />
-      </Stack>
+        </Stack>
+      </Container>
     </ScrollArea>
   );
 }

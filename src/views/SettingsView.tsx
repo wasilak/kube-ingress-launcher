@@ -8,7 +8,7 @@
  * Requirements: 6.1, 6.2, 6.5
  */
 
-import { Stack, NumberInput, Switch, Select, Button, Group, Text, Alert, Divider, Badge, Kbd, ScrollArea } from '@mantine/core';
+import { Stack, NumberInput, Switch, Select, Button, Group, Text, Alert, Divider, Badge, Kbd, ScrollArea, Container } from '@mantine/core';
 import { useState, useEffect } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { Settings, VersionInfo } from '../types/ingress';
@@ -35,13 +35,15 @@ export function SettingsView() {
   // Theme management
   const { themeMode, changeTheme } = useTheme();
   
-  const [settings, setSettings] = useState<Settings>({
+  // Initialize settings with current theme from useTheme hook
+  // This ensures theme is always in sync without needing a separate useEffect
+  const [settings, setSettings] = useState<Settings>(() => ({
     globalShortcut: 'CmdOrCtrl+Shift+K',
     refreshIntervalSecs: 60,
     autostart: false,
     kubeContext: '',
-    theme: 'system',
-  });
+    theme: themeMode === 'auto' ? 'system' : themeMode,
+  }));
   
   const [contexts, setContexts] = useState<string[]>([]);
   const [recording, setRecording] = useState(false);
@@ -80,7 +82,6 @@ export function SettingsView() {
    * Load settings and contexts on mount
    * Check accessibility permission
    * Load version information
-   * Sync with current theme from useTheme hook
    */
   useEffect(() => {
     loadSettings();
@@ -88,17 +89,6 @@ export function SettingsView() {
     checkAccessibility();
     loadVersionInfo();
   }, []);
-  
-  /**
-   * Sync settings theme with useTheme hook's themeMode
-   * This ensures the UI shows the correct theme when navigating back to settings
-   */
-  useEffect(() => {
-    setSettings(prev => ({
-      ...prev,
-      theme: themeMode === 'auto' ? 'system' : themeMode,
-    }));
-  }, [themeMode]);
 
   /**
    * Check accessibility permission status
@@ -335,12 +325,13 @@ export function SettingsView() {
 
   return (
     <ScrollArea h="calc(100vh - 120px)" scrollbarSize={8} scrollbars="y">
-      <Stack gap="md" pr="xs">
-        {error && (
-          <Text c="red" size="sm">
-            {error}
-          </Text>
-        )}
+      <Container size="lg" px="md">
+        <Stack gap="md">
+          {error && (
+            <Text c="red" size="sm">
+              {error}
+            </Text>
+          )}
       
       {/* Accessibility Permission Warning */}
       {!accessibilityGranted && (
@@ -504,7 +495,8 @@ export function SettingsView() {
         }}
         permissionType={permissionType}
       />
-      </Stack>
+        </Stack>
+      </Container>
     </ScrollArea>
   );
 }

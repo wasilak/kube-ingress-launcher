@@ -15,7 +15,7 @@
  */
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Stack, Group, Title, Select, Loader, Alert, Button, Text, Table, ActionIcon, ScrollArea } from '@mantine/core';
+import { Stack, Group, Title, Select, Loader, Alert, Button, Text, Table, ActionIcon, ScrollArea, Container } from '@mantine/core';
 import { Sparkline } from '@mantine/charts';
 import { useDebouncedValue } from '@mantine/hooks';
 import { invoke } from '@tauri-apps/api/core';
@@ -176,10 +176,11 @@ export function StatisticsView() {
 
   return (
     <ScrollArea h="calc(100vh - 120px)" scrollbarSize={8} scrollbars="y">
-      <Stack gap="md" pr="xs">
-        {/* Header with title and time range selector */}
-        <Group justify="space-between">
-          <Title order={2}>Usage Statistics</Title>
+      <Container size="lg" px="md">
+        <Stack gap="md">
+          {/* Header with title and time range selector */}
+          <Group justify="space-between">
+            <Title order={2}>Usage Statistics</Title>
           <Select
             value={timeRange}
             onChange={handleTimeRangeChange}
@@ -308,7 +309,8 @@ export function StatisticsView() {
           onClose={handleModalClose}
         />
       )}
-      </Stack>
+        </Stack>
+      </Container>
     </ScrollArea>
   );
 }
