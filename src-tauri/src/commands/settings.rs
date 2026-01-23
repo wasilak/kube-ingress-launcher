@@ -184,16 +184,4 @@ mod tests {
             assert_eq!(settings.kube_context, "test-context");
         }
     }
-
-    #[test]
-    fn test_validate_refresh_interval() {
-        // Valid intervals
-        assert!(10 >= 10 && 10 <= 3600);
-        assert!(60 >= 10 && 60 <= 3600);
-        assert!(3600 >= 10 && 3600 <= 3600);
-
-        // Invalid intervals
-        assert!(!(9 >= 10 && 9 <= 3600));
-        assert!(!(3601 >= 10 && 3601 <= 3600));
-    }
 }

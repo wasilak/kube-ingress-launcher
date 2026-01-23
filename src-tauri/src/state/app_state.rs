@@ -140,7 +140,7 @@ mod tests {
         let deserialized: IngressData = serde_json::from_str(&json).unwrap();
         assert_eq!(deserialized.name, "test-ingress");
         assert_eq!(deserialized.namespace, "default");
-        assert_eq!(deserialized.tls, true);
+        assert!(deserialized.tls);
     }
 
     #[test]

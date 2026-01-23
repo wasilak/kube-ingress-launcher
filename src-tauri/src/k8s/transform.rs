@@ -259,7 +259,7 @@ mod tests {
         assert_eq!(result.hosts, vec!["example.com"]);
         assert_eq!(result.paths, vec!["/"]);
         assert_eq!(result.urls, vec!["http://example.com/"]);
-        assert_eq!(result.tls, false);
+        assert!(!result.tls);
         assert_eq!(result.status, "unknown");
     }
 
@@ -293,7 +293,7 @@ mod tests {
 
         let result = transform_ingress(&k8s_ingress);
 
-        assert_eq!(result.tls, true);
+        assert!(result.tls);
         assert_eq!(result.urls, vec!["https://secure.example.com/"]);
     }
 
@@ -356,7 +356,7 @@ mod tests {
         assert!(result.hosts.is_empty());
         assert!(result.paths.is_empty());
         assert!(result.urls.is_empty());
-        assert_eq!(result.tls, false);
+        assert!(!result.tls);
     }
 
     #[test]
@@ -414,7 +414,7 @@ mod tests {
 
         let result = transform_ingress(&k8s_ingress);
 
-        assert_eq!(result.tls, true);
+        assert!(result.tls);
         assert_eq!(result.hosts.len(), 3);
         assert!(result.hosts.contains(&"example.com".to_string()));
         assert!(result.hosts.contains(&"www.example.com".to_string()));

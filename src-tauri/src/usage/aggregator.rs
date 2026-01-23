@@ -24,7 +24,7 @@ impl UsageAggregator {
             if datapoint.timestamp >= cutoff_time {
                 host_datapoints
                     .entry(datapoint.host.clone())
-                    .or_insert_with(Vec::new)
+                    .or_default()
                     .push(datapoint);
             }
         }
@@ -118,7 +118,7 @@ impl UsageAggregator {
 
         while current <= now {
             buckets.push(current);
-            current = current + bucket_duration;
+            current += bucket_duration;
         }
 
         buckets
