@@ -83,6 +83,7 @@ mod tests {
         assert_eq!(settings.refresh_interval_secs, 60);
         assert!(!settings.autostart);
         assert_eq!(settings.kube_context, "");
+        assert_eq!(settings.theme, "system");
     }
 
     #[test]
@@ -92,18 +93,21 @@ mod tests {
             refresh_interval_secs: 120,
             autostart: true,
             kube_context: "minikube".to_string(),
+            theme: "dark".to_string(),
         };
 
         let json = serde_json::to_string(&settings).unwrap();
         assert!(json.contains("Cmd+K"));
         assert!(json.contains("120"));
         assert!(json.contains("minikube"));
+        assert!(json.contains("dark"));
 
         let deserialized: Settings = serde_json::from_str(&json).unwrap();
         assert_eq!(deserialized.global_shortcut, "Cmd+K");
         assert_eq!(deserialized.refresh_interval_secs, 120);
         assert!(deserialized.autostart);
         assert_eq!(deserialized.kube_context, "minikube");
+        assert_eq!(deserialized.theme, "dark");
     }
 
     #[test]
@@ -121,5 +125,8 @@ mod tests {
         
         // Verify kube context is empty by default
         assert!(settings.kube_context.is_empty());
+        
+        // Verify theme is system by default
+        assert_eq!(settings.theme, "system");
     }
 }

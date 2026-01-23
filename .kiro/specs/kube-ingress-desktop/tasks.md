@@ -422,48 +422,95 @@ This implementation plan breaks down the development of the Tauri-based macOS de
     - Test theme switching updates UI
     - _Requirements: 17.1, 17.3_
 
-- [ ] 22. Search Window UX Improvements
-  - [ ] 22.1 Increase search window size by 20%
+- [x] 22. Search Window UX Improvements
+  - [x] 22.1 Increase search window size by 20%
     - Update window dimensions in tauri.conf.json from 600x400 to 720x480
     - Adjust CSS if needed to accommodate larger window
     - Test window centering still works correctly
     - _Requirements: 1.4, 1.10_
 
-  - [ ] 22.2 Implement auto-close on focus loss
+  - [x] 22.2 Implement auto-close on focus loss
     - Ensure useWindowBehavior hook properly handles blur events
     - Verify window hides when clicking outside (100ms delay already implemented)
     - Test with different scenarios: clicking desktop, switching apps, clicking menu bar
     - _Requirements: 2.5, 2.6_
 
-  - [ ] 22.3 Auto-select search text on window open
+  - [x] 22.3 Auto-select search text on window open
     - Modify SearchInput component to select all text on focus
     - Use input.select() when window becomes visible
     - Ensure typing immediately replaces selected text
     - Test with keyboard shortcut and menu bar "Show" action
     - _Requirements: 7.2_
 
-  - [ ] 22.4 Disable macOS autocomplete/grammar suggestions
+  - [x] 22.4 Disable macOS autocomplete/grammar suggestions
     - Add autoComplete="off" to TextInput
     - Add autoCorrect="off" to TextInput
     - Add spellCheck={false} to TextInput
     - Add data-gramm="false" to disable Grammarly
-    - Test that no autocomplete suggestions appear
+    - Add data-form-type="other" to prevent password manager prompts
+    - Add data-lpignore="true" to prevent LastPass prompts
+    - Add data-1p-ignore to prevent 1Password prompts
+    - Test that no autocomplete suggestions appear (including browser autocomplete dropdown)
     - _Requirements: 7.2, 12.4_
 
-  - [ ]* 22.5 Write tests for search UX improvements
+  - [x] 22.5 Ensure search input focus on window open
+    - Verify SearchInput component has autoFocus prop
+    - Add window show event listener to re-focus input
+    - Test that input is focused when window opens via keyboard shortcut
+    - Test that input is focused when window opens via menu bar
+    - Ensure focus works after window was previously hidden
+    - _Requirements: 7.2_
+
+  - [ ]* 22.6 Write tests for search UX improvements
     - Test search text is selected on window open
     - Test typing replaces selected text
     - Test autocomplete attributes are set correctly
+    - Test input receives focus on window show
     - _Requirements: 17.4_
 
-- [ ] 23. Final Integration and Testing
-  - [ ] 23.1 Run all tests
+- [ ] 23. UI Polish and Layout Fixes
+  - [ ] 23.1 Improve TLS badge visibility
+    - Increase TLS badge contrast and visibility
+    - Use brighter color or add background for better visibility
+    - Test visibility in both light and dark themes
+    - _Requirements: 12.6_
+
+  - [ ] 23.2 Fix Settings modal title spacing
+    - Add top padding to Settings modal title to avoid traffic light buttons
+    - Ensure title is not obscured by macOS window controls
+    - Test with different window sizes
+    - _Requirements: 12.8_
+
+  - [ ] 23.3 Fix Options modal height and scrolling
+    - Make Options modal full height when search window is larger
+    - Ensure modal content is properly sized and scrollable
+    - Always show scrollbar to indicate more content below
+    - Use overflow-y: scroll instead of auto to make scrollbar always visible
+    - Test with different window sizes
+    - _Requirements: 12.8_
+
+  - [ ] 23.4 Rename "Settings" to "Options" everywhere
+    - Update tray menu item from "Settings" to "Options"
+    - Update modal title from "Settings" to "Options"
+    - Update any other references to "Settings" in UI to "Options"
+    - _Requirements: 3.1-3.11, 12.8_
+
+  - [ ] 23.5 Fix search results layout and scrolling
+    - Ensure search results extend all the way to the bottom of the window
+    - Remove unnecessary bottom padding/margin
+    - Always show scrollbar to indicate more results below
+    - Use overflow-y: scroll instead of auto to make scrollbar always visible
+    - Test with different numbers of results
+    - _Requirements: 7.5, 12.5_
+
+- [ ] 24. Final Integration and Testing
+  - [ ] 24.1 Run all tests
     - Execute npm test for frontend tests
     - Execute cargo test for backend tests
     - Verify all property tests pass with 100 iterations
     - _Requirements: 17.1-17.9_
 
-  - [ ] 23.2 Manual testing checklist
+  - [ ] 24.2 Manual testing checklist
     - Test global shortcut (Cmd+Shift+K) shows/hides window
     - Test search filtering works correctly
     - Test ingress URL opening in browser
@@ -477,7 +524,7 @@ This implementation plan breaks down the development of the Tauri-based macOS de
     - Test no autocomplete suggestions in search field
     - _Requirements: All_
 
-  - [ ] 23.3 Performance testing
+  - [ ] 24.3 Performance testing
     - Test with 1000+ ingresses
     - Verify window shows within 100ms
     - Verify search filtering within 150ms
