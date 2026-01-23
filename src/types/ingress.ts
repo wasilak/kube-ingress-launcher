@@ -81,6 +81,9 @@ export interface Settings {
   
   /** Theme mode: "light", "dark", or "system" */
   theme: string;
+  
+  /** Statistics time range preference (default: 'SevenDays') */
+  statisticsTimeRange?: string;
 }
 
 /**

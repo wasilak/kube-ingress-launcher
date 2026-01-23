@@ -10,25 +10,15 @@
  * Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 5.1, 5.4, 7.1, 7.2, 7.9, 8.1, 9.1, 9.2, 9.3, 14.4
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Stack, Group, Title, Select, Loader, Alert, ScrollArea, Button, Modal, Text } from '@mantine/core';
+import { invoke } from '@tauri-apps/api/core';
 import { StatisticsItem } from './StatisticsItem';
 import { AreaChartModal } from './AreaChartModal';
 import { useUsageStats } from '../hooks/useUsageStats';
-import type { TimeRange, TimeRangeOption } from '../types/usage';
-
-/**
- * Time range options for the selector dropdown
- * Each option includes value, label, and bucket granularity description
- */
-const TIME_RANGE_OPTIONS: TimeRangeOption[] = [
-  { value: 'OneHour', label: '1 hour', bucketLabel: 'per minute' },
-  { value: 'TwelveHours', label: '12 hours', bucketLabel: 'per 30 minutes' },
-  { value: 'OneDay', label: '24 hours', bucketLabel: 'per hour' },
-  { value: 'ThreeDays', label: '3 days', bucketLabel: 'per 12 hours' },
-  { value: 'SevenDays', label: '7 days', bucketLabel: 'per day' },
-  { value: 'ThirtyDays', label: '30 days', bucketLabel: 'per 3 days' },
-];
+import { TIME_RANGE_OPTIONS, DEFAULT_TIME_RANGE } from '../constants/timeRanges';
+import type { TimeRange } from '../types/usage';
+import type { Settings } from '../types/ingress';
 
 /**
  * StatisticsView component displays usage statistics with time range filtering
@@ -44,14 +34,49 @@ const TIME_RANGE_OPTIONS: TimeRangeOption[] = [
  * Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 5.1, 5.4, 7.1, 7.2, 7.9, 8.1, 9.1, 9.2, 9.3, 14.4
  */
 export function StatisticsView() {
-  // Time range state (default: 7 days)
-  const [timeRange, setTimeRange] = useState<TimeRange>('SevenDays');
+  // Time range state (default: 7 days from constants)
+  const [timeRange, setTimeRange] = useState<TimeRange>(DEFAULT_TIME_RANGE);
   
   // Selected host for area chart modal
   const [selectedHost, setSelectedHost] = useState<string | null>(null);
   
   // Confirmation modal state for clear all
   const [clearAllConfirmOpen, setClearAllConfirmOpen] = useState(false);
+
+  // Load time range preference from settings on mount
+  useEffect(() => {
+    const loadTimeRangePreference = async () => {
+      try {
+        const settings = await invoke<Settings>('get_settings');
+        if (settings.statisticsTimeRange) {
+          setTimeRange(settings.statisticsTimeRange as TimeRange);
+        }
+      } catch (err) {
+        console.error('Failed to load time range preference:', err);
+        // Continue with default value
+      }
+    };
+
+    loadTimeRangePreference();
+  }, []);
+
+  // Save time range preference to settings when changed
+  const handleTimeRangeChange = async (value: string | null) => {
+    if (!value) return;
+    
+    const newTimeRange = value as TimeRange;
+    setTimeRange(newTimeRange);
+
+    try {
+      const settings = await invoke<Settings>('get_settings');
+      await invoke('update_settings', {
+        settings: { ...settings, statisticsTimeRange: newTimeRange },
+      });
+    } catch (err) {
+      console.error('Failed to save time range preference:', err);
+      // Continue anyway - preference just won't persist
+    }
+  };
 
   // Fetch usage statistics with the selected time range
   const { stats, loading, error, clearHost, clearAll } = useUsageStats(timeRange);
@@ -120,7 +145,7 @@ export function StatisticsView() {
         <Title order={2}>Usage Statistics</Title>
         <Select
           value={timeRange}
-          onChange={(value) => setTimeRange(value as TimeRange)}
+          onChange={handleTimeRangeChange}
           data={TIME_RANGE_OPTIONS.map(option => ({
             value: option.value,
             label: option.label,

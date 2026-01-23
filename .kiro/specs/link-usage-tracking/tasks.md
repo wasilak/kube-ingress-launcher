@@ -371,15 +371,15 @@ This implementation plan breaks down the link usage tracking and statistics feat
     - Ensure theme provider wraps statistics page
     - _Requirements: 15.3_
 
-- [ ] 18. Time Range Selector Configuration
-  - [ ] 18.1 Create time range constants
+- [-] 18. Time Range Selector Configuration
+  - [x] 18.1 Create time range constants
     - Create `src/constants/timeRanges.ts`
     - Define TIME_RANGE_OPTIONS array with all options
     - Each option: value, label, bucketLabel
     - Export constants
     - _Requirements: 7.1, 7.2_
 
-  - [ ] 18.2 Persist time range preference
+  - [x] 18.2 Persist time range preference
     - Add `statisticsTimeRange` field to Settings type
     - Default to 'SevenDays'
     - Save to settings when changed

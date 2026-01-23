@@ -23,6 +23,9 @@ pub struct Settings {
     pub kube_context: String,
     /// Theme mode: "light", "dark", or "system"
     pub theme: String,
+    /// Statistics time range preference (default: "SevenDays")
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub statistics_time_range: Option<String>,
 }
 
 impl Default for Settings {
@@ -33,6 +36,7 @@ impl Default for Settings {
             autostart: false,
             kube_context: String::new(),
             theme: "system".to_string(),
+            statistics_time_range: Some("SevenDays".to_string()),
         }
     }
 }
