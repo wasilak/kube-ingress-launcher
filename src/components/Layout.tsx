@@ -54,8 +54,8 @@ export function Layout() {
   }, [location.pathname]);
 
   return (
-    <div className="app-container" data-tauri-drag-region>
-      <div style={{ padding: '10px' }}>
+    <div className="app-container" data-tauri-drag-region style={{ paddingTop: '10px' }}>
+      <div style={{ padding: '0 10px 10px 10px' }}>
         {/* Burger menu - shown on all views */}
         <div className="no-drag" style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
           <Burger
