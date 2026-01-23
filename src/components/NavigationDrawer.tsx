@@ -17,7 +17,6 @@ interface NavigationDrawerProps {
   opened: boolean;
   onClose: () => void;
   currentPath: string;
-  onNavigate?: (destination: 'search' | 'statistics' | 'settings') => void; // Optional for backward compatibility
 }
 
 /**
@@ -29,16 +28,7 @@ interface NavigationDrawerProps {
  * - Closes after navigation
  * - Highlights currently active route
  */
-export function NavigationDrawer({ opened, onClose, currentPath, onNavigate }: NavigationDrawerProps) {
-  // If onNavigate is provided (old modal-based navigation), use it
-  // Otherwise, use React Router navigation
-  const handleNavigate = (destination: 'search' | 'statistics' | 'settings') => {
-    if (onNavigate) {
-      onNavigate(destination);
-    }
-    onClose();
-  };
-
+export function NavigationDrawer({ opened, onClose, currentPath }: NavigationDrawerProps) {
   const navItems = [
     { to: '/', icon: IconSearch, label: 'Search', description: 'Search ingress resources' },
     { to: '/statistics', icon: IconChartBar, label: 'Statistics', description: 'View usage statistics' },
@@ -63,7 +53,7 @@ export function NavigationDrawer({ opened, onClose, currentPath, onNavigate }: N
             active={currentPath === item.to}
             component={RouterNavLink}
             to={item.to}
-            onClick={() => handleNavigate(item.label.toLowerCase() as 'search' | 'statistics' | 'settings')}
+            onClick={onClose}
           />
         ))}
       </Stack>
