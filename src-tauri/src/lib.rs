@@ -220,6 +220,7 @@ pub fn run() {
             commands::permissions::check_autostart,
             commands::window::update_tray_menu_state,
             commands::window::hide_window,
+            commands::window::open_statistics_window,
             commands::usage::record_link_open,
             commands::usage::get_usage_stats,
             commands::usage::get_host_usage,
@@ -247,10 +248,11 @@ fn setup_tray(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
 
     // Create initial menu with "Show" (window starts hidden)
     let show_item = MenuItemBuilder::with_id("show", "Show (⌘⇧K)").build(app)?;
+    let statistics_item = MenuItemBuilder::with_id("statistics", "Statistics").build(app)?;
     let options_item = MenuItemBuilder::with_id("options", "Options").build(app)?;
     let quit_item = MenuItemBuilder::with_id("quit", "Quit").build(app)?;
 
-    let menu = Menu::with_items(app, &[&show_item, &options_item, &quit_item])?;
+    let menu = Menu::with_items(app, &[&show_item, &statistics_item, &options_item, &quit_item])?;
 
     let _tray = TrayIconBuilder::with_id("main")
         .icon(app.default_window_icon().unwrap().clone())
@@ -280,6 +282,15 @@ fn setup_tray(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
                             }
                         }
                     }
+                }
+                "statistics" => {
+                    // Open statistics window
+                    let app_handle = app.clone();
+                    tauri::async_runtime::spawn(async move {
+                        if let Err(e) = commands::window::open_statistics_window(app_handle).await {
+                            eprintln!("Failed to open statistics window: {}", e);
+                        }
+                    });
                 }
                 "options" => {
                     // Show the main window first if it's hidden
@@ -371,10 +382,11 @@ fn update_tray_menu(app: &tauri::AppHandle, is_visible: bool) -> Result<(), Box<
 
     // Rebuild menu with updated text
     let show_item = MenuItemBuilder::with_id("show", show_text).build(app)?;
+    let statistics_item = MenuItemBuilder::with_id("statistics", "Statistics").build(app)?;
     let options_item = MenuItemBuilder::with_id("options", "Options").build(app)?;
     let quit_item = MenuItemBuilder::with_id("quit", "Quit").build(app)?;
 
-    let menu = Menu::with_items(app, &[&show_item, &options_item, &quit_item])?;
+    let menu = Menu::with_items(app, &[&show_item, &statistics_item, &options_item, &quit_item])?;
 
     // Update tray menu
     if let Some(tray) = app.tray_by_id("main") {

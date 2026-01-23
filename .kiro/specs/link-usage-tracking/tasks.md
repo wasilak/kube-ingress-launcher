@@ -290,7 +290,7 @@ This implementation plan breaks down the link usage tracking and statistics feat
     - Test close button works
     - _Requirements: 17.4_
 
-- [-] 15. Statistics View Component
+- [x] 15. Statistics View Component
   - [x] 15.1 Create StatisticsView component
     - Create `src/components/StatisticsView.tsx`
     - Use `useState` for timeRange (default: 'SevenDays')
@@ -320,8 +320,8 @@ This implementation plan breaks down the link usage tracking and statistics feat
     - Test cancel keeps stats
     - _Requirements: 17.4_
 
-- [ ] 16. Statistics Window Management
-  - [ ] 16.1 Create statistics window in Tauri
+- [x] 16. Statistics Window Management
+  - [x] 16.1 Create statistics window in Tauri
     - Modify `tauri.conf.json` to add statistics window configuration
     - Set window label to "statistics"
     - Set title to "Usage Statistics"
@@ -333,20 +333,20 @@ This implementation plan breaks down the link usage tracking and statistics feat
     - Set minWidth to 600, minHeight to 400
     - _Requirements: 12.1, 12.2, 12.3, 12.7_
 
-  - [ ] 16.2 Create Tauri command to open statistics window
+  - [x] 16.2 Create Tauri command to open statistics window
     - Add `open_statistics_window` command in `src-tauri/src/commands/window.rs`
     - Get or create statistics window
     - Show and focus window
     - Center window if first time opening
     - _Requirements: 4.2, 12.1_
 
-  - [ ] 16.3 Add "Statistics" menu item to tray
+  - [x] 16.3 Add "Statistics" menu item to tray
     - Modify tray menu setup in `src-tauri/src/main.rs`
     - Add "Statistics" menu item
     - Call `open_statistics_window` when clicked
     - _Requirements: 4.1_
 
-  - [ ] 16.4 Implement window state persistence
+  - [x] 16.4 Implement window state persistence
     - Save window size and position on close
     - Load window size and position on open
     - Use tauri-plugin-store for persistence
