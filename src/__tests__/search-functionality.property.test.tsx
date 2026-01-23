@@ -82,7 +82,7 @@ describe('Search Functionality Preservation', () => {
             paths: fc.array(fc.string(), { minLength: 0, maxLength: 3 }),
             tls: fc.boolean(),
             annotations: fc.dictionary(fc.string(), fc.string()),
-            creationTimestamp: fc.date().map(d => d.toISOString()),
+            creationTimestamp: fc.integer({ min: 1577836800000, max: 1924905600000 }).map(ts => new Date(ts).toISOString()),
             status: fc.constantFrom('ready', 'pending', 'error', 'unknown'),
           }),
           { minLength: 0, maxLength: 20 }
@@ -144,7 +144,7 @@ describe('Search Functionality Preservation', () => {
             paths: fc.array(fc.string(), { minLength: 0, maxLength: 3 }),
             tls: fc.boolean(),
             annotations: fc.dictionary(fc.string(), fc.string()),
-            creationTimestamp: fc.date().map(d => d.toISOString()),
+            creationTimestamp: fc.integer({ min: 1577836800000, max: 1924905600000 }).map(ts => new Date(ts).toISOString()),
             status: fc.constantFrom('ready', 'pending', 'error', 'unknown'),
           }),
           { minLength: 1, maxLength: 10 }
