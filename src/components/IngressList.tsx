@@ -66,7 +66,7 @@ export function IngressList({ ingresses, onSelect, selectedIndex = -1, onRefresh
   const remaining = ingresses.length - 50;
 
   return (
-    <Stack gap="xs" style={{ maxHeight: '400px', overflowY: 'auto' }}>
+    <Stack gap="xs" style={{ maxHeight: 'calc(100vh - 180px)', overflowY: 'scroll' }}>
       {displayedIngresses.map((ingress, index) => (
         <IngressItem
           key={ingress.id}

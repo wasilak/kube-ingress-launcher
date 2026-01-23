@@ -23,7 +23,7 @@ interface SearchInputProps {
  * 
  * Features:
  * - Auto-focuses on mount for immediate typing
- * - Auto-selects text when window becomes visible
+ * - Auto-selects text when input gains focus (on window show)
  * - Shows loading indicator when data is being fetched
  * - Clear button (X) to reset search when text is present
  * - Uses Mantine TextInput with search icon
@@ -33,39 +33,22 @@ interface SearchInputProps {
 export function SearchInput({ value, onChange, loading }: SearchInputProps) {
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Auto-select text when window becomes visible
+  // Auto-select text when input gains focus (happens when window is shown)
   useEffect(() => {
-    const handleWindowShow = async () => {
-      // Small delay to ensure input is rendered and focused
-      setTimeout(() => {
-        if (inputRef.current) {
-          inputRef.current.focus();
-          inputRef.current.select();
-        }
-      }, 50);
-    };
-
-    // Listen for window show events
-    const setupListener = async () => {
-      // Initial selection if there's text
-      if (value && inputRef.current) {
-        inputRef.current.focus();
+    const handleInputFocus = () => {
+      // Only select if there's text and the selection isn't already active
+      if (inputRef.current && value && inputRef.current.selectionStart === inputRef.current.selectionEnd) {
         inputRef.current.select();
       }
-
-      // Listen for focus events on the window
-      const handleFocus = () => {
-        handleWindowShow();
-      };
-
-      globalThis.window.addEventListener('focus', handleFocus);
-
-      return () => {
-        globalThis.window.removeEventListener('focus', handleFocus);
-      };
     };
 
-    setupListener();
+    const input = inputRef.current;
+    if (input) {
+      input.addEventListener('focus', handleInputFocus);
+      return () => {
+        input.removeEventListener('focus', handleInputFocus);
+      };
+    }
   }, [value]);
 
   // Determine what to show in right section
