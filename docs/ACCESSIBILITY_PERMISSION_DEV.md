@@ -17,7 +17,30 @@ This is a security feature to prevent malicious apps from maintaining permission
 
 ## Solutions
 
-### Option 1: Manual Re-Grant (Simplest)
+### Option 1: Ad-hoc Signing (Recommended for Development)
+
+Sign the development build with an ad-hoc signature to maintain consistency:
+
+```bash
+# After building
+./scripts/dev-sign.sh
+```
+
+This gives the app a consistent signature across rebuilds. You'll need to:
+1. Build the app: `npm run tauri dev`
+2. Sign it: `./scripts/dev-sign.sh`
+3. Grant accessibility permission once
+4. Permission will persist across future rebuilds (as long as you sign after each build)
+
+**Workflow**:
+```bash
+# Each time you rebuild:
+npm run tauri dev
+./scripts/dev-sign.sh
+# Permission persists!
+```
+
+### Option 2: Manual Re-Grant (Simplest but Repetitive)
 
 After each rebuild, manually re-grant permission:
 
@@ -26,7 +49,7 @@ After each rebuild, manually re-grant permission:
 3. Check the checkbox to grant permission
 4. The global shortcut (Cmd+Shift+K) will work again
 
-### Option 2: Use Helper Script (Faster)
+### Option 3: Use Helper Script (Quick Fix)
 
 Run the provided script after rebuilding:
 
@@ -37,17 +60,6 @@ Run the provided script after rebuilding:
 This script uses `sudo` to directly modify the TCC (Transparency, Consent, and Control) database to grant permission.
 
 **Note**: This requires administrator access and modifies system files. Use with caution.
-
-### Option 3: Ad-hoc Signing (Consistent Signature)
-
-Sign the development build with an ad-hoc signature:
-
-```bash
-# After building
-codesign -s - -f --deep "src-tauri/target/debug/bundle/macos/Kube Ingress Launcher.app"
-```
-
-This gives the app a consistent signature across rebuilds, but you'll still need to grant permission once.
 
 ### Option 4: Apple Developer Certificate (Production)
 
@@ -84,7 +96,7 @@ This is not something that can be "fixed" in the application code. It's a macOS 
 
 ## Summary
 
-**For Development**: Accept that permission needs to be re-granted after each rebuild, or use the helper script.
+**Recommended for Development**: Use ad-hoc signing (`./scripts/dev-sign.sh`) after each build. Grant permission once, and it persists.
 
 **For Production**: Use proper code signing with an Apple Developer certificate.
 
