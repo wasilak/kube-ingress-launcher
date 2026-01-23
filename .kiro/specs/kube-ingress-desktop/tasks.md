@@ -394,7 +394,7 @@ This implementation plan breaks down the development of the Tauri-based macOS de
     - Continue running app with cached data if available
     - _Requirements: 11.1, 11.2, 11.7_
 
-- [-] 21. Mantine Theme Support (Light/Dark/System)
+- [x] 21. Mantine Theme Support (Light/Dark/System)
   - [x] 21.1 Add theme configuration to Settings
     - Add `theme: 'light' | 'dark' | 'system'` field to Settings struct in Rust
     - Default to 'system' theme

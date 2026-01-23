@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Stack, Group, Text, Badge } from '@mantine/core';
+import { Stack, Group, Text, Badge, useMantineColorScheme } from '@mantine/core';
 import { IngressData } from '../types/ingress';
 
 /**
@@ -32,6 +32,8 @@ interface IngressItemProps {
  */
 export function IngressItem({ ingress, onSelect, isSelected = false }: IngressItemProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const { colorScheme } = useMantineColorScheme();
+  const isDark = colorScheme === 'dark';
 
   /**
    * Handles item click - calls onSelect which will open the URL
@@ -40,15 +42,15 @@ export function IngressItem({ ingress, onSelect, isSelected = false }: IngressIt
     onSelect();
   };
 
-  // Calculate background color based on selection and hover state
+  // Calculate background color based on selection, hover state, and theme
   const getBackgroundColor = () => {
     if (isSelected) {
-      return 'rgba(66, 153, 225, 0.3)'; // Blue highlight for selected
+      return isDark ? 'rgba(66, 153, 225, 0.3)' : 'rgba(66, 153, 225, 0.2)'; // Blue highlight for selected
     }
     if (isHovered) {
-      return 'rgba(255, 255, 255, 0.08)';
+      return isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)';
     }
-    return 'rgba(255, 255, 255, 0.05)';
+    return isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.02)';
   };
 
   return (
@@ -73,7 +75,7 @@ export function IngressItem({ ingress, onSelect, isSelected = false }: IngressIt
               {ingress.namespace}
             </Badge>
             {ingress.tls && (
-              <Badge size="sm" color="green">
+              <Badge size="sm" color="teal" variant="filled">
                 TLS
               </Badge>
             )}

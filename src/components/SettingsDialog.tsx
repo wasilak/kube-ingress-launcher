@@ -304,11 +304,11 @@ export function SettingsDialog({ opened, onClose }: SettingsDialogProps) {
    * Requirements: 17.7, 17.8, 17.9
    */
   const handleThemeChange = async (value: string | null) => {
-    if (value && (value === 'light' || value === 'dark' || value === 'system')) {
+    if (value && (value === 'light' || value === 'dark' || value === 'auto')) {
       try {
         setError(null);
         // Update theme immediately via useTheme hook
-        await changeTheme(value);
+        await changeTheme(value as 'light' | 'dark' | 'auto');
         // Settings are auto-saved by changeTheme
       } catch (err) {
         setError(`Failed to change theme: ${err}`);
@@ -456,7 +456,7 @@ export function SettingsDialog({ opened, onClose }: SettingsDialogProps) {
           data={[
             { value: 'light', label: 'Light' },
             { value: 'dark', label: 'Dark' },
-            { value: 'system', label: 'System' },
+            { value: 'auto', label: 'Auto (System)' },
           ]}
           value={themeMode}
           onChange={handleThemeChange}

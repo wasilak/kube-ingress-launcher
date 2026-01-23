@@ -6,13 +6,12 @@
  * - IngressList for displaying results
  * - ErrorBanner for showing errors
  * - SettingsDialog for configuration
- * - Theme management with useTheme hook
  * 
  * Requirements: 7.1-7.10, 12.10, 17.1-17.12
  */
 
 import { useState } from 'react';
-import { Stack, MantineProvider, createTheme } from '@mantine/core';
+import { Stack } from '@mantine/core';
 import { SearchInput } from './components/SearchInput';
 import { IngressList } from './components/IngressList';
 import { ErrorBanner } from './components/ErrorBanner';
@@ -28,14 +27,6 @@ import { listen } from '@tauri-apps/api/event';
 import { useEffect } from 'react';
 
 /**
- * Mantine theme configuration
- */
-const theme = createTheme({
-  defaultRadius: 'md',
-  fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-});
-
-/**
  * Main application component
  * 
  * Features:
@@ -43,14 +34,14 @@ const theme = createTheme({
  * - Provides search/filter functionality
  * - Shows error messages when issues occur
  * - Allows configuration via settings dialog
- * - Semi-transparent dark background for vibrancy effect
- * - Theme management (light/dark/system)
+ * - Semi-transparent background for vibrancy effect
+ * - Theme management (light/dark/system) via ThemeProvider
  * 
  * Requirements: 7.1-7.10, 12.10, 17.1-17.12
  */
 export function App() {
-  // Theme management
-  const { colorScheme } = useTheme();
+  // Initialize theme (loads from settings and manages Mantine color scheme)
+  useTheme();
   
   // Fetch ingresses data and manage loading/error states
   const { ingresses, loading, error, refresh } = useIngresses();
@@ -99,40 +90,38 @@ export function App() {
   });
 
   return (
-    <MantineProvider theme={theme} forceColorScheme={colorScheme}>
-      <div className="app-container" data-tauri-drag-region>
-        <Stack gap="md" p="md">
-          {/* Error banner - shown when there's an error */}
-          {error && <ErrorBanner error={error} />}
-          
-          {/* Search input - auto-focused for immediate typing */}
-          <div className="no-drag">
-            <SearchInput
-              value={searchTerm}
-              onChange={setSearchTerm}
-              loading={loading}
-            />
-          </div>
-          
-          {/* Ingress list - displays filtered results */}
-          <div className="no-drag">
-            <IngressList
-              ingresses={filteredIngresses}
-              onSelect={handleIngressSelect}
-              selectedIndex={selectedIndex}
-              onRefresh={refresh}
-              loading={loading}
-            />
-          </div>
-        </Stack>
+    <div className="app-container" data-tauri-drag-region>
+      <Stack gap="md" p="md">
+        {/* Error banner - shown when there's an error */}
+        {error && <ErrorBanner error={error} />}
+        
+        {/* Search input - auto-focused for immediate typing */}
+        <div className="no-drag">
+          <SearchInput
+            value={searchTerm}
+            onChange={setSearchTerm}
+            loading={loading}
+          />
+        </div>
+        
+        {/* Ingress list - displays filtered results */}
+        <div className="no-drag">
+          <IngressList
+            ingresses={filteredIngresses}
+            onSelect={handleIngressSelect}
+            selectedIndex={selectedIndex}
+            onRefresh={refresh}
+            loading={loading}
+          />
+        </div>
+      </Stack>
 
-        {/* Settings dialog - modal for configuration */}
-        <SettingsDialog
-          opened={settingsOpen}
-          onClose={() => setSettingsOpen(false)}
-        />
-      </div>
-    </MantineProvider>
+      {/* Settings dialog - modal for configuration */}
+      <SettingsDialog
+        opened={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+      />
+    </div>
   );
 }
 
