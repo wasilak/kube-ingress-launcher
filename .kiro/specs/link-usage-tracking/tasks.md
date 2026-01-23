@@ -265,8 +265,8 @@ This implementation plan breaks down the link usage tracking and statistics feat
     - Test sparkline click calls onSparklineClick
     - _Requirements: 17.4_
 
-- [ ] 14. Area Chart Modal Component
-  - [ ] 14.1 Create AreaChartModal component
+- [x] 14. Area Chart Modal Component
+  - [x] 14.1 Create AreaChartModal component
     - Create `src/components/AreaChartModal.tsx`
     - Accept `host`, `timeRange`, `onClose` props
     - Use Mantine Modal component (size="xl")
@@ -290,8 +290,8 @@ This implementation plan breaks down the link usage tracking and statistics feat
     - Test close button works
     - _Requirements: 17.4_
 
-- [ ] 15. Statistics View Component
-  - [ ] 15.1 Create StatisticsView component
+- [-] 15. Statistics View Component
+  - [x] 15.1 Create StatisticsView component
     - Create `src/components/StatisticsView.tsx`
     - Use `useState` for timeRange (default: 'SevenDays')
     - Use `useState` for selectedHost (for modal)
