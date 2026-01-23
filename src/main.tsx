@@ -3,14 +3,16 @@
  * 
  * Sets up:
  * - React root rendering
+ * - BrowserRouter for client-side routing
  * - MantineProvider for UI components with theme management
  * - Global styles
  * 
- * Requirements: 12.1, 17.1-17.12
+ * Requirements: 1.1, 1.2, 12.1, 17.1-17.12
  */
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
 import { MantineProvider, createTheme } from '@mantine/core';
 import App from './App';
 import './styles/index.css';
@@ -35,16 +37,22 @@ const theme = createTheme({
  * Wraps the App component with:
  * - React.StrictMode for development checks
  * - MantineProvider for UI component theming
+ * - BrowserRouter for client-side routing
  * 
  * defaultColorScheme is set to 'auto' to follow system preference by default
  * The useTheme hook in App will load the user's saved preference and update it
  * 
- * Requirements: 12.1, 17.1-17.12
+ * BrowserRouter provides HTML5 history API-based routing, suitable for desktop applications.
+ * Wrapping at the root level ensures routing context is available throughout the app.
+ * 
+ * Requirements: 1.1, 1.2, 12.1, 17.1-17.12
  */
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <MantineProvider theme={theme} defaultColorScheme="auto">
-      <App />
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
     </MantineProvider>
   </React.StrictMode>
 );
