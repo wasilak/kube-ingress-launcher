@@ -371,7 +371,7 @@ This implementation plan breaks down the link usage tracking and statistics feat
     - Ensure theme provider wraps statistics page
     - _Requirements: 15.3_
 
-- [-] 18. Time Range Selector Configuration
+- [x] 18. Time Range Selector Configuration
   - [x] 18.1 Create time range constants
     - Create `src/constants/timeRanges.ts`
     - Define TIME_RANGE_OPTIONS array with all options
@@ -391,8 +391,8 @@ This implementation plan breaks down the link usage tracking and statistics feat
     - Test time range loads from settings
     - _Requirements: 17.1_
 
-- [ ] 19. Clear Confirmation Modal
-  - [ ] 19.1 Create ClearConfirmationModal component
+- [x] 19. Clear Confirmation Modal
+  - [x] 19.1 Create ClearConfirmationModal component
     - Create `src/components/ClearConfirmationModal.tsx`
     - Accept `opened`, `onConfirm`, `onCancel` props
     - Use Mantine Modal component

@@ -11,10 +11,11 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Stack, Group, Title, Select, Loader, Alert, ScrollArea, Button, Modal, Text } from '@mantine/core';
+import { Stack, Group, Title, Select, Loader, Alert, ScrollArea, Button, Text } from '@mantine/core';
 import { invoke } from '@tauri-apps/api/core';
 import { StatisticsItem } from './StatisticsItem';
 import { AreaChartModal } from './AreaChartModal';
+import { ClearConfirmationModal } from './ClearConfirmationModal';
 import { useUsageStats } from '../hooks/useUsageStats';
 import { TIME_RANGE_OPTIONS, DEFAULT_TIME_RANGE } from '../constants/timeRanges';
 import type { TimeRange } from '../types/usage';
@@ -205,26 +206,11 @@ export function StatisticsView() {
       )}
 
       {/* Clear all confirmation modal */}
-      <Modal
+      <ClearConfirmationModal
         opened={clearAllConfirmOpen}
-        onClose={handleClearAllCancel}
-        title="Clear All Statistics"
-        centered
-      >
-        <Stack gap="md">
-          <Text>
-            Are you sure you want to clear all usage statistics? This cannot be undone.
-          </Text>
-          <Group justify="flex-end" gap="sm">
-            <Button variant="light" onClick={handleClearAllCancel}>
-              Cancel
-            </Button>
-            <Button color="red" onClick={handleClearAllConfirm}>
-              Clear All
-            </Button>
-          </Group>
-        </Stack>
-      </Modal>
+        onConfirm={handleClearAllConfirm}
+        onCancel={handleClearAllCancel}
+      />
 
       {/* Area chart modal for detailed view */}
       {selectedHost && (
