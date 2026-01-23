@@ -24,8 +24,14 @@ pub fn run() {
             // Note: LSUIElement in Info.plist handles hiding from Dock
             // Do NOT call set_activation_policy here as it causes permission revocation
             
-            // Initialize application state
-            let app_state = AppState::new();
+            // Initialize application state asynchronously
+            let app_handle_for_state = app.handle().clone();
+            let app_state_future = AppState::new(app_handle_for_state);
+            
+            // Block on state initialization (required during setup)
+            let app_state = tauri::async_runtime::block_on(app_state_future)
+                .expect("Failed to initialize application state");
+            
             app.manage(app_state.clone());
 
             // Initialize settings state

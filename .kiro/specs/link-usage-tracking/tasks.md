@@ -60,8 +60,8 @@ This implementation plan breaks down the link usage tracking and statistics feat
     - Test cleanup continues on error
     - _Requirements: 14.1, 14.2, 14.3, 17.1_
 
-- [ ] 3. Usage Aggregator Implementation
-  - [ ] 3.1 Implement UsageAggregator
+- [x] 3. Usage Aggregator Implementation
+  - [x] 3.1 Implement UsageAggregator
     - Create `src-tauri/src/usage/aggregator.rs`
     - Implement `aggregate()` to aggregate all hosts by time range
     - Implement `aggregate_host()` to aggregate specific host
@@ -84,8 +84,8 @@ This implementation plan breaks down the link usage tracking and statistics feat
     - Test bucket filling with gaps
     - _Requirements: 17.1_
 
-- [ ] 4. Extend AppState with Usage Tracker
-  - [ ] 4.1 Add usage_tracker field to AppState
+- [x] 4. Extend AppState with Usage Tracker
+  - [x] 4.1 Add usage_tracker field to AppState
     - Modify `src-tauri/src/state/app_state.rs`
     - Add `usage_tracker: Arc<UsageTracker>` field
     - Initialize UsageTracker in `AppState::new()`
