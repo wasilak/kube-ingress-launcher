@@ -8,7 +8,7 @@
  * Requirements: 6.1, 6.2, 6.5
  */
 
-import { Stack, NumberInput, Switch, Select, Button, Group, Text, Alert, Divider, Badge, Kbd } from '@mantine/core';
+import { Stack, NumberInput, Switch, Select, Button, Group, Text, Alert, Divider, Badge, Kbd, ScrollArea } from '@mantine/core';
 import { useState, useEffect } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { Settings, VersionInfo } from '../types/ingress';
@@ -334,12 +334,13 @@ export function SettingsView() {
   };
 
   return (
-    <Stack gap="md" style={{ maxHeight: 'calc(100vh - 120px)', overflowY: 'auto' }}>
-      {error && (
-        <Text c="red" size="sm">
-          {error}
-        </Text>
-      )}
+    <ScrollArea h="calc(100vh - 120px)" scrollbarSize={8} scrollbars="y">
+      <Stack gap="md" pr="xs">
+        {error && (
+          <Text c="red" size="sm">
+            {error}
+          </Text>
+        )}
       
       {/* Accessibility Permission Warning */}
       {!accessibilityGranted && (
@@ -503,6 +504,7 @@ export function SettingsView() {
         }}
         permissionType={permissionType}
       />
-    </Stack>
+      </Stack>
+    </ScrollArea>
   );
 }

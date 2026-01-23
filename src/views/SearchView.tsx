@@ -10,7 +10,7 @@
  * Requirements: 4.1, 4.2, 4.3, 4.4, 4.5
  */
 
-import { Stack } from '@mantine/core';
+import { Stack, ScrollArea } from '@mantine/core';
 import { SearchInput } from '../components/SearchInput';
 import { IngressList } from '../components/IngressList';
 import { ErrorBanner } from '../components/ErrorBanner';
@@ -67,26 +67,28 @@ export function SearchView() {
   });
 
   return (
-    <Stack gap="md">
-      {/* Error banner - shown when there's an error */}
-      {error && <ErrorBanner error={error} />}
-      
-      {/* Search input */}
-      <SearchInput
-        value={searchTerm}
-        onChange={setSearchTerm}
-        loading={loading}
-      />
-      
-      {/* Ingress list - displays filtered results */}
-      <IngressList
-        ingresses={filteredIngresses}
-        onSelect={handleIngressSelect}
-        selectedIndex={selectedIndex}
-        onRefresh={refresh}
-        loading={loading}
-        searchTerm={searchTerm}
-      />
-    </Stack>
+    <ScrollArea h="calc(100vh - 120px)" scrollbarSize={8} scrollbars="y">
+      <Stack gap="md" pr="xs">
+        {/* Error banner - shown when there's an error */}
+        {error && <ErrorBanner error={error} />}
+        
+        {/* Search input */}
+        <SearchInput
+          value={searchTerm}
+          onChange={setSearchTerm}
+          loading={loading}
+        />
+        
+        {/* Ingress list - displays filtered results */}
+        <IngressList
+          ingresses={filteredIngresses}
+          onSelect={handleIngressSelect}
+          selectedIndex={selectedIndex}
+          onRefresh={refresh}
+          loading={loading}
+          searchTerm={searchTerm}
+        />
+      </Stack>
+    </ScrollArea>
   );
 }
