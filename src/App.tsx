@@ -104,6 +104,31 @@ export function App() {
           />
         </div>
         
+        {/* Debug button to test window hiding */}
+        <div className="no-drag">
+          <button
+            onClick={async () => {
+              console.log('[App] Test hide button clicked');
+              try {
+                await invoke('test_hide_window');
+                console.log('[App] Test hide command succeeded');
+              } catch (err) {
+                console.error('[App] Test hide command failed:', err);
+              }
+            }}
+            style={{
+              padding: '8px 16px',
+              background: '#ff6b6b',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+            }}
+          >
+            TEST HIDE WINDOW
+          </button>
+        </div>
+        
         {/* Ingress list - displays filtered results */}
         <div className="no-drag">
           <IngressList
