@@ -11,11 +11,10 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { createTheme } from '@mantine/core';
+import { MantineProvider, createTheme } from '@mantine/core';
 import App from './App';
 import './styles/index.css';
 import '@mantine/core/styles.css';
-import { ThemeProvider } from './components/ThemeProvider';
 
 /**
  * Mantine theme configuration
@@ -35,15 +34,17 @@ const theme = createTheme({
  * 
  * Wraps the App component with:
  * - React.StrictMode for development checks
- * - ThemeProvider for theme management
  * - MantineProvider for UI component theming
+ * 
+ * defaultColorScheme is set to 'auto' to follow system preference by default
+ * The useTheme hook in App will load the user's saved preference and update it
  * 
  * Requirements: 12.1, 17.1-17.12
  */
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
-    <ThemeProvider theme={theme}>
+    <MantineProvider theme={theme} defaultColorScheme="auto">
       <App />
-    </ThemeProvider>
+    </MantineProvider>
   </React.StrictMode>
 );
