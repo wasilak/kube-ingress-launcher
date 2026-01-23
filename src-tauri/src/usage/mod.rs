@@ -1,8 +1,10 @@
+pub mod aggregator;
 pub mod tracker;
 
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
+pub use aggregator::UsageAggregator;
 pub use tracker::UsageTracker;
 
 /// Individual open event record
