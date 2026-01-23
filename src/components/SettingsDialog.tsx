@@ -346,40 +346,21 @@ export function SettingsDialog({ opened, onClose }: SettingsDialogProps) {
       opened={opened}
       onClose={onClose}
       title="Options"
-      size="xl"
+      size="lg"
       centered
-      fullScreen
+      scrollAreaComponent={ScrollArea.Autosize}
       styles={{
-        content: {
-          height: '480px', // Match search window height
-          width: '600px',
-          margin: 'auto',
-        },
         header: {
           paddingTop: '24px', // Add padding to avoid traffic light buttons
         },
-        body: {
-          height: 'calc(100% - 80px)', // Adjust for header height
-          padding: 0, // Remove padding to let ScrollArea handle it
-        },
       }}
     >
-      <ScrollArea 
-        h="100%" 
-        type="always"
-        offsetScrollbars
-        styles={{
-          viewport: {
-            padding: 'var(--mantine-spacing-md)',
-          },
-        }}
-      >
-        <Stack gap="md">
-          {error && (
-            <Text c="red" size="sm">
-              {error}
-            </Text>
-          )}
+      <Stack gap="md">
+        {error && (
+          <Text c="red" size="sm">
+            {error}
+          </Text>
+        )}
         
         {/* Accessibility Permission Warning */}
         {!accessibilityGranted && (
@@ -533,8 +514,7 @@ export function SettingsDialog({ opened, onClose }: SettingsDialogProps) {
             )}
           </Stack>
         )}
-        </Stack>
-      </ScrollArea>
+      </Stack>
       
       {/* Permissions Dialog */}
       <PermissionsDialog
