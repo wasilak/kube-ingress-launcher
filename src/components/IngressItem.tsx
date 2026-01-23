@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { Stack, Group, Text, Badge, useMantineColorScheme } from '@mantine/core';
 import { IngressData } from '../types/ingress';
+import { useUsageCounts } from '../hooks/useUsageCounts';
+import { UsageBadge } from './UsageBadge';
 
 /**
  * Props for the IngressItem component
  * 
- * Requirements: 7.5, 7.6, 8.1-8.4, 12.6, 8.5, 11.4
+ * Requirements: 7.5, 7.6, 8.1-8.4, 12.6, 8.5, 11.4, 1.1, 2.1, 2.2, 2.3, 2.4, 2.5, 15.1
  */
 interface IngressItemProps {
   /** Ingress resource to display */
@@ -23,22 +25,37 @@ interface IngressItemProps {
  * 
  * Features:
  * - Displays name, namespace, hosts, and TLS badge
- * - Clicking opens the URL in default browser
+ * - Displays usage count badge showing how many times the link has been opened
+ * - Clicking opens the URL in default browser and records the open event
  * - Hover effect for better UX
  * - Semi-transparent background for vibrancy effect
  * - Visual highlight when selected via keyboard navigation
  * 
- * Requirements: 7.5, 7.6, 8.1-8.4, 12.6, 8.5, 11.4
+ * Requirements: 7.5, 7.6, 8.1-8.4, 12.6, 8.5, 11.4, 1.1, 2.1, 2.2, 2.3, 2.4, 2.5, 15.1
  */
 export function IngressItem({ ingress, onSelect, isSelected = false }: IngressItemProps) {
   const [isHovered, setIsHovered] = useState(false);
   const { colorScheme } = useMantineColorScheme();
   const isDark = colorScheme === 'dark';
+  
+  // Get usage counts and recordOpen function
+  const { counts, recordOpen } = useUsageCounts();
+  
+  // Get the usage count for this ingress (use first host as key)
+  const usageCount = ingress.hosts.length > 0 ? (counts[ingress.hosts[0]] || 0) : 0;
 
   /**
-   * Handles item click - calls onSelect which will open the URL
+   * Handles item click - records the open event then calls onSelect to open the URL
+   * 
+   * Requirements: 1.1, 2.5, 15.1
    */
-  const handleItemClick = () => {
+  const handleItemClick = async () => {
+    // Record the open event before opening URL
+    if (ingress.hosts.length > 0) {
+      await recordOpen(ingress.hosts[0]);
+    }
+    
+    // Call the original onSelect callback to open the URL
     onSelect();
   };
 
@@ -89,6 +106,9 @@ export function IngressItem({ ingress, onSelect, isSelected = false }: IngressIt
             {ingress.hosts.length > 0 ? ingress.hosts.join(', ') : 'No hosts'}
           </Text>
         </Stack>
+        
+        {/* Usage badge - positioned on the right side */}
+        <UsageBadge count={usageCount} />
       </Group>
     </div>
   );

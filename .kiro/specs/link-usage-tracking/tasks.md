@@ -154,8 +154,8 @@ This implementation plan breaks down the link usage tracking and statistics feat
     - Test type compatibility with Rust types
     - _Requirements: 17.4_
 
-- [ ] 8. Usage Counts Hook
-  - [ ] 8.1 Create useUsageCounts hook
+- [x] 8. Usage Counts Hook
+  - [x] 8.1 Create useUsageCounts hook
     - Create `src/hooks/useUsageCounts.ts`
     - Call `get_all_counts` command on mount
     - Listen for "usage-stats-updated" events
@@ -170,8 +170,8 @@ This implementation plan breaks down the link usage tracking and statistics feat
     - Test event listener updates counts
     - _Requirements: 17.4_
 
-- [ ] 9. Usage Statistics Hook
-  - [ ] 9.1 Create useUsageStats hook
+- [x] 9. Usage Statistics Hook
+  - [x] 9.1 Create useUsageStats hook
     - Create `src/hooks/useUsageStats.ts`
     - Accept `timeRange` parameter
     - Call `get_usage_stats` command with time range
@@ -190,8 +190,8 @@ This implementation plan breaks down the link usage tracking and statistics feat
     - Test event listener triggers refresh
     - _Requirements: 17.4_
 
-- [ ] 10. Usage Badge Component
-  - [ ] 10.1 Create UsageBadge component
+- [-] 10. Usage Badge Component
+  - [x] 10.1 Create UsageBadge component
     - Create `src/components/UsageBadge.tsx`
     - Accept `count` prop
     - Use Mantine Badge component
@@ -207,8 +207,8 @@ This implementation plan breaks down the link usage tracking and statistics feat
     - Test uses correct color for 0 vs >0
     - _Requirements: 17.4_
 
-- [ ] 11. Integrate Usage Badge with IngressItem
-  - [ ] 11.1 Modify IngressItem component
+- [-] 11. Integrate Usage Badge with IngressItem
+  - [x] 11.1 Modify IngressItem component
     - Import `useUsageCounts` hook
     - Import `UsageBadge` component
     - Get counts from hook
