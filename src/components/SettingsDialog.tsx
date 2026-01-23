@@ -346,9 +346,9 @@ export function SettingsDialog({ opened, onClose }: SettingsDialogProps) {
       opened={opened}
       onClose={onClose}
       title="Options"
-      size="lg"
-      centered
+      fullScreen
       scrollAreaComponent={ScrollArea.Autosize}
+      transitionProps={{ transition: 'fade', duration: 200 }}
       styles={{
         header: {
           paddingTop: '24px', // Add padding to avoid traffic light buttons
