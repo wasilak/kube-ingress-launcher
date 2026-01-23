@@ -220,6 +220,13 @@ pub fn run() {
             commands::permissions::check_autostart,
             commands::window::update_tray_menu_state,
             commands::window::hide_window,
+            commands::usage::record_link_open,
+            commands::usage::get_usage_stats,
+            commands::usage::get_host_usage,
+            commands::usage::clear_host_usage,
+            commands::usage::clear_all_usage,
+            commands::usage::get_host_count,
+            commands::usage::get_all_counts,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -97,8 +97,8 @@ This implementation plan breaks down the link usage tracking and statistics feat
     - Test usage tracker is accessible from state
     - _Requirements: 17.3_
 
-- [ ] 5. Tauri Commands for Usage Tracking
-  - [ ] 5.1 Create usage tracking commands
+- [-] 5. Tauri Commands for Usage Tracking
+  - [x] 5.1 Create usage tracking commands
     - Create `src-tauri/src/commands/usage.rs`
     - Implement `record_link_open(host, state, app_handle)` command
     - Implement `get_usage_stats(time_range, state)` command
@@ -111,7 +111,7 @@ This implementation plan breaks down the link usage tracking and statistics feat
     - Return Result<T, String> for error handling
     - _Requirements: 1.1, 2.5, 3.5, 4.5, 8.2, 8.3, 8.4, 8.5, 9.4, 9.6, 9.7, 13.4_
 
-  - [ ] 5.2 Register usage commands in main.rs
+  - [x] 5.2 Register usage commands in main.rs
     - Add usage commands to `invoke_handler` in `src-tauri/src/main.rs`
     - _Requirements: 13.4_
 
