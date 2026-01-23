@@ -20,6 +20,9 @@ pub fn run() {
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .plugin(tauri_plugin_autostart::init(tauri_plugin_autostart::MacosLauncher::LaunchAgent, Some(vec!["--flag1", "--flag2"])))
         .setup(|app| {
+            // Note: LSUIElement in Info.plist handles hiding from Dock
+            // Do NOT call set_activation_policy here as it causes permission revocation
+            
             // Initialize application state
             let app_state = AppState::new();
             app.manage(app_state.clone());
