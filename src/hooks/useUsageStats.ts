@@ -41,14 +41,17 @@ export function useUsageStats(timeRange: TimeRange): UseUsageStatsReturn {
     try {
       setLoading(true);
       setError(null);
+      console.log('DEBUG: Loading usage stats for time range:', timeRange);
       const result = await invoke<AggregatedUsage[]>('get_usage_stats', { 
         timeRange 
       });
+      console.log('DEBUG: Received stats:', result);
+      console.log('DEBUG: Stats length:', result.length);
       setStats(result);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err);
+      console.error('ERROR: Failed to load usage stats:', err);
       setError(errorMessage);
-      console.error('Failed to load usage stats:', err);
     } finally {
       setLoading(false);
     }

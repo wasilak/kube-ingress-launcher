@@ -49,6 +49,7 @@ pub struct TimeBucket {
 
 /// Aggregated usage for display
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct AggregatedUsage {
     /// Ingress host
     pub host: String,
