@@ -294,8 +294,8 @@ fn setup_tray(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
                             let _ = update_tray_menu(app, true);
                         }
                     }
-                    // Emit event to open statistics dialog
-                    let _ = app.emit("open-statistics", ());
+                    // Emit navigation event to statistics route
+                    let _ = app.emit("navigate", "/statistics");
                 }
                 "options" => {
                     // Show the main window first if it's hidden
@@ -308,8 +308,8 @@ fn setup_tray(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
                             let _ = update_tray_menu(app, true);
                         }
                     }
-                    // Emit event to open settings dialog
-                    let _ = app.emit("open-settings", ());
+                    // Emit navigation event to settings route
+                    let _ = app.emit("navigate", "/settings");
                 }
                 "quit" => {
                     app.exit(0);

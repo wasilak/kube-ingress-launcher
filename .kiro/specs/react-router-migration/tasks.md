@@ -49,8 +49,8 @@ This implementation plan outlines the tasks for migrating the Kube Ingress Launc
     - Test SettingsView renders settings fields
     - _Requirements: 4.2, 4.3, 5.2, 6.2_
 
-- [ ] 4. Update App.tsx with route configuration
-  - [ ] 4.1 Configure Routes with nested structure
+- [x] 4. Update App.tsx with route configuration
+  - [x] 4.1 Configure Routes with nested structure
     - Define root route with Layout
     - Define index route for SearchView
     - Define /statistics route for StatisticsView
@@ -58,7 +58,7 @@ This implementation plan outlines the tasks for migrating the Kube Ingress Launc
     - Add catch-all route for invalid paths
     - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5_
   
-  - [ ] 4.2 Add navigation event listener
+  - [x] 4.2 Add navigation event listener
     - Listen for "navigate" events from backend
     - Use useNavigate to handle navigation
     - Add error handling for navigation failures
@@ -76,8 +76,8 @@ This implementation plan outlines the tasks for migrating the Kube Ingress Launc
     - Test that any invalid route redirects to home
     - _Requirements: 2.5_
 
-- [ ] 5. Update NavigationDrawer for React Router
-  - [ ] 5.1 Update NavigationDrawer to use React Router links
+- [x] 5. Update NavigationDrawer for React Router
+  - [x] 5.1 Update NavigationDrawer to use React Router links
     - Use Mantine NavLink with React Router NavLink component
     - Add currentPath prop for active state
     - Update navigation items to use "to" prop
@@ -96,8 +96,8 @@ This implementation plan outlines the tasks for migrating the Kube Ingress Launc
     - Test that any active route is highlighted in drawer
     - _Requirements: 7.4_
 
-- [ ] 6. Update backend menu event emissions
-  - [ ] 6.1 Update Rust menu handlers (src-tauri/src/menu.rs)
+- [-] 6. Update backend menu event emissions
+  - [x] 6.1 Update Rust menu handlers (src-tauri/src/menu.rs)
     - Replace "open-settings" event with "navigate" event
     - Replace "open-statistics" event with "navigate" event
     - Emit route paths ("/settings", "/statistics")
