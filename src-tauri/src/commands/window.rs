@@ -38,7 +38,7 @@ pub async fn update_tray_menu_state(
         .build(&app)
         .map_err(|e| format!("Failed to build menu item: {}", e))?;
     
-    let options_item = MenuItemBuilder::with_id("options", "Options...")
+    let options_item = MenuItemBuilder::with_id("options", "Options")
         .build(&app)
         .map_err(|e| format!("Failed to build menu item: {}", e))?;
     

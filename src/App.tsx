@@ -12,12 +12,15 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Stack } from '@mantine/core';
+import { Stack, Group } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
+import { Burger } from '@mantine/core';
 import { SearchInput } from './components/SearchInput';
 import { IngressList } from './components/IngressList';
 import { ErrorBanner } from './components/ErrorBanner';
 import { SettingsDialog } from './components/SettingsDialog';
 import { StatisticsDialog } from './components/StatisticsDialog';
+import { NavigationDrawer } from './components/NavigationDrawer';
 import { Statistics } from './pages/Statistics';
 import { useIngresses } from './hooks/useIngresses';
 import { useSearch } from './hooks/useSearch';
@@ -98,6 +101,9 @@ function MainWindow() {
   
   // Statistics dialog state
   const [statisticsOpen, setStatisticsOpen] = useState(false);
+  
+  // Navigation drawer state
+  const [drawerOpened, { open: openDrawer, close: closeDrawer }] = useDisclosure(false);
 
   // Listen for settings dialog open event from menu
   useEffect(() => {
@@ -136,17 +142,44 @@ function MainWindow() {
       }
     }
   };
+  
+  /**
+   * Handle navigation from drawer
+   */
+  const handleNavigate = (destination: 'search' | 'statistics' | 'settings') => {
+    switch (destination) {
+      case 'search':
+        // Already on search view, just close drawer
+        break;
+      case 'statistics':
+        setStatisticsOpen(true);
+        break;
+      case 'settings':
+        setSettingsOpen(true);
+        break;
+    }
+  };
 
   // Keyboard navigation for ingress list
   const { selectedIndex } = useKeyboardNavigation({
     items: filteredIngresses,
     onSelect: handleIngressSelect,
-    enabled: !settingsOpen && !statisticsOpen, // Disable when dialogs are open
+    enabled: !settingsOpen && !statisticsOpen && !drawerOpened, // Disable when dialogs/drawer are open
   });
 
   return (
     <div className="app-container" data-tauri-drag-region>
       <Stack gap="md" p="md">
+        {/* Burger menu button in top right corner */}
+        <Group justify="flex-end" className="no-drag">
+          <Burger
+            opened={drawerOpened}
+            onClick={openDrawer}
+            size="sm"
+            aria-label="Open navigation menu"
+          />
+        </Group>
+        
         {/* Error banner - shown when there's an error */}
         {error && <ErrorBanner error={error} />}
         
@@ -171,6 +204,13 @@ function MainWindow() {
           />
         </div>
       </Stack>
+
+      {/* Navigation drawer */}
+      <NavigationDrawer
+        opened={drawerOpened}
+        onClose={closeDrawer}
+        onNavigate={handleNavigate}
+      />
 
       {/* Settings dialog - modal for configuration */}
       <SettingsDialog
