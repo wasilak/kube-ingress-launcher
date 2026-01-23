@@ -321,19 +321,22 @@ export function SettingsDialog({ opened, onClose }: SettingsDialogProps) {
     <Modal
       opened={opened}
       onClose={onClose}
-      title="Settings"
+      title="Options"
       size="xl"
       centered
       fullScreen
       styles={{
         content: {
-          height: '400px',
+          height: '480px', // Match search window height
           width: '600px',
           margin: 'auto',
         },
+        header: {
+          paddingTop: '24px', // Add padding to avoid traffic light buttons
+        },
         body: {
-          height: 'calc(100% - 60px)',
-          overflow: 'auto',
+          height: 'calc(100% - 80px)', // Adjust for header height
+          overflowY: 'scroll', // Always show scrollbar
         },
       }}
     >

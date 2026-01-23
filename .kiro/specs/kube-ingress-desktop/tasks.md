@@ -468,20 +468,20 @@ This implementation plan breaks down the development of the Tauri-based macOS de
     - Test input receives focus on window show
     - _Requirements: 17.4_
 
-- [ ] 23. UI Polish and Layout Fixes
-  - [ ] 23.1 Improve TLS badge visibility
+- [x] 23. UI Polish and Layout Fixes
+  - [x] 23.1 Improve TLS badge visibility
     - Increase TLS badge contrast and visibility
     - Use brighter color or add background for better visibility
     - Test visibility in both light and dark themes
     - _Requirements: 12.6_
 
-  - [ ] 23.2 Fix Settings modal title spacing
+  - [x] 23.2 Fix Settings modal title spacing
     - Add top padding to Settings modal title to avoid traffic light buttons
     - Ensure title is not obscured by macOS window controls
     - Test with different window sizes
     - _Requirements: 12.8_
 
-  - [ ] 23.3 Fix Options modal height and scrolling
+  - [x] 23.3 Fix Options modal height and scrolling
     - Make Options modal full height when search window is larger
     - Ensure modal content is properly sized and scrollable
     - Always show scrollbar to indicate more content below
@@ -489,13 +489,13 @@ This implementation plan breaks down the development of the Tauri-based macOS de
     - Test with different window sizes
     - _Requirements: 12.8_
 
-  - [ ] 23.4 Rename "Settings" to "Options" everywhere
+  - [x] 23.4 Rename "Settings" to "Options" everywhere
     - Update tray menu item from "Settings" to "Options"
     - Update modal title from "Settings" to "Options"
     - Update any other references to "Settings" in UI to "Options"
     - _Requirements: 3.1-3.11, 12.8_
 
-  - [ ] 23.5 Fix search results layout and scrolling
+  - [x] 23.5 Fix search results layout and scrolling
     - Ensure search results extend all the way to the bottom of the window
     - Remove unnecessary bottom padding/margin
     - Always show scrollbar to indicate more results below

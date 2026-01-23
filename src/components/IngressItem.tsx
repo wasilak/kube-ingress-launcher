@@ -75,7 +75,17 @@ export function IngressItem({ ingress, onSelect, isSelected = false }: IngressIt
               {ingress.namespace}
             </Badge>
             {ingress.tls && (
-              <Badge size="sm" color="teal" variant="filled">
+              <Badge 
+                size="sm" 
+                color="green" 
+                variant="filled"
+                style={{
+                  backgroundColor: isDark ? 'rgba(34, 197, 94, 0.9)' : 'rgba(22, 163, 74, 1)',
+                  color: 'white',
+                  fontWeight: 600,
+                  border: isDark ? '1px solid rgba(34, 197, 94, 1)' : '1px solid rgba(22, 163, 74, 1)',
+                }}
+              >
                 TLS
               </Badge>
             )}
