@@ -59,8 +59,10 @@ export function useUsageStats(timeRange: TimeRange): UseUsageStatsReturn {
       await invoke('clear_host_usage', { host });
       // Stats will be updated via event listener
     } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      setError(errorMessage);
       console.error('Failed to clear host usage:', err);
-      throw err;
+      // Don't throw - set error state and continue operation
     }
   }, []);
 
@@ -69,8 +71,10 @@ export function useUsageStats(timeRange: TimeRange): UseUsageStatsReturn {
       await invoke('clear_all_usage');
       // Stats will be updated via event listener
     } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      setError(errorMessage);
       console.error('Failed to clear all usage:', err);
-      throw err;
+      // Don't throw - set error state and continue operation
     }
   }, []);
 

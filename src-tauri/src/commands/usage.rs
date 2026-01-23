@@ -27,18 +27,29 @@ pub async fn record_link_open(
 ) -> Result<(), String> {
     // Validate input
     if host.is_empty() {
+        eprintln!("Error: Attempted to record link open with empty host");
         return Err("Host cannot be empty".to_string());
+    }
+
+    if host.len() > 253 {
+        eprintln!("Error: Host too long: {} characters", host.len());
+        return Err("Host name too long (max 253 characters)".to_string());
     }
 
     // Record the open event
     state
         .usage_tracker
-        .record_open(host)
+        .record_open(host.clone())
         .await
-        .map_err(|e| format!("Failed to record link open: {}", e))?;
+        .map_err(|e| {
+            eprintln!("Error recording link open for host '{}': {}", host, e);
+            format!("Failed to record link open: {}", e)
+        })?;
 
-    // Emit update event
-    let _ = app_handle.emit("usage-stats-updated", ());
+    // Emit update event (log but don't fail if emit fails)
+    if let Err(e) = app_handle.emit("usage-stats-updated", ()) {
+        eprintln!("Warning: Failed to emit usage-stats-updated event: {}", e);
+    }
 
     Ok(())
 }
@@ -82,7 +93,13 @@ pub async fn get_host_usage(
 ) -> Result<AggregatedUsage, String> {
     // Validate input
     if host.is_empty() {
+        eprintln!("Error: Attempted to get host usage with empty host");
         return Err("Host cannot be empty".to_string());
+    }
+
+    if host.len() > 253 {
+        eprintln!("Error: Host too long: {} characters", host.len());
+        return Err("Host name too long (max 253 characters)".to_string());
     }
 
     let stats = state.usage_tracker.get_stats().await;
@@ -110,18 +127,29 @@ pub async fn clear_host_usage(
 ) -> Result<(), String> {
     // Validate input
     if host.is_empty() {
+        eprintln!("Error: Attempted to clear host usage with empty host");
         return Err("Host cannot be empty".to_string());
+    }
+
+    if host.len() > 253 {
+        eprintln!("Error: Host too long: {} characters", host.len());
+        return Err("Host name too long (max 253 characters)".to_string());
     }
 
     // Clear the host
     state
         .usage_tracker
-        .clear_host(host)
+        .clear_host(host.clone())
         .await
-        .map_err(|e| format!("Failed to clear host usage: {}", e))?;
+        .map_err(|e| {
+            eprintln!("Error clearing usage for host '{}': {}", host, e);
+            format!("Failed to clear host usage: {}", e)
+        })?;
 
-    // Emit update event
-    let _ = app_handle.emit("usage-stats-updated", ());
+    // Emit update event (log but don't fail if emit fails)
+    if let Err(e) = app_handle.emit("usage-stats-updated", ()) {
+        eprintln!("Warning: Failed to emit usage-stats-updated event: {}", e);
+    }
 
     Ok(())
 }
@@ -145,10 +173,15 @@ pub async fn clear_all_usage(
         .usage_tracker
         .clear_all()
         .await
-        .map_err(|e| format!("Failed to clear all usage: {}", e))?;
+        .map_err(|e| {
+            eprintln!("Error clearing all usage statistics: {}", e);
+            format!("Failed to clear all usage: {}", e)
+        })?;
 
-    // Emit update event
-    let _ = app_handle.emit("usage-stats-updated", ());
+    // Emit update event (log but don't fail if emit fails)
+    if let Err(e) = app_handle.emit("usage-stats-updated", ()) {
+        eprintln!("Warning: Failed to emit usage-stats-updated event: {}", e);
+    }
 
     Ok(())
 }
@@ -166,7 +199,13 @@ pub async fn clear_all_usage(
 pub async fn get_host_count(host: String, state: State<'_, AppState>) -> Result<u32, String> {
     // Validate input
     if host.is_empty() {
+        eprintln!("Error: Attempted to get host count with empty host");
         return Err("Host cannot be empty".to_string());
+    }
+
+    if host.len() > 253 {
+        eprintln!("Error: Host too long: {} characters", host.len());
+        return Err("Host name too long (max 253 characters)".to_string());
     }
 
     let stats = state.usage_tracker.get_stats().await;

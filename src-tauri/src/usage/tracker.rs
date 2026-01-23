@@ -38,8 +38,19 @@ impl UsageTracker {
 
     /// Record a link open event
     pub async fn record_open(&self, host: String) -> Result<(), AppError> {
+        // Validate host
+        if host.is_empty() {
+            eprintln!("Error: Attempted to record open with empty host");
+            return Err(AppError::SettingsError("Host cannot be empty".to_string()));
+        }
+
+        if host.len() > 253 {
+            eprintln!("Error: Host too long: {} characters", host.len());
+            return Err(AppError::SettingsError("Host name too long".to_string()));
+        }
+
         let datapoint = UsageDatapoint {
-            host,
+            host: host.clone(),
             timestamp: Utc::now(),
         };
 
@@ -48,7 +59,12 @@ impl UsageTracker {
             stats.datapoints.push(datapoint);
         }
 
-        self.save().await?;
+        // Save to storage, but log error and continue if save fails
+        if let Err(e) = self.save().await {
+            eprintln!("Warning: Failed to save usage stats after recording open for '{}': {}", host, e);
+            // Don't return error - the datapoint is in memory and will be saved on next successful save
+        }
+
         Ok(())
     }
 
@@ -68,7 +84,11 @@ impl UsageTracker {
         };
 
         if removed_count > 0 {
-            self.save().await?;
+            // Save to storage, but log error and continue if save fails
+            if let Err(e) = self.save().await {
+                eprintln!("Warning: Failed to save usage stats after cleanup: {}", e);
+                // Don't return error - cleanup succeeded in memory
+            }
         }
 
         Ok(removed_count)
@@ -76,12 +96,23 @@ impl UsageTracker {
 
     /// Clear all datapoints for a specific host
     pub async fn clear_host(&self, host: String) -> Result<(), AppError> {
+        // Validate host
+        if host.is_empty() {
+            eprintln!("Error: Attempted to clear host with empty host");
+            return Err(AppError::SettingsError("Host cannot be empty".to_string()));
+        }
+
         {
             let mut stats = self.stats.write().await;
             stats.datapoints.retain(|datapoint| datapoint.host != host);
         }
 
-        self.save().await?;
+        // Save to storage, but log error and continue if save fails
+        if let Err(e) = self.save().await {
+            eprintln!("Warning: Failed to save usage stats after clearing host '{}': {}", host, e);
+            // Don't return error - clear succeeded in memory
+        }
+
         Ok(())
     }
 
@@ -92,7 +123,12 @@ impl UsageTracker {
             stats.datapoints.clear();
         }
 
-        self.save().await?;
+        // Save to storage, but log error and continue if save fails
+        if let Err(e) = self.save().await {
+            eprintln!("Warning: Failed to save usage stats after clearing all: {}", e);
+            // Don't return error - clear succeeded in memory
+        }
+
         Ok(())
     }
 
@@ -109,17 +145,25 @@ impl UsageTracker {
         let store = self
             .app_handle
             .store(USAGE_STATS_FILE)
-            .map_err(|e| AppError::SettingsError(format!("Failed to access store: {}", e)))?;
+            .map_err(|e| {
+                eprintln!("Error accessing usage stats store: {}", e);
+                AppError::SettingsError(format!("Failed to access store: {}", e))
+            })?;
 
-        store.set(
-            DATAPOINTS_KEY,
-            serde_json::to_value(&stats.datapoints)
-                .map_err(|e| AppError::SettingsError(format!("Failed to serialize datapoints: {}", e)))?,
-        );
+        let serialized = serde_json::to_value(&stats.datapoints)
+            .map_err(|e| {
+                eprintln!("Error serializing usage datapoints: {}", e);
+                AppError::SettingsError(format!("Failed to serialize datapoints: {}", e))
+            })?;
+
+        store.set(DATAPOINTS_KEY, serialized);
 
         store
             .save()
-            .map_err(|e| AppError::SettingsError(format!("Failed to save usage stats: {}", e)))?;
+            .map_err(|e| {
+                eprintln!("Error saving usage stats to disk: {}", e);
+                AppError::SettingsError(format!("Failed to save usage stats: {}", e))
+            })?;
 
         Ok(())
     }
