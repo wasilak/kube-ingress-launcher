@@ -402,7 +402,7 @@ This implementation plan breaks down the development of the Tauri-based macOS de
     - Add get_theme and set_theme Tauri commands
     - _Requirements: 9.18-9.20_
 
-  - [ ] 21.2 Implement theme detection and application
+  - [x] 21.2 Implement theme detection and application
     - Create useTheme hook to manage theme state
     - Detect system theme preference using window.matchMedia('(prefers-color-scheme: dark)')
     - Listen for system theme changes when theme is set to 'system'

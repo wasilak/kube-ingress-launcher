@@ -3,7 +3,7 @@
  * 
  * Sets up:
  * - React root rendering
- * - MantineProvider for UI components
+ * - MantineProvider for UI components (theme applied in App)
  * - Global styles
  * 
  * Requirements: 12.1
@@ -19,7 +19,8 @@ import '@mantine/core/styles.css';
 /**
  * Mantine theme configuration
  * 
- * Configures dark theme for better integration with macOS vibrancy
+ * Configures theme for integration with macOS vibrancy
+ * Color scheme is managed by useTheme hook in App component
  */
 const theme = createTheme({
   /** Default spacing and sizing */
@@ -36,11 +37,13 @@ const theme = createTheme({
  * - React.StrictMode for development checks
  * - MantineProvider for UI component theming
  * 
- * Requirements: 12.1
+ * Note: Color scheme is managed by useTheme hook in App component
+ * 
+ * Requirements: 12.1, 17.1-17.12
  */
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
-    <MantineProvider theme={theme} defaultColorScheme="dark">
+    <MantineProvider theme={theme}>
       <App />
     </MantineProvider>
   </React.StrictMode>
