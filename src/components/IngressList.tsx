@@ -2,6 +2,7 @@ import { Stack, Text, Button } from '@mantine/core';
 import { IconRefresh } from '@tabler/icons-react';
 import { IngressData } from '../types/ingress';
 import { IngressItem } from './IngressItem';
+import { ScrollArea } from '@mantine/core';
 
 /**
  * Props for the IngressList component
@@ -66,25 +67,32 @@ export function IngressList({ ingresses, onSelect, selectedIndex = -1, onRefresh
   const remaining = ingresses.length - 50;
 
   return (
-    <Stack gap="xs" style={{ 
-      height: 'calc(100vh - 180px)', // Extend to bottom of window
-      overflowY: 'scroll', // Always show scrollbar
-      paddingBottom: '8px', // Small padding at bottom
-    }}>
-      {displayedIngresses.map((ingress, index) => (
-        <IngressItem
-          key={ingress.id}
-          ingress={ingress}
-          onSelect={() => onSelect(ingress)}
-          isSelected={index === selectedIndex}
-        />
-      ))}
-      
-      {remaining > 0 && (
-        <Text c="dimmed" size="sm" ta="center" py="xs">
-          {remaining} more results...
-        </Text>
-      )}
-    </Stack>
+    <ScrollArea 
+      h="calc(100vh - 180px)" 
+      type="always"
+      offsetScrollbars
+      styles={{
+        viewport: {
+          paddingBottom: '8px',
+        },
+      }}
+    >
+      <Stack gap="xs">
+        {displayedIngresses.map((ingress, index) => (
+          <IngressItem
+            key={ingress.id}
+            ingress={ingress}
+            onSelect={() => onSelect(ingress)}
+            isSelected={index === selectedIndex}
+          />
+        ))}
+        
+        {remaining > 0 && (
+          <Text c="dimmed" size="sm" ta="center" py="xs">
+            {remaining} more results...
+          </Text>
+        )}
+      </Stack>
+    </ScrollArea>
   );
 }

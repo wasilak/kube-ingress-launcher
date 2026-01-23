@@ -231,9 +231,9 @@ input[type="search"]:focus {
 }
 
 /**
- * Badge glass effect
+ * Badge glass effect - only for namespace badges
  */
-.mantine-Badge-root {
+.mantine-Badge-root:not([data-tls-badge]) {
   background: rgba(255, 255, 255, 0.1) !important;
   border: 1px solid rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(10px);

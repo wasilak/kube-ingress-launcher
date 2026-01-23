@@ -1,4 +1,4 @@
-import { Modal, Stack, TextInput, NumberInput, Switch, Select, Button, Group, Text, Alert, Divider, Badge } from '@mantine/core';
+import { Modal, Stack, NumberInput, Switch, Select, Button, Group, Text, Alert, Divider, Badge, Kbd, ScrollArea } from '@mantine/core';
 import { useState, useEffect } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { Settings, VersionInfo } from '../types/ingress';
@@ -53,6 +53,30 @@ export function SettingsDialog({ opened, onClose }: SettingsDialogProps) {
   const [permissionType, setPermissionType] = useState<'accessibility' | 'autostart'>('accessibility');
   const [accessibilityGranted, setAccessibilityGranted] = useState(false);
   const [versionInfo, setVersionInfo] = useState<VersionInfo | null>(null);
+
+  /**
+   * Parse shortcut string into individual keys for Kbd display
+   * Converts "CmdOrCtrl+Shift+K" into ["⌘", "⇧", "K"] on macOS
+   * or ["Ctrl", "Shift", "K"] on other platforms
+   */
+  const parseShortcutKeys = (shortcut: string): string[] => {
+    const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+    
+    return shortcut.split('+').map(key => {
+      switch (key) {
+        case 'CmdOrCtrl':
+          return isMac ? '⌘' : 'Ctrl';
+        case 'Shift':
+          return isMac ? '⇧' : 'Shift';
+        case 'Alt':
+          return isMac ? '⌥' : 'Alt';
+        case 'Ctrl':
+          return isMac ? '⌃' : 'Ctrl';
+        default:
+          return key;
+      }
+    });
+  };
 
   /**
    * Load settings and contexts when dialog opens
@@ -336,16 +360,26 @@ export function SettingsDialog({ opened, onClose }: SettingsDialogProps) {
         },
         body: {
           height: 'calc(100% - 80px)', // Adjust for header height
-          overflowY: 'scroll', // Always show scrollbar
+          padding: 0, // Remove padding to let ScrollArea handle it
         },
       }}
     >
-      <Stack gap="md">
-        {error && (
-          <Text c="red" size="sm">
-            {error}
-          </Text>
-        )}
+      <ScrollArea 
+        h="100%" 
+        type="always"
+        offsetScrollbars
+        styles={{
+          viewport: {
+            padding: 'var(--mantine-spacing-md)',
+          },
+        }}
+      >
+        <Stack gap="md">
+          {error && (
+            <Text c="red" size="sm">
+              {error}
+            </Text>
+          )}
         
         {/* Accessibility Permission Warning */}
         {!accessibilityGranted && (
@@ -393,23 +427,25 @@ export function SettingsDialog({ opened, onClose }: SettingsDialogProps) {
           <Text size="sm" fw={500} mb="xs">
             Global Shortcut
           </Text>
-          <Group>
-            <TextInput
-              value={settings.globalShortcut}
-              readOnly
-              style={{ flex: 1 }}
-              disabled={loading}
-            />
+          <Group gap="md" align="center">
+            <Group gap="xs">
+              {parseShortcutKeys(settings.globalShortcut).map((key, index) => (
+                <Kbd key={index} size="md">{key}</Kbd>
+              ))}
+            </Group>
             <Button
               onClick={handleRecordShortcut}
               variant={recording ? 'filled' : 'light'}
               disabled={loading}
+              size="sm"
             >
-              {recording ? 'Press keys...' : 'Record'}
+              {recording ? 'Press keys...' : 'Change'}
             </Button>
           </Group>
           <Text size="xs" c="dimmed" mt="xs">
-            Press the Record button and then press your desired key combination
+            {recording 
+              ? 'Press your desired key combination now...' 
+              : 'Click Change to record a new keyboard shortcut'}
           </Text>
         </div>
 
@@ -497,7 +533,8 @@ export function SettingsDialog({ opened, onClose }: SettingsDialogProps) {
             )}
           </Stack>
         )}
-      </Stack>
+        </Stack>
+      </ScrollArea>
       
       {/* Permissions Dialog */}
       <PermissionsDialog
