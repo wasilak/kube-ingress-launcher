@@ -67,7 +67,7 @@ export function SearchView() {
   });
 
   return (
-    <ScrollArea h="calc(100vh - 70px)" scrollbarSize={8} scrollbars="y">
+    <ScrollArea h="calc(100vh - 60px)" scrollbarSize={8} scrollbars="y">
       <Container size="lg" px="md">
         <Stack gap="md">
           {/* Error banner - shown when there's an error */}

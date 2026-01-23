@@ -13,7 +13,7 @@
 
 import { useState, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
-import { Stack, Group, Burger, Transition } from '@mantine/core';
+import { Burger, Transition } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { NavigationDrawer } from './NavigationDrawer';
 
@@ -55,16 +55,16 @@ export function Layout() {
 
   return (
     <div className="app-container" data-tauri-drag-region>
-      <Stack gap="xs" p="xs">
+      <div style={{ padding: '10px' }}>
         {/* Burger menu - shown on all views */}
-        <Group gap="sm" className="no-drag" align="center" justify="flex-end">
+        <div className="no-drag" style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
           <Burger
             opened={drawerOpened}
             onClick={openDrawer}
             size="sm"
             aria-label="Open navigation menu"
           />
-        </Group>
+        </div>
         
         {/* Route content with fade transition */}
         <div className="no-drag">
@@ -81,7 +81,7 @@ export function Layout() {
             )}
           </Transition>
         </div>
-      </Stack>
+      </div>
 
       {/* Navigation drawer */}
       <NavigationDrawer
