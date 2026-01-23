@@ -206,6 +206,7 @@ function MainWindow() {
         opened={drawerOpened}
         onClose={closeDrawer}
         onNavigate={handleNavigate}
+        currentPath="/"
       />
 
       {/* Settings dialog - modal for configuration */}
