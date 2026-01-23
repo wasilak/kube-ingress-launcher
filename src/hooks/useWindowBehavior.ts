@@ -14,14 +14,13 @@
 import { useEffect } from 'react';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { invoke } from '@tauri-apps/api/core';
-import { emit } from '@tauri-apps/api/event';
+import { emit, listen } from '@tauri-apps/api/event';
 
 export function useWindowBehavior() {
   useEffect(() => {
     console.log('[useWindowBehavior] Hook initialized');
     const window = getCurrentWindow();
     let focusLossTimeout: number | null = null;
-    let unlistenFocusChanged: (() => void) | null = null;
 
     // Handle Escape key press and Cmd+, for settings
     const handleKeyDown = async (event: KeyboardEvent) => {
@@ -67,63 +66,67 @@ export function useWindowBehavior() {
       }
     };
 
-    // Setup Tauri window event listeners
-    const setupWindowListeners = async () => {
-      console.log('[useWindowBehavior] Setting up Tauri window event listeners');
+    // Setup listeners
+    const setupListeners = async () => {
+      console.log('[useWindowBehavior] Setting up event listeners');
       
-      // Listen for focus change events from Tauri
-      unlistenFocusChanged = await window.onFocusChanged(({ payload: focused }) => {
-        console.log('[useWindowBehavior] Tauri focus changed:', focused);
+      // Listen for Tauri blur event
+      const unlistenBlur = await listen('tauri://blur', async () => {
+        console.log('[useWindowBehavior] Tauri blur event received');
         
-        if (!focused) {
-          // Window lost focus
-          console.log('[useWindowBehavior] Window blur detected via Tauri, scheduling hide in 100ms');
-          
-          // Check if a modal is open - don't hide if modal is open
-          const modalOverlay = document.querySelector('[data-mantine-modal-overlay]');
-          if (modalOverlay) {
-            console.log('[useWindowBehavior] Modal is open, not hiding on blur');
-            return;
-          }
-          
-          // Clear any existing timeout
-          if (focusLossTimeout !== null) {
-            clearTimeout(focusLossTimeout);
-          }
+        // Check if a modal is open - don't hide if modal is open
+        const modalOverlay = document.querySelector('[data-mantine-modal-overlay]');
+        if (modalOverlay) {
+          console.log('[useWindowBehavior] Modal is open, not hiding on blur');
+          return;
+        }
+        
+        // Clear any existing timeout
+        if (focusLossTimeout !== null) {
+          clearTimeout(focusLossTimeout);
+        }
 
-          // Hide window after 100ms delay
-          focusLossTimeout = setTimeout(async () => {
-            console.log('[useWindowBehavior] Hiding window after blur timeout');
-            try {
-              await window.hide();
-              // Update tray menu to show "Show"
-              await invoke('update_tray_menu_state', { isVisible: false });
-            } catch (err) {
-              console.error('[useWindowBehavior] Failed to hide window or update tray:', err);
-            }
-          }, 100) as unknown as number;
-        } else {
-          // Window gained focus
-          console.log('[useWindowBehavior] Window focus detected via Tauri, canceling hide timeout');
-          
-          // Clear the timeout if window regains focus
-          if (focusLossTimeout !== null) {
-            clearTimeout(focusLossTimeout);
-            focusLossTimeout = null;
+        // Hide window after 100ms delay
+        focusLossTimeout = setTimeout(async () => {
+          console.log('[useWindowBehavior] Hiding window after blur timeout');
+          try {
+            await window.hide();
+            // Update tray menu to show "Show"
+            await invoke('update_tray_menu_state', { isVisible: false });
+          } catch (err) {
+            console.error('[useWindowBehavior] Failed to hide window or update tray:', err);
           }
+        }, 100) as unknown as number;
+      });
+
+      // Listen for Tauri focus event
+      const unlistenFocus = await listen('tauri://focus', () => {
+        console.log('[useWindowBehavior] Tauri focus event received, canceling hide timeout');
+        
+        // Clear the timeout if window regains focus
+        if (focusLossTimeout !== null) {
+          clearTimeout(focusLossTimeout);
+          focusLossTimeout = null;
         }
       });
-      
-      console.log('[useWindowBehavior] Tauri window event listeners set up');
-    };
 
-    console.log('[useWindowBehavior] Setting up event listeners');
+      console.log('[useWindowBehavior] Tauri event listeners set up');
+
+      return () => {
+        console.log('[useWindowBehavior] Cleaning up Tauri event listeners');
+        unlistenBlur();
+        unlistenFocus();
+      };
+    };
 
     // Add keyboard event listener
     document.addEventListener('keydown', handleKeyDown, true); // Use capture phase
     
-    // Setup Tauri window listeners
-    setupWindowListeners();
+    // Setup Tauri listeners
+    let cleanupTauriListeners: (() => void) | null = null;
+    setupListeners().then((cleanup) => {
+      cleanupTauriListeners = cleanup;
+    });
     
     console.log('[useWindowBehavior] Event listeners attached successfully');
 
@@ -132,8 +135,8 @@ export function useWindowBehavior() {
       console.log('[useWindowBehavior] Cleaning up event listeners');
       document.removeEventListener('keydown', handleKeyDown, true);
       
-      if (unlistenFocusChanged) {
-        unlistenFocusChanged();
+      if (cleanupTauriListeners) {
+        cleanupTauriListeners();
       }
       
       if (focusLossTimeout !== null) {
