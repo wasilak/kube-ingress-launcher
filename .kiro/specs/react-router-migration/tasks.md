@@ -108,30 +108,30 @@ This implementation plan outlines the tasks for migrating the Kube Ingress Launc
     - Test that navigation events contain correct routes
     - _Requirements: 9.3, 9.4_
 
-- [ ] 7. Remove modal components and state
-  - [ ] 7.1 Remove SettingsDialog component
+- [x] 7. Remove modal components and state
+  - [x] 7.1 Remove SettingsDialog component
     - Delete src/components/SettingsDialog.tsx
     - Remove imports from App.tsx
     - _Requirements: 8.1_
   
-  - [ ] 7.2 Remove StatisticsDialog component
+  - [x] 7.2 Remove StatisticsDialog component
     - Delete src/components/StatisticsDialog.tsx
     - Remove imports from App.tsx
     - _Requirements: 8.2_
   
-  - [ ] 7.3 Remove modal state from App.tsx
+  - [x] 7.3 Remove modal state from App.tsx
     - Remove settingsOpen state
     - Remove statisticsOpen state
     - Remove event listeners for "open-settings" and "open-statistics"
     - _Requirements: 8.3, 9.1, 9.2_
   
-  - [ ] 7.4 Remove window detection logic
+  - [x] 7.4 Remove window detection logic
     - Remove windowLabel state
     - Remove detectWindow effect
     - Remove Statistics page conditional rendering
     - _Requirements: 8.4_
   
-  - [ ] 7.5 Remove separate statistics window configuration
+  - [x] 7.5 Remove separate statistics window configuration
     - Update tauri.conf.json to remove statistics window
     - _Requirements: 8.5_
 

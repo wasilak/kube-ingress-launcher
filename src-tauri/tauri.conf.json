@@ -23,18 +23,6 @@
         "visible": false,
         "center": true,
         "titleBarStyle": "Overlay"
-      },
-      {
-        "label": "statistics",
-        "title": "Usage Statistics",
-        "width": 800,
-        "height": 600,
-        "resizable": true,
-        "decorations": true,
-        "visible": false,
-        "center": true,
-        "minWidth": 600,
-        "minHeight": 400
       }
     ],
     "macOSPrivateApi": true,
