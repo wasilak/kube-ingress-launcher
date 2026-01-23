@@ -20,6 +20,7 @@ import { Layout } from './components/Layout';
 import { SearchView } from './views/SearchView';
 import { StatisticsView } from './views/StatisticsView';
 import { SettingsView } from './views/SettingsView';
+import { RouteErrorBoundary } from './components/RouteErrorBoundary';
 import { useTheme } from './hooks/useTheme';
 
 /**
@@ -34,8 +35,9 @@ import { useTheme } from './hooks/useTheme';
  * - Catch-all route redirects to home
  * - Theme management (light/dark/system)
  * - Navigation event listener for backend menu actions
+ * - Error boundary for route rendering errors
  * 
- * Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 9.4
+ * Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 9.4, 14.1, 14.5
  */
 export function App() {
   // Initialize theme (loads from settings and manages Mantine color scheme)
@@ -61,14 +63,16 @@ export function App() {
   }, [navigate]);
   
   return (
-    <Routes>
-      <Route path="/" element={<Layout />}>
-        <Route index element={<SearchView />} />
-        <Route path="statistics" element={<StatisticsView />} />
-        <Route path="settings" element={<SettingsView />} />
-      </Route>
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+    <RouteErrorBoundary>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<SearchView />} />
+          <Route path="statistics" element={<StatisticsView />} />
+          <Route path="settings" element={<SettingsView />} />
+        </Route>
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </RouteErrorBoundary>
   );
 }
 

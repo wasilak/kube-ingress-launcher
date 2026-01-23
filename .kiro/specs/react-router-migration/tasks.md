@@ -154,14 +154,14 @@ This implementation plan outlines the tasks for migrating the Kube Ingress Launc
     - Test that any existing keyboard shortcut still works
     - _Requirements: 10.5_
 
-- [ ] 9. Implement error boundary for routes
-  - [ ] 9.1 Create RouteErrorBoundary component
+- [x] 9. Implement error boundary for routes
+  - [x] 9.1 Create RouteErrorBoundary component
     - Implement error boundary class component
     - Display error message with return to home button
     - Log errors to console
     - _Requirements: 14.1, 14.2, 14.3, 14.4_
   
-  - [ ] 9.2 Wrap Routes with error boundary
+  - [x] 9.2 Wrap Routes with error boundary
     - Add RouteErrorBoundary in App.tsx
     - Ensure all routes are protected
     - _Requirements: 14.1, 14.5_
