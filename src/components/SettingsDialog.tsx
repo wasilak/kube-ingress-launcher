@@ -4,6 +4,7 @@ import { invoke } from '@tauri-apps/api/core';
 import { Settings, VersionInfo } from '../types/ingress';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { PermissionsDialog } from './PermissionsDialog';
+import { useTheme } from '../hooks/useTheme';
 
 /**
  * Props for the SettingsDialog component
@@ -26,12 +27,16 @@ interface SettingsDialogProps {
  * - Refresh interval configuration (10-3600 seconds)
  * - Autostart with system toggle
  * - Kubernetes context selector
+ * - Theme selector (light/dark/system)
  * - Auto-save on every change (no save button needed)
  * - Validation for all inputs
  * 
- * Requirements: 9.1-9.20, 12.8
+ * Requirements: 9.1-9.20, 12.8, 17.1-17.12
  */
 export function SettingsDialog({ opened, onClose }: SettingsDialogProps) {
+  // Theme management
+  const { themeMode, changeTheme } = useTheme();
+  
   const [settings, setSettings] = useState<Settings>({
     globalShortcut: 'CmdOrCtrl+Shift+K',
     refreshIntervalSecs: 60,
@@ -292,6 +297,26 @@ export function SettingsDialog({ opened, onClose }: SettingsDialogProps) {
     }
   };
 
+  /**
+   * Handle theme change
+   * Updates theme immediately and persists to settings
+   * 
+   * Requirements: 17.7, 17.8, 17.9
+   */
+  const handleThemeChange = async (value: string | null) => {
+    if (value && (value === 'light' || value === 'dark' || value === 'system')) {
+      try {
+        setError(null);
+        // Update theme immediately via useTheme hook
+        await changeTheme(value);
+        // Settings are auto-saved by changeTheme
+      } catch (err) {
+        setError(`Failed to change theme: ${err}`);
+        console.error('Failed to change theme:', err);
+      }
+    }
+  };
+
   return (
     <Modal
       opened={opened}
@@ -423,6 +448,20 @@ export function SettingsDialog({ opened, onClose }: SettingsDialogProps) {
             No Kubernetes contexts found. Make sure your kubeconfig is properly configured.
           </Text>
         )}
+
+        {/* Theme Selector */}
+        <Select
+          label="Theme"
+          description="Choose your preferred color scheme"
+          data={[
+            { value: 'light', label: 'Light' },
+            { value: 'dark', label: 'Dark' },
+            { value: 'system', label: 'System' },
+          ]}
+          value={themeMode}
+          onChange={handleThemeChange}
+          disabled={loading}
+        />
 
         {/* Version Information */}
         <Divider my="md" />

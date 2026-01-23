@@ -409,7 +409,7 @@ This implementation plan breaks down the development of the Tauri-based macOS de
     - Apply theme to MantineProvider colorScheme prop
     - _Requirements: 12.1, 12.2_
 
-  - [ ] 21.3 Add theme selector to SettingsDialog
+  - [x] 21.3 Add theme selector to SettingsDialog
     - Add Select component with options: 'Light', 'Dark', 'System'
     - Display current theme selection
     - Auto-save theme changes immediately
