@@ -82,6 +82,7 @@ export function SearchInput({ value, onChange, loading }: SearchInputProps) {
       data-form-type="other"
       data-lpignore="true"
       data-1p-ignore
+      style={{ flex: 1 }}
     />
   );
 }

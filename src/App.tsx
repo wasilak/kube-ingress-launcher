@@ -170,8 +170,16 @@ function MainWindow() {
   return (
     <div className="app-container" data-tauri-drag-region>
       <Stack gap="md" p="md">
-        {/* Burger menu button in top right corner */}
-        <Group justify="flex-end" className="no-drag">
+        {/* Error banner - shown when there's an error */}
+        {error && <ErrorBanner error={error} />}
+        
+        {/* Search input and burger menu on same line */}
+        <Group gap="sm" className="no-drag" align="center">
+          <SearchInput
+            value={searchTerm}
+            onChange={setSearchTerm}
+            loading={loading}
+          />
           <Burger
             opened={drawerOpened}
             onClick={openDrawer}
@@ -179,18 +187,6 @@ function MainWindow() {
             aria-label="Open navigation menu"
           />
         </Group>
-        
-        {/* Error banner - shown when there's an error */}
-        {error && <ErrorBanner error={error} />}
-        
-        {/* Search input - auto-focused for immediate typing */}
-        <div className="no-drag">
-          <SearchInput
-            value={searchTerm}
-            onChange={setSearchTerm}
-            loading={loading}
-          />
-        </div>
         
         {/* Ingress list - displays filtered results */}
         <div className="no-drag">
