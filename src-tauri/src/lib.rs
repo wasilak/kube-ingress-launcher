@@ -48,7 +48,7 @@ pub fn run() {
                     use objc2_app_kit::{NSWindow, NSColor, NSWindowStyleMask, NSWindowTitleVisibility, NSScreen};
                     use objc2::MainThreadMarker;
                     
-                    // Calculate dynamic window size (1/3 of screen, but no less than 600x400)
+                    // Calculate dynamic window size (roughly 1/3 of screen width, 1/2 of screen height)
                     let (target_width, target_height) = {
                         // Get main thread marker (we're on the main thread during setup)
                         let mtm = unsafe { MainThreadMarker::new_unchecked() };
@@ -59,18 +59,13 @@ pub fn run() {
                             let screen_width = frame.size.width;
                             let screen_height = frame.size.height;
                             
-                            // Calculate 1/3 of screen size
-                            let dynamic_width = (screen_width / 3.0) as u32;
-                            let dynamic_height = (screen_height / 3.0) as u32;
-                            
-                            // Use maximum of dynamic size or reasonable minimum size
-                            // Minimum is now 600x400 instead of 864x576 to work better with smaller screens
-                            let width = dynamic_width.max(600);
-                            let height = dynamic_height.max(400);
+                            // Use 40% of screen width and 50% of screen height for better sizing
+                            let width = (screen_width * 0.4) as u32;
+                            let height = (screen_height * 0.5) as u32;
                             
                             (width, height)
                         } else {
-                            (800, 600)
+                            (900, 700)
                         }
                     };
                     
@@ -88,8 +83,7 @@ pub fn run() {
                     
                     // Verify the size was set
                     let actual_size = ns_window.frame().size;
-                    eprintln!("Set window size to: {}x{}", target_width, target_height);
-                    eprintln!("Actual window size: {}x{}", actual_size.width, actual_size.height);
+                    eprintln!("Window size set to: {}x{}", actual_size.width, actual_size.height);
                     
                     // Set minimum size
                     let min_size = NSSize {
