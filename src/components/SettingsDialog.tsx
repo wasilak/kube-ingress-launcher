@@ -321,8 +321,12 @@ export function SettingsDialog({ opened, onClose }: SettingsDialogProps) {
         {/* Accessibility Permission Warning */}
         {!accessibilityGranted && (
           <Alert color="yellow" icon={<IconAlertCircle />}>
-            <Text size="sm">
-              Accessibility permission not granted. Global shortcuts will not work.
+            <Text size="sm" fw={500} mb="xs">
+              Accessibility permission may not be detected
+            </Text>
+            <Text size="sm" mb="xs">
+              If the global shortcut (Cmd+Shift+K) works, permission is actually granted.
+              This warning can appear for ad-hoc signed development builds.
             </Text>
             <Group mt="xs" gap="xs">
               <Button
@@ -333,7 +337,7 @@ export function SettingsDialog({ opened, onClose }: SettingsDialogProps) {
                   setPermissionsDialogOpen(true);
                 }}
               >
-                Grant Permission
+                Open System Settings
               </Button>
               <Button
                 size="xs"
