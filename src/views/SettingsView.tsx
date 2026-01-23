@@ -8,7 +8,7 @@
  * Requirements: 6.1, 6.2, 6.5
  */
 
-import { Stack, NumberInput, Switch, Select, Button, Group, Text, Alert, Divider, Badge, Kbd, ScrollArea } from '@mantine/core';
+import { Stack, NumberInput, Switch, Select, Button, Group, Text, Alert, Divider, Badge, Kbd } from '@mantine/core';
 import { useState, useEffect } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import { Settings, VersionInfo } from '../types/ingress';
@@ -80,6 +80,7 @@ export function SettingsView() {
    * Load settings and contexts on mount
    * Check accessibility permission
    * Load version information
+   * Sync with current theme from useTheme hook
    */
   useEffect(() => {
     loadSettings();
@@ -87,6 +88,17 @@ export function SettingsView() {
     checkAccessibility();
     loadVersionInfo();
   }, []);
+  
+  /**
+   * Sync settings theme with useTheme hook's themeMode
+   * This ensures the UI shows the correct theme when navigating back to settings
+   */
+  useEffect(() => {
+    setSettings(prev => ({
+      ...prev,
+      theme: themeMode === 'auto' ? 'system' : themeMode,
+    }));
+  }, [themeMode]);
 
   /**
    * Check accessibility permission status
@@ -322,16 +334,15 @@ export function SettingsView() {
   };
 
   return (
-    <ScrollArea.Autosize mah="calc(100vh - 100px)">
-      <Stack gap="md">
-        {error && (
-          <Text c="red" size="sm">
-            {error}
-          </Text>
-        )}
-        
-        {/* Accessibility Permission Warning */}
-        {!accessibilityGranted && (
+    <Stack gap="md" style={{ maxHeight: 'calc(100vh - 120px)', overflowY: 'auto' }}>
+      {error && (
+        <Text c="red" size="sm">
+          {error}
+        </Text>
+      )}
+      
+      {/* Accessibility Permission Warning */}
+      {!accessibilityGranted && (
           <Alert color="yellow" icon={<IconAlertCircle />}>
             <Text size="sm" fw={500} mb="xs">
               Accessibility permission check failed
@@ -370,119 +381,118 @@ export function SettingsView() {
             </Group>
           </Alert>
         )}
-        
-        {/* Global Shortcut Configuration */}
-        <div>
-          <Text size="sm" fw={500} mb="xs">
-            Global Shortcut
-          </Text>
-          <Group gap="md" align="center">
-            <Group gap="xs">
-              {parseShortcutKeys(settings.globalShortcut).map((key, index) => (
-                <Kbd key={index} size="md">{key}</Kbd>
-              ))}
-            </Group>
-            <Button
-              onClick={handleRecordShortcut}
-              variant={recording ? 'filled' : 'light'}
-              disabled={loading}
-              size="sm"
-            >
-              {recording ? 'Press keys...' : 'Change'}
-            </Button>
+      
+      {/* Global Shortcut Configuration */}
+      <div>
+        <Text size="sm" fw={500} mb="xs">
+          Global Shortcut
+        </Text>
+        <Group gap="md" align="center">
+          <Group gap="xs">
+            {parseShortcutKeys(settings.globalShortcut).map((key, index) => (
+              <Kbd key={index} size="md">{key}</Kbd>
+            ))}
           </Group>
-          <Text size="xs" c="dimmed" mt="xs">
-            {recording 
-              ? 'Press your desired key combination now...' 
-              : 'Click Change to record a new keyboard shortcut'}
+          <Button
+            onClick={handleRecordShortcut}
+            variant={recording ? 'filled' : 'light'}
+            disabled={loading}
+            size="sm"
+          >
+            {recording ? 'Press keys...' : 'Change'}
+          </Button>
+        </Group>
+        <Text size="xs" c="dimmed" mt="xs">
+          {recording 
+            ? 'Press your desired key combination now...' 
+            : 'Click Change to record a new keyboard shortcut'}
+        </Text>
+      </div>
+
+      {/* Refresh Interval Configuration */}
+      <NumberInput
+        label="Refresh Interval (seconds)"
+        description="How often to fetch ingress data from Kubernetes"
+        value={settings.refreshIntervalSecs}
+        onChange={handleRefreshIntervalChange}
+        min={10}
+        max={3600}
+        step={10}
+        disabled={loading}
+      />
+
+      {/* Autostart Configuration */}
+      <Switch
+        label="Autostart with system"
+        description="Launch the application automatically when you log in"
+        checked={settings.autostart}
+        onChange={(e) => handleSettingChange('autostart', e.currentTarget.checked)}
+        disabled={loading}
+      />
+
+      {/* Kubernetes Context Selector */}
+      <Select
+        label="Kubernetes Context"
+        description="Select which Kubernetes cluster to connect to"
+        data={contexts}
+        value={settings.kubeContext || null}
+        onChange={handleContextChange}
+        placeholder={contexts.length === 0 ? 'No contexts available' : 'Select a context'}
+        disabled={loading || contexts.length === 0}
+        searchable
+      />
+      
+      {contexts.length === 0 && (
+        <Text size="xs" c="dimmed">
+          No Kubernetes contexts found. Make sure your kubeconfig is properly configured.
+        </Text>
+      )}
+
+      {/* Theme Selector */}
+      <Select
+        label="Theme"
+        description="Choose your preferred color scheme"
+        data={[
+          { value: 'light', label: 'Light' },
+          { value: 'dark', label: 'Dark' },
+          { value: 'auto', label: 'Auto (System)' },
+        ]}
+        value={themeMode}
+        onChange={handleThemeChange}
+        disabled={loading}
+      />
+
+      {/* Version Information */}
+      <Divider my="md" />
+      
+      {versionInfo && (
+        <Stack gap="xs">
+          <Text size="sm" fw={500}>
+            Version Information
           </Text>
-        </div>
-
-        {/* Refresh Interval Configuration */}
-        <NumberInput
-          label="Refresh Interval (seconds)"
-          description="How often to fetch ingress data from Kubernetes"
-          value={settings.refreshIntervalSecs}
-          onChange={handleRefreshIntervalChange}
-          min={10}
-          max={3600}
-          step={10}
-          disabled={loading}
-        />
-
-        {/* Autostart Configuration */}
-        <Switch
-          label="Autostart with system"
-          description="Launch the application automatically when you log in"
-          checked={settings.autostart}
-          onChange={(e) => handleSettingChange('autostart', e.currentTarget.checked)}
-          disabled={loading}
-        />
-
-        {/* Kubernetes Context Selector */}
-        <Select
-          label="Kubernetes Context"
-          description="Select which Kubernetes cluster to connect to"
-          data={contexts}
-          value={settings.kubeContext || null}
-          onChange={handleContextChange}
-          placeholder={contexts.length === 0 ? 'No contexts available' : 'Select a context'}
-          disabled={loading || contexts.length === 0}
-          searchable
-        />
-        
-        {contexts.length === 0 && (
-          <Text size="xs" c="dimmed">
-            No Kubernetes contexts found. Make sure your kubeconfig is properly configured.
-          </Text>
-        )}
-
-        {/* Theme Selector */}
-        <Select
-          label="Theme"
-          description="Choose your preferred color scheme"
-          data={[
-            { value: 'light', label: 'Light' },
-            { value: 'dark', label: 'Dark' },
-            { value: 'auto', label: 'Auto (System)' },
-          ]}
-          value={themeMode}
-          onChange={handleThemeChange}
-          disabled={loading}
-        />
-
-        {/* Version Information */}
-        <Divider my="md" />
-        
-        {versionInfo && (
-          <Stack gap="xs">
-            <Text size="sm" fw={500}>
-              Version Information
-            </Text>
-            
+          
+          <Group gap="xs">
+            <Text size="sm" c="dimmed">Version:</Text>
+            <Badge variant="light" size="sm">{versionInfo.version}</Badge>
+          </Group>
+          
+          {versionInfo.gitBranch && (
             <Group gap="xs">
-              <Text size="sm" c="dimmed">Version:</Text>
-              <Badge variant="light" size="sm">{versionInfo.version}</Badge>
+              <Text size="sm" c="dimmed">Branch:</Text>
+              <Badge variant="light" color="blue" size="sm">{versionInfo.gitBranch}</Badge>
             </Group>
-            
-            {versionInfo.gitBranch && (
-              <Group gap="xs">
-                <Text size="sm" c="dimmed">Branch:</Text>
-                <Badge variant="light" color="blue" size="sm">{versionInfo.gitBranch}</Badge>
-              </Group>
-            )}
-            
-            {versionInfo.gitCommit && (
-              <Group gap="xs">
-                <Text size="sm" c="dimmed">Commit:</Text>
-                <Badge variant="light" color="gray" size="sm" style={{ fontFamily: 'monospace' }}>
-                  {versionInfo.gitCommit}
-                </Badge>
-              </Group>
-            )}
-          </Stack>
-        )}
-      </Stack>
+          )}
+          
+          {versionInfo.gitCommit && (
+            <Group gap="xs">
+              <Text size="sm" c="dimmed">Commit:</Text>
+              <Badge variant="light" color="gray" size="sm" style={{ fontFamily: 'monospace' }}>
+                {versionInfo.gitCommit}
+              </Badge>
+            </Group>
+          )}
+        </Stack>
+      )}
       
       {/* Permissions Dialog (functional modal - preserved) */}
       <PermissionsDialog
@@ -493,6 +503,6 @@ export function SettingsView() {
         }}
         permissionType={permissionType}
       />
-    </ScrollArea.Autosize>
+    </Stack>
   );
 }
