@@ -37,6 +37,7 @@ export function SettingsDialog({ opened, onClose }: SettingsDialogProps) {
     refreshIntervalSecs: 60,
     autostart: false,
     kubeContext: '',
+    theme: 'system',
   });
   
   const [contexts, setContexts] = useState<string[]>([]);

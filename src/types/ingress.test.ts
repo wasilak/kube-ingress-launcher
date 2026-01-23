@@ -61,6 +61,7 @@ const testSettings: Settings = {
   refreshIntervalSecs: 60,
   autostart: true,
   kubeContext: 'production-cluster',
+  theme: 'system',
 };
 
 // Test IngressResponse type

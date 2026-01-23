@@ -64,7 +64,7 @@ export interface ErrorInfo {
 /**
  * Application settings configuration
  * 
- * Requirements: 9.1-9.20
+ * Requirements: 9.1-9.20, 17.1-17.12
  */
 export interface Settings {
   /** Global keyboard shortcut (e.g., "CmdOrCtrl+Shift+K") */
@@ -78,6 +78,9 @@ export interface Settings {
   
   /** Active Kubernetes context name */
   kubeContext: string;
+  
+  /** Theme mode: "light", "dark", or "system" */
+  theme: string;
 }
 
 /**

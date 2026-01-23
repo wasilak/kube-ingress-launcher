@@ -21,6 +21,8 @@ pub struct Settings {
     pub autostart: bool,
     /// Active Kubernetes context
     pub kube_context: String,
+    /// Theme mode: "light", "dark", or "system"
+    pub theme: String,
 }
 
 impl Default for Settings {
@@ -30,6 +32,7 @@ impl Default for Settings {
             refresh_interval_secs: 60,
             autostart: false,
             kube_context: String::new(),
+            theme: "system".to_string(),
         }
     }
 }

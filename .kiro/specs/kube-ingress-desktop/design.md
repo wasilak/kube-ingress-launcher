@@ -1145,6 +1145,291 @@ pub struct Settings {
 }
 ```
 
+## Theme Support
+
+### Theme Configuration
+
+The application supports three theme modes: light, dark, and system. The theme preference is stored in settings and persists across restarts.
+
+**Settings Structure:**
+
+```rust
+// src-tauri/src/commands/settings.rs
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Settings {
+    pub global_shortcut: String,
+    pub refresh_interval_secs: u64,
+    pub autostart: bool,
+    pub kube_context: String,
+    pub theme: String, // "light", "dark", or "system"
+}
+
+impl Default for Settings {
+    fn default() -> Self {
+        Self {
+            global_shortcut: "CmdOrCtrl+Shift+K".to_string(),
+            refresh_interval_secs: 60,
+            autostart: false,
+            kube_context: String::new(),
+            theme: "system".to_string(), // Default to system theme
+        }
+    }
+}
+```
+
+### Theme Detection and Application
+
+**Frontend Implementation:**
+
+```typescript
+// src/hooks/useTheme.ts
+import { useState, useEffect } from 'react';
+import { invoke } from '@tauri-apps/api/core';
+import { MantineColorScheme } from '@mantine/core';
+
+export function useTheme() {
+  const [colorScheme, setColorScheme] = useState<MantineColorScheme>('dark');
+  const [themeMode, setThemeMode] = useState<'light' | 'dark' | 'system'>('system');
+
+  useEffect(() => {
+    // Load saved theme preference
+    loadTheme();
+
+    // Listen for system theme changes
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = () => {
+      if (themeMode === 'system') {
+        setColorScheme(mediaQuery.matches ? 'dark' : 'light');
+      }
+    };
+
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, [themeMode]);
+
+  const loadTheme = async () => {
+    try {
+      const settings = await invoke<Settings>('get_settings');
+      const mode = settings.theme as 'light' | 'dark' | 'system';
+      setThemeMode(mode);
+
+      if (mode === 'system') {
+        const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        setColorScheme(isDark ? 'dark' : 'light');
+      } else {
+        setColorScheme(mode);
+      }
+    } catch (err) {
+      console.error('Failed to load theme:', err);
+    }
+  };
+
+  const changeTheme = async (mode: 'light' | 'dark' | 'system') => {
+    setThemeMode(mode);
+
+    if (mode === 'system') {
+      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      setColorScheme(isDark ? 'dark' : 'light');
+    } else {
+      setColorScheme(mode);
+    }
+
+    // Save to settings
+    try {
+      const settings = await invoke<Settings>('get_settings');
+      await invoke('update_settings', {
+        settings: { ...settings, theme: mode },
+      });
+    } catch (err) {
+      console.error('Failed to save theme:', err);
+    }
+  };
+
+  return { colorScheme, themeMode, changeTheme };
+}
+```
+
+**App Integration:**
+
+```typescript
+// src/App.tsx
+import { MantineProvider } from '@mantine/core';
+import { useTheme } from './hooks/useTheme';
+
+export function App() {
+  const { colorScheme } = useTheme();
+
+  return (
+    <MantineProvider theme={{ colorScheme }}>
+      {/* App content */}
+    </MantineProvider>
+  );
+}
+```
+
+**Settings Dialog Integration:**
+
+```typescript
+// src/components/SettingsDialog.tsx
+import { Select } from '@mantine/core';
+import { useTheme } from '../hooks/useTheme';
+
+export function SettingsDialog({ opened, onClose }: SettingsDialogProps) {
+  const { themeMode, changeTheme } = useTheme();
+
+  return (
+    <Modal opened={opened} onClose={onClose} title="Settings">
+      <Stack gap="md">
+        {/* Other settings */}
+        
+        <Select
+          label="Theme"
+          data={[
+            { value: 'light', label: 'Light' },
+            { value: 'dark', label: 'Dark' },
+            { value: 'system', label: 'System' },
+          ]}
+          value={themeMode}
+          onChange={(value) => changeTheme(value as 'light' | 'dark' | 'system')}
+        />
+      </Stack>
+    </Modal>
+  );
+}
+```
+
+## Search Window UX Improvements
+
+### Window Size Increase
+
+The search window dimensions are increased by 20% for better visibility:
+
+**Configuration:**
+
+```json
+// src-tauri/tauri.conf.json
+{
+  "app": {
+    "windows": [
+      {
+        "title": "Kube Ingress Search",
+        "width": 720,  // Increased from 600 (20% larger)
+        "height": 480, // Increased from 400 (20% larger)
+        "resizable": true,
+        "decorations": false,
+        "transparent": true,
+        "alwaysOnTop": true,
+        "skipTaskbar": true,
+        "visible": false,
+        "center": true
+      }
+    ]
+  }
+}
+```
+
+### Auto-Select Search Text
+
+When the window opens, the search text is automatically selected so users can immediately start typing to replace it:
+
+```typescript
+// src/components/SearchInput.tsx
+import { useEffect, useRef } from 'react';
+import { TextInput } from '@mantine/core';
+import { listen } from '@tauri-apps/api/event';
+
+export function SearchInput({ value, onChange, loading }: SearchInputProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    // Select text when component mounts (window opens)
+    if (inputRef.current) {
+      inputRef.current.select();
+    }
+
+    // Listen for window show events to select text
+    const unlisten = listen('window-shown', () => {
+      if (inputRef.current) {
+        inputRef.current.select();
+      }
+    });
+
+    return () => {
+      unlisten.then((fn) => fn());
+    };
+  }, []);
+
+  return (
+    <TextInput
+      ref={inputRef}
+      placeholder="Search ingresses..."
+      value={value}
+      onChange={(e) => onChange(e.currentTarget.value)}
+      autoFocus
+      autoComplete="off"
+      autoCorrect="off"
+      spellCheck={false}
+      data-gramm="false"
+      data-gramm_editor="false"
+      data-enable-grammarly="false"
+    />
+  );
+}
+```
+
+### Disable Autocomplete and Grammar Suggestions
+
+The search input disables all macOS autocomplete, autocorrect, spell checking, and third-party grammar suggestions:
+
+**HTML Attributes:**
+
+- `autoComplete="off"` - Disables browser autocomplete
+- `autoCorrect="off"` - Disables macOS autocorrect
+- `spellCheck={false}` - Disables spell checking
+- `data-gramm="false"` - Disables Grammarly
+- `data-gramm_editor="false"` - Additional Grammarly disable
+- `data-enable-grammarly="false"` - Additional Grammarly disable
+
+### Auto-Close on Focus Loss
+
+The window automatically closes when the user clicks outside or switches to another application. This is already implemented in the `useWindowBehavior` hook with a 100ms delay:
+
+```typescript
+// src/hooks/useWindowBehavior.ts
+import { useEffect } from 'react';
+import { getCurrentWindow } from '@tauri-apps/api/window';
+
+export function useWindowBehavior() {
+  useEffect(() => {
+    const window = getCurrentWindow();
+    let blurTimeout: NodeJS.Timeout;
+
+    const handleBlur = () => {
+      // Hide window after 100ms delay
+      blurTimeout = setTimeout(() => {
+        window.hide();
+      }, 100);
+    };
+
+    const handleFocus = () => {
+      // Cancel hide if window regains focus
+      if (blurTimeout) {
+        clearTimeout(blurTimeout);
+      }
+    };
+
+    window.listen('blur', handleBlur);
+    window.listen('focus', handleFocus);
+
+    return () => {
+      if (blurTimeout) {
+        clearTimeout(blurTimeout);
+      }
+    };
+  }, []);
+}
+```
+
 ## Correctness Properties
 
 *A property is a characteristic or behavior that should hold true across all valid executions of a system—essentially, a formal statement about what the system should do. Properties serve as the bridge between human-readable specifications and machine-verifiable correctness guarantees.*

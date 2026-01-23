@@ -297,7 +297,49 @@ The application is built with Tauri v2, using React + TypeScript for the fronten
 7. THE Desktop_App SHALL perform background refresh in a separate thread without blocking the UI
 8. THE Desktop_App SHALL start up within 2 seconds on a modern Mac
 
-### Requirement 17: Testing Requirements
+### Requirement 17: Theme Support
+
+**User Story:** As a user, I want to choose between light, dark, and system themes, so that the application matches my preferences and system appearance.
+
+#### Acceptance Criteria
+
+1. THE Desktop_App SHALL support three theme modes: light, dark, and system
+2. THE Desktop_App SHALL default to system theme mode
+3. WHEN theme is set to "system", THE Desktop_App SHALL automatically detect the macOS system theme preference
+4. WHEN the system theme changes, THE Desktop_App SHALL update the UI theme automatically if theme mode is "system"
+5. WHEN theme is set to "light", THE Desktop_App SHALL use light theme regardless of system preference
+6. WHEN theme is set to "dark", THE Desktop_App SHALL use dark theme regardless of system preference
+7. THE settings dialog SHALL include a theme selector dropdown with options: "Light", "Dark", "System"
+8. WHEN the user changes the theme, THE Desktop_App SHALL apply the new theme immediately
+9. WHEN the user changes the theme, THE Desktop_App SHALL save the preference to settings store
+10. WHEN the application restarts, THE Desktop_App SHALL load and apply the saved theme preference
+11. THE Desktop_App SHALL use Mantine's MantineProvider colorScheme prop to apply themes
+12. THE Desktop_App SHALL listen for system theme changes using window.matchMedia('(prefers-color-scheme: dark)')
+
+### Requirement 18: Search Window UX Improvements
+
+**User Story:** As a user, I want an improved search experience with better window sizing, auto-close behavior, text selection, and no autocomplete distractions, so that I can search more efficiently.
+
+#### Acceptance Criteria
+
+1. THE Desktop_App SHALL set the search window dimensions to 720 pixels width and 480 pixels height (20% larger than original 600x400)
+2. THE Desktop_App SHALL maintain window centering with the new dimensions
+3. WHEN the search window is shown, THE Desktop_App SHALL automatically select all text in the search input field
+4. WHEN text is selected in the search input, THE Desktop_App SHALL replace the selected text when the user starts typing
+5. WHEN the user opens the window via keyboard shortcut, THE Desktop_App SHALL select the previous search text
+6. WHEN the user opens the window via menu bar, THE Desktop_App SHALL select the previous search text
+7. THE search input field SHALL disable macOS autocomplete suggestions
+8. THE search input field SHALL disable macOS autocorrect
+9. THE search input field SHALL disable spell checking
+10. THE search input field SHALL disable Grammarly suggestions
+11. THE search input field SHALL set autoComplete="off" attribute
+12. THE search input field SHALL set autoCorrect="off" attribute
+13. THE search input field SHALL set spellCheck={false} attribute
+14. THE search input field SHALL set data-gramm="false" attribute to disable Grammarly
+15. WHEN the user clicks outside the search window, THE Desktop_App SHALL hide the window after 100ms delay (already implemented)
+16. WHEN the search window loses focus, THE Desktop_App SHALL hide the window after 100ms delay (already implemented)
+
+### Requirement 19: Testing Requirements
 
 **User Story:** As a developer, I want comprehensive tests, so that I can ensure code quality and catch regressions.
 

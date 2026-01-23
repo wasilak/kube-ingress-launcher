@@ -394,14 +394,76 @@ This implementation plan breaks down the development of the Tauri-based macOS de
     - Continue running app with cached data if available
     - _Requirements: 11.1, 11.2, 11.7_
 
-- [ ] 21. Final Integration and Testing
-  - [ ] 21.1 Run all tests
+- [-] 21. Mantine Theme Support (Light/Dark/System)
+  - [x] 21.1 Add theme configuration to Settings
+    - Add `theme: 'light' | 'dark' | 'system'` field to Settings struct in Rust
+    - Default to 'system' theme
+    - Persist theme preference to settings store
+    - Add get_theme and set_theme Tauri commands
+    - _Requirements: 9.18-9.20_
+
+  - [ ] 21.2 Implement theme detection and application
+    - Create useTheme hook to manage theme state
+    - Detect system theme preference using window.matchMedia('(prefers-color-scheme: dark)')
+    - Listen for system theme changes when theme is set to 'system'
+    - Apply theme to MantineProvider colorScheme prop
+    - _Requirements: 12.1, 12.2_
+
+  - [ ] 21.3 Add theme selector to SettingsDialog
+    - Add Select component with options: 'Light', 'Dark', 'System'
+    - Display current theme selection
+    - Auto-save theme changes immediately
+    - Update UI theme in real-time when changed
+    - _Requirements: 9.1-9.20, 12.8_
+
+  - [ ]* 21.4 Write tests for theme functionality
+    - Test theme persistence across restarts
+    - Test system theme detection
+    - Test theme switching updates UI
+    - _Requirements: 17.1, 17.3_
+
+- [ ] 22. Search Window UX Improvements
+  - [ ] 22.1 Increase search window size by 20%
+    - Update window dimensions in tauri.conf.json from 600x400 to 720x480
+    - Adjust CSS if needed to accommodate larger window
+    - Test window centering still works correctly
+    - _Requirements: 1.4, 1.10_
+
+  - [ ] 22.2 Implement auto-close on focus loss
+    - Ensure useWindowBehavior hook properly handles blur events
+    - Verify window hides when clicking outside (100ms delay already implemented)
+    - Test with different scenarios: clicking desktop, switching apps, clicking menu bar
+    - _Requirements: 2.5, 2.6_
+
+  - [ ] 22.3 Auto-select search text on window open
+    - Modify SearchInput component to select all text on focus
+    - Use input.select() when window becomes visible
+    - Ensure typing immediately replaces selected text
+    - Test with keyboard shortcut and menu bar "Show" action
+    - _Requirements: 7.2_
+
+  - [ ] 22.4 Disable macOS autocomplete/grammar suggestions
+    - Add autoComplete="off" to TextInput
+    - Add autoCorrect="off" to TextInput
+    - Add spellCheck={false} to TextInput
+    - Add data-gramm="false" to disable Grammarly
+    - Test that no autocomplete suggestions appear
+    - _Requirements: 7.2, 12.4_
+
+  - [ ]* 22.5 Write tests for search UX improvements
+    - Test search text is selected on window open
+    - Test typing replaces selected text
+    - Test autocomplete attributes are set correctly
+    - _Requirements: 17.4_
+
+- [ ] 23. Final Integration and Testing
+  - [ ] 23.1 Run all tests
     - Execute npm test for frontend tests
     - Execute cargo test for backend tests
     - Verify all property tests pass with 100 iterations
     - _Requirements: 17.1-17.9_
 
-  - [ ] 21.2 Manual testing checklist
+  - [ ] 23.2 Manual testing checklist
     - Test global shortcut (Cmd+Shift+K) shows/hides window
     - Test search filtering works correctly
     - Test ingress URL opening in browser
@@ -409,9 +471,13 @@ This implementation plan breaks down the development of the Tauri-based macOS de
     - Test error handling when Kubernetes is unavailable
     - Test menu bar functionality
     - Test permissions dialogs
+    - Test theme switching (light/dark/system)
+    - Test search text auto-selection on window open
+    - Test window auto-closes when clicking outside
+    - Test no autocomplete suggestions in search field
     - _Requirements: All_
 
-  - [ ] 21.3 Performance testing
+  - [ ] 23.3 Performance testing
     - Test with 1000+ ingresses
     - Verify window shows within 100ms
     - Verify search filtering within 150ms
