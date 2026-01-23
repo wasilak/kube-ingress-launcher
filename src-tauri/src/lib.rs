@@ -212,7 +212,7 @@ pub fn run() {
             commands::permissions::disable_app_autostart,
             commands::permissions::check_autostart,
             commands::window::update_tray_menu_state,
-            commands::window::test_hide_window,
+            commands::window::hide_window,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -54,27 +54,27 @@ pub async fn update_tray_menu_state(
     Ok(())
 }
 
-/// Test command to manually hide the window
+/// Hide the main window
 ///
-/// This is a debug command to test if window hiding works at all.
+/// This command hides the main window and updates the tray menu.
+/// It's called from the frontend when the window should be hidden
+/// (e.g., on Escape key or focus loss).
+///
+/// # Requirements
+/// - 2.5: Hide window on Escape key
+/// - 2.6: Hide window on focus loss
 #[tauri::command]
-pub async fn test_hide_window(app: tauri::AppHandle) -> Result<(), String> {
-    eprintln!("[test_hide_window] Command called");
-    
+pub async fn hide_window(app: tauri::AppHandle) -> Result<(), String> {
     if let Some(window) = app.get_webview_window("main") {
-        eprintln!("[test_hide_window] Got window, attempting to hide");
         window.hide().map_err(|e| {
-            eprintln!("[test_hide_window] Failed to hide: {}", e);
             format!("Failed to hide window: {}", e)
         })?;
-        eprintln!("[test_hide_window] Window hidden successfully");
         
-        // Update tray menu
+        // Update tray menu to show "Show"
         update_tray_menu_state(false, app).await?;
         
         Ok(())
     } else {
-        eprintln!("[test_hide_window] Could not get window");
         Err("Could not get window".to_string())
     }
 }
