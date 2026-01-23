@@ -359,14 +359,14 @@ This implementation plan breaks down the link usage tracking and statistics feat
     - Test menu item opens window
     - _Requirements: 17.3_
 
-- [ ] 17. Statistics View Routing
-  - [ ] 17.1 Create statistics route/page
+- [x] 17. Statistics View Routing
+  - [x] 17.1 Create statistics route/page
     - Create `src/pages/Statistics.tsx` (or integrate into routing)
     - Render StatisticsView component
     - Apply theme from settings
     - _Requirements: 4.2, 15.3_
 
-  - [ ] 17.2 Setup routing for statistics window
+  - [x] 17.2 Setup routing for statistics window
     - Configure routing to show Statistics page in statistics window
     - Ensure theme provider wraps statistics page
     - _Requirements: 15.3_
