@@ -73,13 +73,14 @@ pub async fn start_refresh_task(app_handle: AppHandle) {
 /// Fetches ingress data from Kubernetes and updates the application state.
 ///
 /// This function:
-/// 1. Creates a Kubernetes client
-/// 2. Fetches all ingress resources from all namespaces (Requirement 6.1)
-/// 3. Transforms them into our internal format
-/// 4. Updates the application state (Requirement 6.4)
-/// 5. Clears any previous errors on success (Requirement 6.6)
-/// 6. Stores errors on failure while preserving cached data (Requirement 6.7, 6.8)
-/// 7. Emits events to notify the frontend
+/// 1. Cleans up old usage datapoints (>30 days) (Requirement 10.1, 10.2)
+/// 2. Creates a Kubernetes client
+/// 3. Fetches all ingress resources from all namespaces (Requirement 6.1)
+/// 4. Transforms them into our internal format
+/// 5. Updates the application state (Requirement 6.4)
+/// 6. Clears any previous errors on success (Requirement 6.6)
+/// 7. Stores errors on failure while preserving cached data (Requirement 6.7, 6.8)
+/// 8. Emits events to notify the frontend
 ///
 /// # Arguments
 ///
@@ -92,11 +93,28 @@ pub async fn start_refresh_task(app_handle: AppHandle) {
 ///
 /// # Requirements
 ///
-/// Implements requirements 6.1, 6.4-6.8, 11.1, 11.2, 11.7
+/// Implements requirements 6.1, 6.4-6.8, 10.1-10.4, 11.1, 11.2, 11.7, 14.3
 pub async fn fetch_and_update(
     app_handle: &AppHandle,
     state: &AppState,
 ) -> Result<(), String> {
+    // Cleanup old usage datapoints before fetching ingresses (Requirement 10.1, 10.3)
+    match state.usage_tracker.cleanup_old_datapoints().await {
+        Ok(removed_count) => {
+            if removed_count > 0 {
+                // Log number of datapoints removed (Requirement 10.3, 10.5)
+                println!("Cleaned up {} old usage datapoints (>30 days)", removed_count);
+                
+                // Emit event to notify frontend of usage stats update (Requirement 10.4)
+                let _ = app_handle.emit("usage-stats-updated", ());
+            }
+        }
+        Err(e) => {
+            // Continue refresh even if cleanup fails (Requirement 10.4, 14.3)
+            eprintln!("Failed to cleanup old usage datapoints: {}. Continuing with refresh.", e);
+        }
+    }
+
     // Create Kubernetes client
     let client = Client::new().await
         .map_err(|e| {
