@@ -16,7 +16,7 @@
  */
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Stack, Group, Title, Select, Loader, Alert, ScrollArea, Button, Text } from '@mantine/core';
+import { Stack, Group, Title, Select, Loader, Alert, Button, Text } from '@mantine/core';
 import { useDebouncedValue } from '@mantine/hooks';
 import { invoke } from '@tauri-apps/api/core';
 import { StatisticsItem } from './StatisticsItem';
@@ -175,7 +175,7 @@ export function StatisticsView() {
   }, []);
 
   return (
-    <Stack p="md" h="100vh">
+    <Stack gap="md">
       {/* Header with title and time range selector */}
       <Group justify="space-between">
         <Title order={2}>Usage Statistics</Title>
@@ -204,24 +204,22 @@ export function StatisticsView() {
       {/* Statistics list */}
       {!loading && !error && (
         <>
-          <ScrollArea style={{ flex: 1 }}>
-            <Stack gap="md">
-              {stats.length === 0 ? (
-                <Text c="dimmed" ta="center" py="xl">
-                  No usage statistics available
-                </Text>
-              ) : (
-                stats.map((stat) => (
-                  <StatisticsItem
-                    key={stat.host}
-                    stat={stat}
-                    onClear={() => handleClearHost(stat.host)}
-                    onSparklineClick={() => handleSparklineClick(stat.host)}
-                  />
-                ))
-              )}
-            </Stack>
-          </ScrollArea>
+          <Stack gap="md">
+            {stats.length === 0 ? (
+              <Text c="dimmed" ta="center" py="xl">
+                No usage statistics available
+              </Text>
+            ) : (
+              stats.map((stat) => (
+                <StatisticsItem
+                  key={stat.host}
+                  stat={stat}
+                  onClear={() => handleClearHost(stat.host)}
+                  onSparklineClick={() => handleSparklineClick(stat.host)}
+                />
+              ))
+            )}
+          </Stack>
 
           {/* Clear all button */}
           {stats.length > 0 && (
@@ -230,6 +228,7 @@ export function StatisticsView() {
               variant="light"
               onClick={handleClearAllClick}
               fullWidth
+              mt="md"
             >
               Clear All Statistics
             </Button>

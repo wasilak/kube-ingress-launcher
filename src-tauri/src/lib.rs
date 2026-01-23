@@ -284,13 +284,18 @@ fn setup_tray(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
                     }
                 }
                 "statistics" => {
-                    // Open statistics window
-                    let app_handle = app.clone();
-                    tauri::async_runtime::spawn(async move {
-                        if let Err(e) = commands::window::open_statistics_window(app_handle).await {
-                            eprintln!("Failed to open statistics window: {}", e);
+                    // Show the main window first if it's hidden
+                    if let Some(window) = app.get_webview_window("main") {
+                        if let Ok(false) = window.is_visible() {
+                            let _ = window.show();
+                            let _ = window.set_focus();
+                            let _ = window.center();
+                            // Update menu to show "Hide"
+                            let _ = update_tray_menu(app, true);
                         }
-                    });
+                    }
+                    // Emit event to open statistics dialog
+                    let _ = app.emit("open-statistics", ());
                 }
                 "options" => {
                     // Show the main window first if it's hidden

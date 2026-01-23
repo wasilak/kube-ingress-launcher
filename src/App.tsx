@@ -17,6 +17,7 @@ import { SearchInput } from './components/SearchInput';
 import { IngressList } from './components/IngressList';
 import { ErrorBanner } from './components/ErrorBanner';
 import { SettingsDialog } from './components/SettingsDialog';
+import { StatisticsDialog } from './components/StatisticsDialog';
 import { Statistics } from './pages/Statistics';
 import { useIngresses } from './hooks/useIngresses';
 import { useSearch } from './hooks/useSearch';
@@ -94,11 +95,25 @@ function MainWindow() {
   
   // Settings dialog state
   const [settingsOpen, setSettingsOpen] = useState(false);
+  
+  // Statistics dialog state
+  const [statisticsOpen, setStatisticsOpen] = useState(false);
 
   // Listen for settings dialog open event from menu
   useEffect(() => {
     const unlisten = listen('open-settings', () => {
       setSettingsOpen(true);
+    });
+
+    return () => {
+      unlisten.then((fn) => fn());
+    };
+  }, []);
+  
+  // Listen for statistics dialog open event from menu
+  useEffect(() => {
+    const unlisten = listen('open-statistics', () => {
+      setStatisticsOpen(true);
     });
 
     return () => {
@@ -126,7 +141,7 @@ function MainWindow() {
   const { selectedIndex } = useKeyboardNavigation({
     items: filteredIngresses,
     onSelect: handleIngressSelect,
-    enabled: !settingsOpen, // Disable when settings dialog is open
+    enabled: !settingsOpen && !statisticsOpen, // Disable when dialogs are open
   });
 
   return (
@@ -161,6 +176,12 @@ function MainWindow() {
       <SettingsDialog
         opened={settingsOpen}
         onClose={() => setSettingsOpen(false)}
+      />
+      
+      {/* Statistics dialog - modal for usage statistics */}
+      <StatisticsDialog
+        opened={statisticsOpen}
+        onClose={() => setStatisticsOpen(false)}
       />
     </div>
   );
