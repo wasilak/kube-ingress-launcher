@@ -55,7 +55,7 @@ export function Layout() {
 
   return (
     <div className="app-container" data-tauri-drag-region>
-      <Stack gap="md" p="md">
+      <Stack gap="xs" p="xs">
         {/* Burger menu - shown on all views */}
         <Group gap="sm" className="no-drag" align="center" justify="flex-end">
           <Burger
