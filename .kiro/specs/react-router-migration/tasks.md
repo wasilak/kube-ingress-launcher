@@ -172,8 +172,8 @@ This implementation plan outlines the tasks for migrating the Kube Ingress Launc
     - Test that return to home button works
     - _Requirements: 14.1, 14.2, 14.3_
 
-- [ ] 10. Add route transitions
-  - [ ] 10.1 Configure fade transitions for routes
+- [-] 10. Add route transitions
+  - [x] 10.1 Configure fade transitions for routes
     - Use Mantine's transition system
     - Set transition duration to 200ms
     - Apply to route changes
