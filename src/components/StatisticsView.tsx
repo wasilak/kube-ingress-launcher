@@ -3,23 +3,23 @@
  * 
  * This component provides a comprehensive view of link usage statistics:
  * - Time range selector for filtering statistics
- * - List of top opened ingresses with sparklines
+ * - Table layout with rank, host, count, and sparkline columns
  * - Clear all statistics functionality with confirmation
  * - Detailed area chart modal for individual hosts
  * 
  * Optimizations:
  * - Time range changes are debounced to reduce unnecessary API calls
  * - Callback functions are memoized with useCallback
- * - StatisticsItem components are memoized to prevent unnecessary re-renders
  * 
  * Requirements: 4.1, 4.2, 4.3, 4.4, 4.5, 5.1, 5.4, 7.1, 7.2, 7.9, 8.1, 9.1, 9.2, 9.3, 13.2, 13.3, 14.4
  */
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Stack, Group, Title, Select, Loader, Alert, Button, Text } from '@mantine/core';
+import { Stack, Group, Title, Select, Loader, Alert, Button, Text, Table, ActionIcon } from '@mantine/core';
+import { Sparkline } from '@mantine/charts';
 import { useDebouncedValue } from '@mantine/hooks';
 import { invoke } from '@tauri-apps/api/core';
-import { StatisticsItem } from './StatisticsItem';
+import { IconTrash, IconChartLine } from '@tabler/icons-react';
 import { AreaChartModal } from './AreaChartModal';
 import { ClearConfirmationModal } from './ClearConfirmationModal';
 import { useUsageStats } from '../hooks/useUsageStats';
@@ -28,15 +28,15 @@ import type { TimeRange } from '../types/usage';
 import type { Settings } from '../types/ingress';
 
 /**
- * StatisticsView component displays usage statistics with time range filtering
+ * StatisticsView component displays usage statistics in a table format
  * 
  * Features:
  * - Time range selector (1 hour to 30 days)
- * - List of statistics items with sparklines
+ * - Table with rank, host, count, and sparkline columns
  * - Loading and error states
  * - Clear all statistics with confirmation modal
  * - Detailed area chart modal for individual hosts
- * - Scrollable list for many statistics
+ * - Clickable sparklines to open detailed view
  * 
  * Optimizations:
  * - Debounced time range changes (300ms) to reduce API calls
@@ -201,25 +201,81 @@ export function StatisticsView() {
         </Alert>
       )}
 
-      {/* Statistics list */}
+      {/* Statistics table */}
       {!loading && !error && (
         <>
-          <Stack gap="md">
-            {stats.length === 0 ? (
-              <Text c="dimmed" ta="center" py="xl">
-                No usage statistics available
-              </Text>
-            ) : (
-              stats.map((stat) => (
-                <StatisticsItem
-                  key={stat.host}
-                  stat={stat}
-                  onClear={() => handleClearHost(stat.host)}
-                  onSparklineClick={() => handleSparklineClick(stat.host)}
-                />
-              ))
-            )}
-          </Stack>
+          {stats.length === 0 ? (
+            <Text c="dimmed" ta="center" py="xl">
+              No usage statistics available
+            </Text>
+          ) : (
+            <Table striped highlightOnHover>
+              <Table.Thead>
+                <Table.Tr>
+                  <Table.Th style={{ width: '60px' }}>#</Table.Th>
+                  <Table.Th>Host</Table.Th>
+                  <Table.Th style={{ width: '80px', textAlign: 'right' }}>Opens</Table.Th>
+                  <Table.Th style={{ width: '200px' }}>Activity</Table.Th>
+                  <Table.Th style={{ width: '100px' }}></Table.Th>
+                </Table.Tr>
+              </Table.Thead>
+              <Table.Tbody>
+                {stats.map((stat, index) => {
+                  const sparklineData = stat.timeBuckets.map(b => b.count);
+                  
+                  return (
+                    <Table.Tr key={stat.host}>
+                      <Table.Td style={{ fontWeight: 500, color: 'var(--mantine-color-dimmed)' }}>
+                        {index + 1}
+                      </Table.Td>
+                      <Table.Td style={{ fontFamily: 'monospace', fontSize: '0.9em' }}>
+                        {stat.host}
+                      </Table.Td>
+                      <Table.Td style={{ textAlign: 'right', fontWeight: 500 }}>
+                        {stat.totalCount}
+                      </Table.Td>
+                      <Table.Td>
+                        <div
+                          onClick={() => handleSparklineClick(stat.host)}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          <Sparkline
+                            w="100%"
+                            h={40}
+                            data={sparklineData}
+                            curveType="linear"
+                            color="blue"
+                            fillOpacity={0.6}
+                            strokeWidth={2}
+                          />
+                        </div>
+                      </Table.Td>
+                      <Table.Td>
+                        <Group gap="xs" justify="flex-end">
+                          <ActionIcon
+                            variant="subtle"
+                            color="blue"
+                            onClick={() => handleSparklineClick(stat.host)}
+                            title="View details"
+                          >
+                            <IconChartLine size={18} />
+                          </ActionIcon>
+                          <ActionIcon
+                            variant="subtle"
+                            color="red"
+                            onClick={() => handleClearHost(stat.host)}
+                            title="Clear statistics"
+                          >
+                            <IconTrash size={18} />
+                          </ActionIcon>
+                        </Group>
+                      </Table.Td>
+                    </Table.Tr>
+                  );
+                })}
+              </Table.Tbody>
+            </Table>
+          )}
 
           {/* Clear all button */}
           {stats.length > 0 && (
