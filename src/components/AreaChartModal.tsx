@@ -1,4 +1,4 @@
-import { Modal, Stack, Text, Loader } from '@mantine/core';
+import { Modal, Stack, Text, Loader, ScrollArea } from '@mantine/core';
 import { AreaChart } from '@mantine/charts';
 import { useState, useEffect } from 'react';
 import { invoke } from '@tauri-apps/api/core';
@@ -94,8 +94,9 @@ export function AreaChartModal({
     <Modal
       opened={true}
       onClose={onClose}
-      size="xl"
+      size="lg"
       title={`Usage Details: ${host}`}
+      scrollAreaComponent={ScrollArea.Autosize}
     >
       <Stack gap="md">
         {loading && (
@@ -117,7 +118,7 @@ export function AreaChartModal({
             </Text>
 
             <AreaChart
-              h={400}
+              h={300}
               data={chartData}
               dataKey="timestamp"
               series={[
