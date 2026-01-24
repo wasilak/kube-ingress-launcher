@@ -234,12 +234,11 @@ export function StatisticsView() {
                   <Heatmap
                     data={heatmapData}
                     withTooltip
-                    getTooltipLabel={(input) => 
-                      `${new Date(input.date).toLocaleDateString()}: ${input.value} ${input.value === 1 ? 'open' : 'opens'}`
+                    getTooltipLabel={({ date, value }) => 
+                      `${new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}: ${value === null || value === 0 ? 'No opens' : `${value} ${value === 1 ? 'open' : 'opens'}`}`
                     }
                     withMonthLabels
                     withWeekdayLabels
-                    weekdayLabels={['S', 'M', 'T', 'W', 'T', 'F', 'S']}
                   />
                 </Stack>
               )}
