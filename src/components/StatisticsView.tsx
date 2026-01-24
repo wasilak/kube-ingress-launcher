@@ -131,30 +131,22 @@ export function StatisticsView() {
   const heatmapData = useMemo(() => {
     const data: Record<string, number> = {};
     
-    // Determine granularity based on time range
-    const getTimeKey = (timestamp: string): string => {
-      const date = new Date(timestamp);
-      
-      // For short time ranges (< 24 hours), use hourly granularity
-      if (debouncedTimeRange === 'OneHour' || debouncedTimeRange === 'TwelveHours' || debouncedTimeRange === 'OneDay') {
-        // Format: YYYY-MM-DD HH:00
-        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:00`;
-      }
-      
-      // For longer ranges, use daily granularity
-      return date.toISOString().split('T')[0]; // YYYY-MM-DD
-    };
-    
+    // For daily granularity, use date only (no time component)
     // Aggregate all hosts' time buckets
     stats.forEach(stat => {
       stat.timeBuckets.forEach(bucket => {
-        const key = getTimeKey(bucket.timestamp);
-        data[key] = (data[key] || 0) + bucket.count;
+        // Parse the timestamp and extract just the date part
+        // The backend sends ISO timestamps, we need to extract the date in local timezone
+        const date = new Date(bucket.timestamp);
+        const dateKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+        
+        data[dateKey] = (data[dateKey] || 0) + bucket.count;
       });
     });
     
+    console.log('Heatmap data:', data);
     return data;
-  }, [stats, debouncedTimeRange]);
+  }, [stats]);
 
   // Memoize select data to avoid recreation on every render
   const selectData = useMemo(
@@ -281,28 +273,20 @@ export function StatisticsView() {
                       endDate={endDate}
                       withTooltip
                       getTooltipLabel={({ date, value }) => {
-                        // Format based on granularity
-                        const isHourly = date.includes(':');
-                        const formattedDate = isHourly
-                          ? new Date(date).toLocaleString('en-US', { 
-                              month: 'short', 
-                              day: 'numeric', 
-                              hour: 'numeric',
-                              hour12: true 
-                            })
-                          : new Date(date).toLocaleDateString('en-US', { 
-                              month: 'short', 
-                              day: 'numeric', 
-                              year: 'numeric' 
-                            });
+                        const formattedDate = new Date(date).toLocaleDateString('en-US', { 
+                          month: 'short', 
+                          day: 'numeric', 
+                          year: 'numeric' 
+                        });
                         
                         return `${formattedDate}: ${value === null || value === 0 ? 'No opens' : `${value} ${value === 1 ? 'open' : 'opens'}`}`;
                       }}
                       withMonthLabels={debouncedTimeRange === 'ThirtyDays'}
                       withWeekdayLabels={debouncedTimeRange !== 'OneHour' && debouncedTimeRange !== 'TwelveHours'}
-                      colors={['#e6f7f1', '#99e6cc', '#4dd4ac', '#12b886', '#0ca678']}
-                      rectSize={debouncedTimeRange === 'OneHour' || debouncedTimeRange === 'TwelveHours' ? 8 : 12}
+                      colors={['#e0f2fe', '#7dd3fc', '#38bdf8', '#0ea5e9', '#0284c7']}
+                      rectSize={12}
                       gap={2}
+                      withOutsideDates={false}
                     />
                   </div>
                 </Stack>
