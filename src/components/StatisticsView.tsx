@@ -16,7 +16,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Stack, Group, Title, Select, Loader, Alert, Button, Text, Table, ActionIcon, ScrollArea, Container } from '@mantine/core';
-import { Sparkline } from '@mantine/charts';
+import { Sparkline, Heatmap } from '@mantine/charts';
 import { useDebouncedValue } from '@mantine/hooks';
 import { invoke } from '@tauri-apps/api/core';
 import { IconTrash, IconChartLine } from '@tabler/icons-react';
@@ -97,6 +97,35 @@ export function StatisticsView() {
 
   // Fetch usage statistics with the debounced time range
   const { stats, loading, error, clearHost, clearAll } = useUsageStats(debouncedTimeRange);
+
+  // Calculate start and end dates based on time range
+  const { startDate, endDate } = useMemo(() => {
+    const end = new Date();
+    const start = new Date();
+    
+    switch (debouncedTimeRange) {
+      case 'OneHour':
+        start.setHours(start.getHours() - 1);
+        break;
+      case 'TwelveHours':
+        start.setHours(start.getHours() - 12);
+        break;
+      case 'OneDay':
+        start.setDate(start.getDate() - 1);
+        break;
+      case 'ThreeDays':
+        start.setDate(start.getDate() - 3);
+        break;
+      case 'SevenDays':
+        start.setDate(start.getDate() - 7);
+        break;
+      case 'ThirtyDays':
+        start.setDate(start.getDate() - 30);
+        break;
+    }
+    
+    return { startDate: start, endDate: end };
+  }, [debouncedTimeRange]);
 
   // Transform stats into heatmap data format based on time range
   const heatmapData = useMemo(() => {
@@ -245,28 +274,16 @@ export function StatisticsView() {
               {Object.keys(heatmapData).length > 0 && (
                 <Stack gap="xs">
                   <Text size="sm" fw={500}>Activity Overview</Text>
-                  <div style={{ 
-                    display: 'flex', 
-                    justifyContent: 'center',
-                    gap: '2px',
-                    flexWrap: 'wrap',
-                    padding: '8px',
-                    backgroundColor: 'var(--mantine-color-gray-0)',
-                    borderRadius: '8px'
-                  }}>
-                    {Object.entries(heatmapData)
-                      .sort(([a], [b]) => a.localeCompare(b))
-                      .map(([date, count]) => {
-                        // Calculate color intensity based on count
-                        const maxCount = Math.max(...Object.values(heatmapData));
-                        const intensity = count === 0 ? 0 : Math.max(0.2, count / maxCount);
-                        const color = count === 0 
-                          ? 'var(--mantine-color-gray-2)' 
-                          : `rgba(18, 184, 134, ${intensity})`; // Teal color with varying opacity
-                        
-                        // Format label based on granularity
+                  <div style={{ display: 'flex', justifyContent: 'center' }}>
+                    <Heatmap
+                      data={heatmapData}
+                      startDate={startDate}
+                      endDate={endDate}
+                      withTooltip
+                      getTooltipLabel={({ date, value }) => {
+                        // Format based on granularity
                         const isHourly = date.includes(':');
-                        const label = isHourly
+                        const formattedDate = isHourly
                           ? new Date(date).toLocaleString('en-US', { 
                               month: 'short', 
                               day: 'numeric', 
@@ -275,30 +292,18 @@ export function StatisticsView() {
                             })
                           : new Date(date).toLocaleDateString('en-US', { 
                               month: 'short', 
-                              day: 'numeric'
+                              day: 'numeric', 
+                              year: 'numeric' 
                             });
                         
-                        return (
-                          <div
-                            key={date}
-                            title={`${label}: ${count === 0 ? 'No opens' : `${count} ${count === 1 ? 'open' : 'opens'}`}`}
-                            style={{
-                              width: isHourly ? '16px' : '20px',
-                              height: isHourly ? '16px' : '20px',
-                              backgroundColor: color,
-                              borderRadius: '3px',
-                              cursor: 'pointer',
-                              transition: 'transform 0.1s',
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.transform = 'scale(1.2)';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.transform = 'scale(1)';
-                            }}
-                          />
-                        );
-                      })}
+                        return `${formattedDate}: ${value === null || value === 0 ? 'No opens' : `${value} ${value === 1 ? 'open' : 'opens'}`}`;
+                      }}
+                      withMonthLabels={debouncedTimeRange === 'ThirtyDays'}
+                      withWeekdayLabels={debouncedTimeRange !== 'OneHour' && debouncedTimeRange !== 'TwelveHours'}
+                      colors={['#e6f7f1', '#99e6cc', '#4dd4ac', '#12b886', '#0ca678']}
+                      rectSize={debouncedTimeRange === 'OneHour' || debouncedTimeRange === 'TwelveHours' ? 8 : 12}
+                      gap={2}
+                    />
                   </div>
                 </Stack>
               )}
