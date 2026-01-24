@@ -117,23 +117,25 @@ export function AreaChartModal({
               Total opens: {data.totalCount}
             </Text>
 
-            <AreaChart
-              h={300}
-              data={chartData}
-              dataKey="timestamp"
-              series={[
-                { 
-                  name: 'count', 
-                  color: 'blue.6', 
-                  label: 'Opens' 
-                }
-              ]}
-              fillOpacity={0.3}
-              strokeWidth={2}
-              curveType="linear"
-              withLegend
-              valueFormatter={valueFormatter}
-            />
+            <div style={{ maxHeight: '300px', height: 'min(300px, 50vh)' }}>
+              <AreaChart
+                h="100%"
+                data={chartData}
+                dataKey="timestamp"
+                series={[
+                  { 
+                    name: 'count', 
+                    color: 'blue.6', 
+                    label: 'Opens' 
+                  }
+                ]}
+                fillOpacity={0.3}
+                strokeWidth={2}
+                curveType="linear"
+                withLegend
+                valueFormatter={valueFormatter}
+              />
+            </div>
           </>
         )}
       </Stack>
