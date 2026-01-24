@@ -135,21 +135,15 @@ export function StatisticsView() {
     // Aggregate all hosts' time buckets
     stats.forEach(stat => {
       stat.timeBuckets.forEach(bucket => {
-        // Log the raw timestamp to understand what we're receiving
-        console.log('Raw timestamp:', bucket.timestamp, 'Count:', bucket.count);
-        
         // Parse the timestamp and extract just the date part
         // The backend sends ISO timestamps, we need to extract the date in local timezone
         const date = new Date(bucket.timestamp);
         const dateKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
         
-        console.log('Parsed date:', date.toISOString(), '-> Key:', dateKey);
-        
         data[dateKey] = (data[dateKey] || 0) + bucket.count;
       });
     });
     
-    console.log('Final heatmap data:', data);
     return data;
   }, [stats]);
 

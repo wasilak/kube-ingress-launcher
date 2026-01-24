@@ -23,7 +23,7 @@ import type { TimeRangeOption } from '../types/usage';
  * - 24 hours: 24 buckets of 1 hour each
  * - 3 days: 6 buckets of 12 hours each
  * - 7 days: 7 buckets of 1 day each
- * - 30 days: 10 buckets of 3 days each
+ * - 30 days: 30 buckets of 1 day each
  * 
  * Requirements: 7.1, 7.2
  */
@@ -56,7 +56,7 @@ export const TIME_RANGE_OPTIONS: TimeRangeOption[] = [
   {
     value: 'ThirtyDays',
     label: '30 days',
-    bucketLabel: 'per 3 days',
+    bucketLabel: 'per day',
   },
 ];
 

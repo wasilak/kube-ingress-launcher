@@ -82,7 +82,7 @@ impl UsageAggregator {
             TimeRange::OneDay => Duration::hours(1),         // 1 hour buckets
             TimeRange::ThreeDays => Duration::hours(12),     // 12 hour buckets
             TimeRange::SevenDays => Duration::days(1),       // 1 day buckets
-            TimeRange::ThirtyDays => Duration::days(3),      // 3 day buckets
+            TimeRange::ThirtyDays => Duration::days(1),      // 1 day buckets (changed from 3)
         }
     }
 
@@ -304,7 +304,7 @@ mod tests {
         );
         assert_eq!(
             UsageAggregator::get_bucket_duration(TimeRange::ThirtyDays),
-            Duration::days(3)
+            Duration::days(1)
         );
     }
 
