@@ -93,6 +93,16 @@ jobs:
         run: |
           npm run tauri build -- --target universal-apple-darwin
       
+      - name: Ad-hoc sign app bundle
+        run: |
+          APP_BUNDLE=$(find src-tauri/target/universal-apple-darwin/release/bundle/macos -name "*.app" -type d | head -n 1)
+          echo "🔐 Ad-hoc signing app bundle: $APP_BUNDLE"
+          codesign -s - -f --deep "$APP_BUNDLE"
+          echo "✅ App signed successfully"
+          
+          # Verify signature
+          codesign -dv "$APP_BUNDLE" 2>&1 || true
+      
       - name: Locate app bundle
         id: locate
         run: |
