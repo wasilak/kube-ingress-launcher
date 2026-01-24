@@ -16,7 +16,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Stack, Group, Title, Select, Loader, Alert, Button, Text, Table, ActionIcon, ScrollArea, Container } from '@mantine/core';
-import { Sparkline } from '@mantine/charts';
+import { Sparkline, Heatmap } from '@mantine/charts';
 import { useDebouncedValue } from '@mantine/hooks';
 import { invoke } from '@tauri-apps/api/core';
 import { IconTrash, IconChartLine } from '@tabler/icons-react';
@@ -97,6 +97,21 @@ export function StatisticsView() {
 
   // Fetch usage statistics with the debounced time range
   const { stats, loading, error, clearHost, clearAll } = useUsageStats(debouncedTimeRange);
+
+  // Transform stats into heatmap data format (date -> count)
+  const heatmapData = useMemo(() => {
+    const data: Record<string, number> = {};
+    
+    // Aggregate all hosts' time buckets by date
+    stats.forEach(stat => {
+      stat.timeBuckets.forEach(bucket => {
+        const date = new Date(bucket.timestamp).toISOString().split('T')[0]; // YYYY-MM-DD
+        data[date] = (data[date] || 0) + bucket.count;
+      });
+    });
+    
+    return data;
+  }, [stats]);
 
   // Memoize select data to avoid recreation on every render
   const selectData = useMemo(
@@ -211,7 +226,28 @@ export function StatisticsView() {
               No usage statistics available
             </Text>
           ) : (
-            <Table striped highlightOnHover>
+            <>
+              {/* Activity heatmap */}
+              {Object.keys(heatmapData).length > 0 && (
+                <Stack gap="xs">
+                  <Text size="sm" fw={500}>Activity Overview</Text>
+                  <Heatmap
+                    data={heatmapData}
+                    withTooltip
+                    getTooltipLabel={(input) => 
+                      `${new Date(input.date).toLocaleDateString()}: ${input.value} ${input.value === 1 ? 'open' : 'opens'}`
+                    }
+                    withMonthLabels
+                    withWeekdayLabels
+                    weekdayLabels={['S', 'M', 'T', 'W', 'T', 'F', 'S']}
+                  />
+                </Stack>
+              )}
+
+              {/* Top hosts table */}
+              <Stack gap="xs">
+                <Text size="sm" fw={500}>Top Hosts</Text>
+                <Table striped highlightOnHover>
               <Table.Thead>
                 <Table.Tr>
                   <Table.Th style={{ width: '60px' }}>#</Table.Th>
@@ -277,6 +313,8 @@ export function StatisticsView() {
                 })}
               </Table.Tbody>
             </Table>
+              </Stack>
+            </>
           )}
 
           {/* Clear all button */}
