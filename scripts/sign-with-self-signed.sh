@@ -14,7 +14,7 @@ NC='\033[0m' # No Color
 # Certificate details
 CERT_DIR=".signing-temp"
 CERT_FILE="$CERT_DIR/certificate.p12"
-CERT_PASSWORD="kube-ingress-signing-2026"
+CERT_PASSWORD="KubeIngress2026"
 SIGNING_IDENTITY="Kube Ingress Launcher"
 KEYCHAIN_NAME="kube-ingress-test.keychain-db"
 KEYCHAIN_PATH="$HOME/Library/Keychains/$KEYCHAIN_NAME"
@@ -70,9 +70,13 @@ security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
 echo -e "${GREEN}✅ Keychain created${NC}"
 echo ""
 
-# Import certificate
-echo -e "${BLUE}📥 Importing certificate...${NC}"
-security import "$CERT_FILE" -k "$KEYCHAIN_PATH" -P "$CERT_PASSWORD" -T /usr/bin/codesign
+# Import certificate and private key separately
+echo -e "${BLUE}📥 Importing certificate and key...${NC}"
+# Import the private key first
+security import "$CERT_DIR/key.pem" -k "$KEYCHAIN_PATH" -T /usr/bin/codesign -T /usr/bin/security
+# Import the certificate
+security import "$CERT_DIR/cert.pem" -k "$KEYCHAIN_PATH" -T /usr/bin/codesign -T /usr/bin/security
+# Set partition list to allow codesign to access the key
 security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
 
 # Add to search list
