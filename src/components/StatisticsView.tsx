@@ -16,7 +16,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Stack, Group, Title, Select, Loader, Alert, Button, Text, Table, ActionIcon, ScrollArea, Container } from '@mantine/core';
-import { Sparkline, Heatmap } from '@mantine/charts';
+import { Sparkline } from '@mantine/charts';
 import { useDebouncedValue } from '@mantine/hooks';
 import { invoke } from '@tauri-apps/api/core';
 import { IconTrash, IconChartLine } from '@tabler/icons-react';
@@ -245,14 +245,28 @@ export function StatisticsView() {
               {Object.keys(heatmapData).length > 0 && (
                 <Stack gap="xs">
                   <Text size="sm" fw={500}>Activity Overview</Text>
-                  <div style={{ display: 'flex', justifyContent: 'center' }}>
-                    <Heatmap
-                      data={heatmapData}
-                      withTooltip
-                      getTooltipLabel={({ date, value }) => {
-                        // Format based on granularity
+                  <div style={{ 
+                    display: 'flex', 
+                    justifyContent: 'center',
+                    gap: '2px',
+                    flexWrap: 'wrap',
+                    padding: '8px',
+                    backgroundColor: 'var(--mantine-color-gray-0)',
+                    borderRadius: '8px'
+                  }}>
+                    {Object.entries(heatmapData)
+                      .sort(([a], [b]) => a.localeCompare(b))
+                      .map(([date, count]) => {
+                        // Calculate color intensity based on count
+                        const maxCount = Math.max(...Object.values(heatmapData));
+                        const intensity = count === 0 ? 0 : Math.max(0.2, count / maxCount);
+                        const color = count === 0 
+                          ? 'var(--mantine-color-gray-2)' 
+                          : `rgba(18, 184, 134, ${intensity})`; // Teal color with varying opacity
+                        
+                        // Format label based on granularity
                         const isHourly = date.includes(':');
-                        const formattedDate = isHourly
+                        const label = isHourly
                           ? new Date(date).toLocaleString('en-US', { 
                               month: 'short', 
                               day: 'numeric', 
@@ -261,16 +275,30 @@ export function StatisticsView() {
                             })
                           : new Date(date).toLocaleDateString('en-US', { 
                               month: 'short', 
-                              day: 'numeric', 
-                              year: 'numeric' 
+                              day: 'numeric'
                             });
                         
-                        return `${formattedDate}: ${value === null || value === 0 ? 'No opens' : `${value} ${value === 1 ? 'open' : 'opens'}`}`;
-                      }}
-                      withMonthLabels
-                      withWeekdayLabels
-                      color="teal"
-                    />
+                        return (
+                          <div
+                            key={date}
+                            title={`${label}: ${count === 0 ? 'No opens' : `${count} ${count === 1 ? 'open' : 'opens'}`}`}
+                            style={{
+                              width: isHourly ? '16px' : '20px',
+                              height: isHourly ? '16px' : '20px',
+                              backgroundColor: color,
+                              borderRadius: '3px',
+                              cursor: 'pointer',
+                              transition: 'transform 0.1s',
+                            }}
+                            onMouseEnter={(e) => {
+                              e.currentTarget.style.transform = 'scale(1.2)';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.transform = 'scale(1)';
+                            }}
+                          />
+                        );
+                      })}
                   </div>
                 </Stack>
               )}
