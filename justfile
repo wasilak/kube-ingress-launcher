@@ -166,3 +166,39 @@ info:
 watch:
     @echo "👀 Watching for changes..."
     cargo watch -x "build --manifest-path src-tauri/Cargo.toml"
+
+# Test self-signed certificate signing (debug build)
+test-self-signed:
+    @echo "🧪 Testing self-signed certificate signing..."
+    npm run tauri build -- --debug
+    ./scripts/sign-with-self-signed.sh debug
+    @echo ""
+    @echo "✅ Test complete! Run with: just open"
+
+# Test self-signed certificate signing (release build)
+test-self-signed-release:
+    @echo "🧪 Testing self-signed certificate signing (release)..."
+    npm run tauri build -- --target universal-apple-darwin
+    ./scripts/sign-with-self-signed.sh release
+    @echo ""
+    @echo "✅ Test complete! Run with: just open-release"
+
+# Verify app signature
+verify-signature:
+    @echo "🔍 Verifying app signature..."
+    @codesign -dv --verbose=4 "src-tauri/target/debug/bundle/macos/Kube Ingress Launcher.app" 2>&1 || echo "Debug build not found"
+    @echo ""
+    @codesign -dv --verbose=4 "src-tauri/target/universal-apple-darwin/release/bundle/macos/Kube Ingress Launcher.app" 2>&1 || echo "Release build not found"
+
+# Compare signatures (ad-hoc vs self-signed)
+compare-signatures:
+    @echo "📊 Comparing signatures..."
+    @echo ""
+    @echo "=== Ad-hoc signed (dev-sign.sh) ==="
+    npm run tauri build -- --debug
+    ./scripts/dev-sign.sh
+    @codesign -dv --verbose=4 "src-tauri/target/debug/bundle/macos/Kube Ingress Launcher.app" 2>&1 | grep -E "(Authority|Identifier|Signed Time)" || true
+    @echo ""
+    @echo "=== Self-signed certificate ==="
+    ./scripts/sign-with-self-signed.sh debug
+    @codesign -dv --verbose=4 "src-tauri/target/debug/bundle/macos/Kube Ingress Launcher.app" 2>&1 | grep -E "(Authority|Identifier|Signed Time)" || true

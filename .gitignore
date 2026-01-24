@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Signing certificates (temporary, do not commit)
+.signing-temp/
