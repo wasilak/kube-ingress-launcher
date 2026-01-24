@@ -135,16 +135,21 @@ export function StatisticsView() {
     // Aggregate all hosts' time buckets
     stats.forEach(stat => {
       stat.timeBuckets.forEach(bucket => {
+        // Log the raw timestamp to understand what we're receiving
+        console.log('Raw timestamp:', bucket.timestamp, 'Count:', bucket.count);
+        
         // Parse the timestamp and extract just the date part
         // The backend sends ISO timestamps, we need to extract the date in local timezone
         const date = new Date(bucket.timestamp);
         const dateKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
         
+        console.log('Parsed date:', date.toISOString(), '-> Key:', dateKey);
+        
         data[dateKey] = (data[dateKey] || 0) + bucket.count;
       });
     });
     
-    console.log('Heatmap data:', data);
+    console.log('Final heatmap data:', data);
     return data;
   }, [stats]);
 
@@ -281,9 +286,25 @@ export function StatisticsView() {
                         
                         return `${formattedDate}: ${value === null || value === 0 ? 'No opens' : `${value} ${value === 1 ? 'open' : 'opens'}`}`;
                       }}
+                      getRectProps={({ value }) => {
+                        // Calculate color based on value
+                        if (value === null || value === 0) {
+                          return { fill: '#e5e7eb' }; // Gray for no data
+                        }
+                        
+                        // Get max value for scaling
+                        const maxValue = Math.max(...Object.values(heatmapData));
+                        const intensity = value / maxValue;
+                        
+                        // Use green colors with varying intensity
+                        if (intensity <= 0.2) return { fill: '#d1fae5' };
+                        if (intensity <= 0.4) return { fill: '#6ee7b7' };
+                        if (intensity <= 0.6) return { fill: '#34d399' };
+                        if (intensity <= 0.8) return { fill: '#10b981' };
+                        return { fill: '#059669' };
+                      }}
                       withMonthLabels={debouncedTimeRange === 'ThirtyDays'}
                       withWeekdayLabels={debouncedTimeRange !== 'OneHour' && debouncedTimeRange !== 'TwelveHours'}
-                      colors={['#e0f2fe', '#7dd3fc', '#38bdf8', '#0ea5e9', '#0284c7']}
                       rectSize={12}
                       gap={2}
                       withOutsideDates={false}
