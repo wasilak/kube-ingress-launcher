@@ -93,14 +93,30 @@ jobs:
         run: |
           npm run tauri build -- --target universal-apple-darwin
       
-      - name: Ad-hoc sign app bundle
+      - name: Sign app bundle
         run: |
           APP_BUNDLE=$(find src-tauri/target/universal-apple-darwin/release/bundle/macos -name "*.app" -type d | head -n 1)
-          echo "🔐 Ad-hoc signing app bundle: $APP_BUNDLE"
-          codesign -s - -f --deep "$APP_BUNDLE"
+          echo "🔐 Signing app bundle: $APP_BUNDLE"
+          
+          # Check if Apple Developer certificate is available
+          if [ -n "${{ secrets.APPLE_SIGNING_IDENTITY }}" ]; then
+            echo "Using Apple Developer certificate for signing"
+            # TODO: Import certificate from secrets and sign with it
+            # This requires APPLE_CERTIFICATE_BASE64 and APPLE_CERTIFICATE_PASSWORD secrets
+            # For now, fall back to ad-hoc signing
+            echo "⚠️  Certificate import not yet implemented, using ad-hoc signing"
+            codesign -s - -f --deep "$APP_BUNDLE"
+          else
+            echo "No Apple Developer certificate configured, using ad-hoc signing"
+            echo "⚠️  Ad-hoc signing means accessibility permission will reset on each update"
+            echo "To fix: Configure APPLE_SIGNING_IDENTITY secret with your Developer ID"
+            codesign -s - -f --deep "$APP_BUNDLE"
+          fi
+          
           echo "✅ App signed successfully"
           
           # Verify signature
+          echo "Signature details:"
           codesign -dv "$APP_BUNDLE" 2>&1 || true
       
       - name: Locate app bundle
