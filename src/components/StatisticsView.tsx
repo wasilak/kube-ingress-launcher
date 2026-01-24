@@ -98,20 +98,34 @@ export function StatisticsView() {
   // Fetch usage statistics with the debounced time range
   const { stats, loading, error, clearHost, clearAll } = useUsageStats(debouncedTimeRange);
 
-  // Transform stats into heatmap data format (date -> count)
+  // Transform stats into heatmap data format based on time range
   const heatmapData = useMemo(() => {
     const data: Record<string, number> = {};
     
-    // Aggregate all hosts' time buckets by date
+    // Determine granularity based on time range
+    const getTimeKey = (timestamp: string): string => {
+      const date = new Date(timestamp);
+      
+      // For short time ranges (< 24 hours), use hourly granularity
+      if (debouncedTimeRange === 'OneHour' || debouncedTimeRange === 'TwelveHours' || debouncedTimeRange === 'OneDay') {
+        // Format: YYYY-MM-DD HH:00
+        return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:00`;
+      }
+      
+      // For longer ranges, use daily granularity
+      return date.toISOString().split('T')[0]; // YYYY-MM-DD
+    };
+    
+    // Aggregate all hosts' time buckets
     stats.forEach(stat => {
       stat.timeBuckets.forEach(bucket => {
-        const date = new Date(bucket.timestamp).toISOString().split('T')[0]; // YYYY-MM-DD
-        data[date] = (data[date] || 0) + bucket.count;
+        const key = getTimeKey(bucket.timestamp);
+        data[key] = (data[key] || 0) + bucket.count;
       });
     });
     
     return data;
-  }, [stats]);
+  }, [stats, debouncedTimeRange]);
 
   // Memoize select data to avoid recreation on every render
   const selectData = useMemo(
@@ -231,15 +245,33 @@ export function StatisticsView() {
               {Object.keys(heatmapData).length > 0 && (
                 <Stack gap="xs">
                   <Text size="sm" fw={500}>Activity Overview</Text>
-                  <Heatmap
-                    data={heatmapData}
-                    withTooltip
-                    getTooltipLabel={({ date, value }) => 
-                      `${new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}: ${value === null || value === 0 ? 'No opens' : `${value} ${value === 1 ? 'open' : 'opens'}`}`
-                    }
-                    withMonthLabels
-                    withWeekdayLabels
-                  />
+                  <div style={{ display: 'flex', justifyContent: 'center' }}>
+                    <Heatmap
+                      data={heatmapData}
+                      withTooltip
+                      getTooltipLabel={({ date, value }) => {
+                        // Format based on granularity
+                        const isHourly = date.includes(':');
+                        const formattedDate = isHourly
+                          ? new Date(date).toLocaleString('en-US', { 
+                              month: 'short', 
+                              day: 'numeric', 
+                              hour: 'numeric',
+                              hour12: true 
+                            })
+                          : new Date(date).toLocaleDateString('en-US', { 
+                              month: 'short', 
+                              day: 'numeric', 
+                              year: 'numeric' 
+                            });
+                        
+                        return `${formattedDate}: ${value === null || value === 0 ? 'No opens' : `${value} ${value === 1 ? 'open' : 'opens'}`}`;
+                      }}
+                      withMonthLabels
+                      withWeekdayLabels
+                      color="teal"
+                    />
+                  </div>
                 </Stack>
               )}
 
