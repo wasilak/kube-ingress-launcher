@@ -159,13 +159,18 @@ pub fn run() {
             }
 
             // Register global shortcut FIRST (before changing activation policy)
+            // This preserves accessibility permission while still hiding from Dock
             if let Err(e) = setup_global_shortcut(app) {
                 eprintln!("Failed to setup global shortcut: {}", e);
             }
             
-            // Note: LSUIElement in Info.plist handles hiding from Dock
-            // Do NOT call set_activation_policy as it causes accessibility permission revocation
-            // See: https://github.com/tauri-apps/tauri/issues/4852
+            // Set activation policy to accessory to hide from dock (macOS only)
+            // IMPORTANT: This must be done AFTER registering shortcuts to preserve accessibility permission
+            // Changing activation policy before shortcuts causes permission revocation
+            #[cfg(target_os = "macos")]
+            {
+                app.set_activation_policy(tauri::ActivationPolicy::Accessory);
+            }
             
             // Handle window close event to hide instead of quit
             // This must be done AFTER window is created
