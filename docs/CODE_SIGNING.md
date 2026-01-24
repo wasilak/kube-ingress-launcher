@@ -1,5 +1,16 @@
 # Code Signing for macOS
 
+## Quick Answer
+
+**Yes!** You can provide CI with a consistent signature by using an Apple Developer certificate. This requires:
+
+1. **Apple Developer Program** membership ($99/year)
+2. **Export your certificate** as a `.p12` file
+3. **Add 3 GitHub secrets** with the certificate and signing identity
+4. **Done!** - Next release will use the same signature forever
+
+All Homebrew users will get the same signature, and accessibility permission will persist across updates.
+
 ## The Problem
 
 Accessibility permission resets after each app update when using ad-hoc signing. This is because:
@@ -69,16 +80,32 @@ Find it with:
 security find-identity -v -p codesigning
 ```
 
-### 3. Update Workflow
+### 3. Workflow is Ready
 
-The workflow is already prepared to use proper signing when secrets are configured. It will:
+The GitHub Actions workflow (`.github/workflows/release.yml`) is already configured to use proper signing when secrets are available. It will automatically:
 
-1. Import the certificate from secrets
-2. Sign with your Developer ID
-3. Verify the signature
-4. Create the DMG with properly signed app
+1. Import the certificate from `APPLE_CERTIFICATE_BASE64` secret
+2. Create a temporary keychain for signing
+3. Sign with your Developer ID from `APPLE_SIGNING_IDENTITY`
+4. Verify the signature
+5. Create the DMG with properly signed app
+6. Clean up the temporary keychain
 
-### 4. Update tauri.conf.json
+**No workflow changes needed** - just add the secrets and the next release will use proper signing!
+
+### 4. Verify Setup (Optional)
+
+After adding the secrets, you can verify they're configured correctly:
+
+1. Go to your repository Settings → Secrets and variables → Actions
+2. You should see:
+   - `APPLE_CERTIFICATE_BASE64` (set)
+   - `APPLE_CERTIFICATE_PASSWORD` (set)
+   - `APPLE_SIGNING_IDENTITY` (set)
+
+The next release will automatically use these for signing.
+
+### 5. Update tauri.conf.json (Optional)
 
 ```json
 {
@@ -100,6 +127,34 @@ For the best user experience, also notarize your app:
    - `APPLE_TEAM_ID` - Your team ID
 
 2. Workflow will automatically notarize after signing
+
+## What Happens After Setup
+
+Once you configure the GitHub secrets with your Apple Developer certificate:
+
+### ✅ Consistent Signature Across All Releases
+- Every build from CI will have the **same signature**
+- macOS will recognize all versions as the same app
+- Accessibility permission will **persist across updates**
+- Users install once, grant permission once, done!
+
+### 🔄 Update Flow for Users
+1. User installs v1.0.0 via Homebrew
+2. User grants accessibility permission (one time)
+3. v1.1.0 is released with same certificate
+4. User runs `brew upgrade kube-ingress-launcher`
+5. ✅ Permission still works - no action needed!
+
+### 🆚 Comparison
+
+| Aspect | Ad-hoc Signing (Current) | Apple Developer Certificate |
+|--------|-------------------------|----------------------------|
+| Cost | Free | $99/year |
+| Signature | Changes every build | Same across all builds |
+| Permission persistence | ❌ Resets on update | ✅ Persists across updates |
+| User experience | Must re-grant after each update | Grant once, works forever |
+| Notarization | ❌ Not possible | ✅ Possible |
+| Distribution | Personal use | Professional distribution |
 
 ## Verification
 

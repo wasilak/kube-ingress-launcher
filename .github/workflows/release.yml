@@ -93,6 +93,39 @@ jobs:
         run: |
           npm run tauri build -- --target universal-apple-darwin
       
+      - name: Import Apple Developer certificate
+        if: ${{ secrets.APPLE_CERTIFICATE_BASE64 != '' }}
+        run: |
+          # Create temporary keychain
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+          KEYCHAIN_PASSWORD=$(openssl rand -base64 32)
+          
+          echo "Creating temporary keychain..."
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          
+          # Import certificate
+          echo "Importing certificate..."
+          echo "${{ secrets.APPLE_CERTIFICATE_BASE64 }}" | base64 --decode > certificate.p12
+          security import certificate.p12 -k "$KEYCHAIN_PATH" -P "${{ secrets.APPLE_CERTIFICATE_PASSWORD }}" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          
+          # Add to search list
+          security list-keychain -d user -s "$KEYCHAIN_PATH"
+          
+          # Verify certificate is available
+          echo "Available signing identities:"
+          security find-identity -v -p codesigning "$KEYCHAIN_PATH"
+          
+          # Clean up certificate file
+          rm certificate.p12
+          
+          echo "✅ Certificate imported successfully"
+        env:
+          APPLE_CERTIFICATE_BASE64: ${{ secrets.APPLE_CERTIFICATE_BASE64 }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+      
       - name: Sign app bundle
         run: |
           APP_BUNDLE=$(find src-tauri/target/universal-apple-darwin/release/bundle/macos -name "*.app" -type d | head -n 1)
@@ -100,24 +133,34 @@ jobs:
           
           # Check if Apple Developer certificate is available
           if [ -n "${{ secrets.APPLE_SIGNING_IDENTITY }}" ]; then
-            echo "Using Apple Developer certificate for signing"
-            # TODO: Import certificate from secrets and sign with it
-            # This requires APPLE_CERTIFICATE_BASE64 and APPLE_CERTIFICATE_PASSWORD secrets
-            # For now, fall back to ad-hoc signing
-            echo "⚠️  Certificate import not yet implemented, using ad-hoc signing"
-            codesign -s - -f --deep "$APP_BUNDLE"
+            echo "Using Apple Developer certificate: ${{ secrets.APPLE_SIGNING_IDENTITY }}"
+            codesign -s "${{ secrets.APPLE_SIGNING_IDENTITY }}" -f --deep --timestamp --options runtime "$APP_BUNDLE"
+            echo "✅ Signed with Apple Developer certificate"
           else
             echo "No Apple Developer certificate configured, using ad-hoc signing"
             echo "⚠️  Ad-hoc signing means accessibility permission will reset on each update"
-            echo "To fix: Configure APPLE_SIGNING_IDENTITY secret with your Developer ID"
+            echo "To fix: Add these GitHub secrets:"
+            echo "  - APPLE_CERTIFICATE_BASE64 (base64-encoded .p12 file)"
+            echo "  - APPLE_CERTIFICATE_PASSWORD (password for .p12 file)"
+            echo "  - APPLE_SIGNING_IDENTITY (e.g., 'Developer ID Application: Your Name (TEAM_ID)')"
             codesign -s - -f --deep "$APP_BUNDLE"
+            echo "✅ Signed with ad-hoc signature"
           fi
           
-          echo "✅ App signed successfully"
-          
           # Verify signature
+          echo ""
           echo "Signature details:"
-          codesign -dv "$APP_BUNDLE" 2>&1 || true
+          codesign -dv --verbose=4 "$APP_BUNDLE" 2>&1 || true
+        env:
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+      
+      - name: Cleanup keychain
+        if: ${{ always() && secrets.APPLE_CERTIFICATE_BASE64 != '' }}
+        run: |
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+          if [ -f "$KEYCHAIN_PATH" ]; then
+            security delete-keychain "$KEYCHAIN_PATH" || true
+          fi
       
       - name: Locate app bundle
         id: locate
