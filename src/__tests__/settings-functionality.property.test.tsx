@@ -63,7 +63,7 @@ describe('Settings Functionality Preservation', () => {
           refreshIntervalSecs: fc.integer({ min: 10, max: 3600 }),
           autostart: fc.boolean(),
           kubeContext: fc.stringMatching(/^[a-z0-9-]{0,30}$/),
-          theme: fc.constantFrom('light', 'dark', 'auto'),
+          theme: fc.constantFrom('light', 'dark', 'system'),
         }),
         async (settings: Settings) => {
           // Mock the backend to return the saved settings
@@ -111,7 +111,7 @@ describe('Settings Functionality Preservation', () => {
   it('should handle theme changes correctly', async () => {
     await fc.assert(
       fc.asyncProperty(
-        fc.constantFrom('light', 'dark', 'auto'),
+        fc.constantFrom('light', 'dark', 'system'),
         async (theme) => {
           const settings: Settings = {
             globalShortcut: 'CmdOrCtrl+Shift+K',
@@ -155,7 +155,7 @@ describe('Settings Functionality Preservation', () => {
             refreshIntervalSecs: 60,
             autostart: false,
             kubeContext: context,
-            theme: 'auto',
+            theme: 'system',
           };
 
           mockInvoke.mockImplementation((command: string, _args?: any) => {
@@ -197,7 +197,7 @@ describe('Settings Functionality Preservation', () => {
           refreshIntervalSecs: fc.integer({ min: 10, max: 3600 }),
           autostart: fc.boolean(),
           kubeContext: fc.stringMatching(/^[a-z0-9-]{0,30}$/),
-          theme: fc.constantFrom('light', 'dark', 'auto'),
+          theme: fc.constantFrom('light', 'dark', 'system'),
         }),
         async (originalSettings: Settings) => {
           mockInvoke.mockImplementation((command: string, _args?: any) => {

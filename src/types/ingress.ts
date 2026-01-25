@@ -80,7 +80,7 @@ export interface Settings {
   kubeContext: string;
   
   /** Theme mode: "light", "dark", or "system" */
-  theme: string;
+  theme: 'light' | 'dark' | 'system';
   
   /** Statistics time range preference (default: 'SevenDays') */
   statisticsTimeRange?: string;
