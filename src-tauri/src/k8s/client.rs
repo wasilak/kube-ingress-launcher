@@ -187,18 +187,28 @@ impl Client {
     /// Returns an error if:
     /// - Kubeconfig cannot be loaded
     /// - Kubeconfig is invalid
-    ///
-    /// # Note
-    ///
-    /// This is a simplified implementation that returns a default context.
-    /// A full implementation would parse ~/.kube/config to extract all context names.
     pub async fn get_contexts() -> Result<Vec<String>, AppError> {
-        let _config = Config::infer().await
-            .map_err(|e| AppError::KubernetesError(format!("Failed to load kubeconfig: {}", e)))?;
-
-        // TODO: Parse kubeconfig file to get actual context names
-        // For now, return a placeholder
-        Ok(vec!["default".to_string()])
+        use kube::config::Kubeconfig;
+        
+        // Load kubeconfig from default location
+        let kubeconfig = Kubeconfig::read()
+            .map_err(|e| AppError::KubernetesError(format!("Failed to read kubeconfig: {}", e)))?;
+        
+        // Extract context names
+        let context_names: Vec<String> = kubeconfig
+            .contexts
+            .iter()
+            .map(|ctx| ctx.name.clone())
+            .collect();
+        
+        if context_names.is_empty() {
+            return Err(AppError::KubernetesError(
+                "No contexts found in kubeconfig".to_string()
+            ));
+        }
+        
+        tracing::debug!("Found {} contexts in kubeconfig", context_names.len());
+        Ok(context_names)
     }
 
     /// Switches to a different Kubernetes context.
@@ -212,25 +222,49 @@ impl Client {
     /// Returns an error if:
     /// - The context does not exist
     /// - Kubeconfig cannot be updated
-    ///
-    /// # Note
-    ///
-    /// This is a simplified implementation. A full implementation would:
-    /// 1. Parse ~/.kube/config
-    /// 2. Verify the context exists
-    /// 3. Update the current-context field
-    /// 4. Write the updated config back to disk
     pub async fn switch_context(context: &str) -> Result<(), AppError> {
-        // Verify the context exists by trying to load config with it
-        let _config = Config::infer().await
-            .map_err(|e| AppError::KubernetesError(format!("Failed to load kubeconfig: {}", e)))?;
-
-        // TODO: Implement actual context switching
-        // For now, just verify we can load the config
+        use kube::config::Kubeconfig;
+        use std::path::PathBuf;
+        
         if context.is_empty() {
             return Err(AppError::KubernetesError("Context name cannot be empty".to_string()));
         }
-
+        
+        // Determine kubeconfig path
+        let kubeconfig_path = std::env::var("KUBECONFIG")
+            .map(PathBuf::from)
+            .unwrap_or_else(|_| {
+                let home = std::env::var("HOME").unwrap_or_else(|_| "~".to_string());
+                PathBuf::from(format!("{}/.kube/config", home))
+            });
+        
+        // Load kubeconfig
+        let mut kubeconfig = Kubeconfig::read()
+            .map_err(|e| AppError::KubernetesError(format!("Failed to read kubeconfig: {}", e)))?;
+        
+        // Verify the context exists
+        let context_exists = kubeconfig
+            .contexts
+            .iter()
+            .any(|ctx| ctx.name == context);
+        
+        if !context_exists {
+            return Err(AppError::KubernetesError(
+                format!("Context '{}' not found in kubeconfig", context)
+            ));
+        }
+        
+        // Update current-context
+        kubeconfig.current_context = Some(context.to_string());
+        
+        // Write back to disk using serde_yaml
+        let yaml_content = serde_yaml::to_string(&kubeconfig)
+            .map_err(|e| AppError::KubernetesError(format!("Failed to serialize kubeconfig: {}", e)))?;
+        
+        std::fs::write(&kubeconfig_path, yaml_content)
+            .map_err(|e| AppError::KubernetesError(format!("Failed to write kubeconfig: {}", e)))?;
+        
+        tracing::info!("Switched to context: {}", context);
         Ok(())
     }
 }
