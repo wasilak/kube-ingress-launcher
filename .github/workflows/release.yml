@@ -60,7 +60,7 @@ jobs:
     
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0  # Required for git-cliff to access full git history
       
@@ -250,7 +250,7 @@ jobs:
     
     steps:
       - name: Checkout tap repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: wasilak/homebrew-kube-ingress-launcher
           token: ${{ secrets.TAP_GITHUB_TOKEN }}
