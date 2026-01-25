@@ -16,7 +16,7 @@ interface IngressListProps {
   ingresses: IngressData[];
   
   /** Callback when an ingress is selected */
-  onSelect: (ingress: IngressData) => void;
+  onSelect: (ingress: IngressData) => Promise<void>;
   
   /** Index of the currently selected item for keyboard navigation */
   selectedIndex?: number;
@@ -120,7 +120,7 @@ export function IngressList({
           <IngressItem
             key={ingress.id}
             ingress={ingress}
-            onSelect={() => onSelect(ingress)}
+            onSelect={async () => await onSelect(ingress)}
             isSelected={index === selectedIndex}
           />
         ))}
