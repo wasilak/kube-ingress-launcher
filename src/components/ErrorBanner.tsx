@@ -33,7 +33,7 @@ export function ErrorBanner({ error }: ErrorBannerProps) {
     
     try {
       await navigator.clipboard.writeText(errorText);
-      console.log('Error copied to clipboard');
+      // Error copied successfully - no need to log in production
     } catch (err) {
       console.error('Failed to copy error to clipboard:', err);
     }
