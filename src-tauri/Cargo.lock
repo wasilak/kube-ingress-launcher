@@ -2037,7 +2037,7 @@ dependencies = [
 
 [[package]]
 name = "kube-ingress-launcher"
-version = "0.2.6"
+version = "0.2.7"
 dependencies = [
  "chrono",
  "k8s-openapi",
