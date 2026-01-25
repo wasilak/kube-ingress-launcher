@@ -25,16 +25,12 @@ pub async fn record_link_open(
     state: State<'_, AppState>,
     app_handle: AppHandle,
 ) -> Result<(), String> {
-    eprintln!("DEBUG: record_link_open called for host: {}", host);
-    
     // Validate input
     if host.is_empty() {
-        eprintln!("Error: Attempted to record link open with empty host");
         return Err("Host cannot be empty".to_string());
     }
 
     if host.len() > 253 {
-        eprintln!("Error: Host too long: {} characters", host.len());
         return Err("Host name too long (max 253 characters)".to_string());
     }
 
@@ -43,18 +39,11 @@ pub async fn record_link_open(
         .usage_tracker
         .record_open(host.clone())
         .await
-        .map_err(|e| {
-            eprintln!("Error recording link open for host '{}': {}", host, e);
-            format!("Failed to record link open: {}", e)
-        })?;
-    
-    eprintln!("DEBUG: Successfully recorded open for host: {}", host);
+        .map_err(|e| format!("Failed to record link open: {}", e))?;
 
     // Emit update event (log but don't fail if emit fails)
     if let Err(e) = app_handle.emit("usage-stats-updated", ()) {
         eprintln!("Warning: Failed to emit usage-stats-updated event: {}", e);
-    } else {
-        eprintln!("DEBUG: Emitted usage-stats-updated event");
     }
 
     Ok(())
@@ -75,17 +64,7 @@ pub async fn get_usage_stats(
     state: State<'_, AppState>,
 ) -> Result<Vec<AggregatedUsage>, String> {
     let stats = state.usage_tracker.get_stats().await;
-    
-    eprintln!("DEBUG: get_usage_stats called with time_range: {:?}", time_range);
-    eprintln!("DEBUG: Total datapoints in storage: {}", stats.datapoints.len());
-    
     let aggregated = UsageAggregator::aggregate(&stats.datapoints, time_range);
-    
-    eprintln!("DEBUG: Aggregated results: {} hosts", aggregated.len());
-    for agg in &aggregated {
-        eprintln!("DEBUG:   - {}: {} opens", agg.host, agg.total_count);
-    }
-
     Ok(aggregated)
 }
 
