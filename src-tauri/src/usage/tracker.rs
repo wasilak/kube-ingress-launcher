@@ -198,8 +198,6 @@ impl UsageTracker {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-
     // Note: These tests require Tauri test infrastructure to create a proper AppHandle
     // and test store. They are marked as #[ignore] until proper test infrastructure
     // is set up. The UsageTracker functionality is tested through integration tests
