@@ -231,6 +231,16 @@ jobs:
           OUTPUT: CHANGELOG.md
           GITHUB_REPO: ${{ github.repository }}
       
+      - name: Process changelog (remove version header)
+        id: changelog
+        run: |
+          # Remove the first line (version header) and blank line
+          CHANGELOG=$(echo "${{ steps.git-cliff.outputs.content }}" | tail -n +3)
+          # Use heredoc to preserve multiline content
+          echo "content<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+      
       - name: Upload to release
         uses: softprops/action-gh-release@v1
         with:
@@ -239,7 +249,7 @@ jobs:
             checksums.txt
           draft: false
           prerelease: false
-          body: ${{ steps.git-cliff.outputs.content }}
+          body: ${{ steps.changelog.outputs.content }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
