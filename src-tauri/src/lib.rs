@@ -62,7 +62,11 @@ pub fn run() {
                     
                     // Calculate dynamic window size accounting for Retina displays
                     let (target_width, target_height) = {
-                        // Get main thread marker (we're on the main thread during setup)
+                        // SAFETY: We are on the main thread during Tauri's setup phase.
+                        // MainThreadMarker::new_unchecked() is safe here because:
+                        // 1. Tauri's setup() callback runs on the main thread
+                        // 2. NSScreen APIs require main thread access
+                        // 3. This code only executes during application initialization
                         let mtm = unsafe { MainThreadMarker::new_unchecked() };
                         let main_screen = NSScreen::mainScreen(mtm);
                         
@@ -96,6 +100,12 @@ pub fn run() {
                     
                     // Get the native NSWindow first
                     let ns_window_ptr = window.ns_window().unwrap() as *mut AnyObject;
+                    // SAFETY: Converting Tauri's NSWindow pointer to objc2's Retained<NSWindow>.
+                    // This is safe because:
+                    // 1. window.ns_window() returns a valid NSWindow pointer from Tauri
+                    // 2. Retained::retain properly increments the reference count
+                    // 3. The window exists for the duration of this setup block
+                    // 4. We're on the main thread where NSWindow operations are valid
                     let ns_window: Retained<NSWindow> = unsafe { Retained::retain(ns_window_ptr.cast()).unwrap() };
                     
                     // Set window size using NSWindow directly for more reliable sizing
@@ -448,6 +458,12 @@ fn show_window_smooth(window: &tauri::WebviewWindow) -> Result<(), Box<dyn std::
         
         // Get the native NSWindow
         let ns_window_ptr = window.ns_window()? as *mut AnyObject;
+        // SAFETY: Converting Tauri's NSWindow pointer to objc2's Retained<NSWindow>.
+        // This is safe because:
+        // 1. window.ns_window() returns a valid NSWindow pointer
+        // 2. The window is guaranteed to exist (we have a reference to it)
+        // 3. Retained::retain properly manages the reference count
+        // 4. This function is only called from main thread event handlers
         let ns_window: Retained<NSWindow> = unsafe { Retained::retain(ns_window_ptr.cast()).unwrap() };
         
         // Set opacity to 0 before showing
@@ -471,6 +487,8 @@ fn show_window_smooth(window: &tauri::WebviewWindow) -> Result<(), Box<dyn std::
         
         // Get the native NSWindow again
         let ns_window_ptr = window.ns_window()? as *mut AnyObject;
+        // SAFETY: Same as above - converting Tauri's NSWindow pointer.
+        // Safe because the window still exists and we're on the main thread.
         let ns_window: Retained<NSWindow> = unsafe { Retained::retain(ns_window_ptr.cast()).unwrap() };
         
         // Fade in by setting opacity to 1
