@@ -32,6 +32,8 @@ k8s-openapi = { version = "0.27", features = ["v1_31"] }
 chrono = { version = "0.4", features = ["serde"] }
 thiserror = "2"
 window-vibrancy = "0.7"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 
 [target."cfg(target_os = \"macos\")".dependencies]
 objc2 = "0.6"

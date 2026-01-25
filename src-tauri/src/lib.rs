@@ -14,6 +14,18 @@ use settings::SettingsState;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    // Initialize tracing subscriber for structured logging
+    // Log level can be controlled via RUST_LOG environment variable
+    // Example: RUST_LOG=debug cargo run
+    tracing_subscriber::fmt()
+        .with_env_filter(
+            tracing_subscriber::EnvFilter::try_from_default_env()
+                .unwrap_or_else(|_| tracing_subscriber::EnvFilter::new("info"))
+        )
+        .init();
+
+    tracing::info!("Starting Kube Ingress Launcher");
+
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_shell::init())
