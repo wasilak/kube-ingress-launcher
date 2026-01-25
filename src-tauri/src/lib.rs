@@ -300,10 +300,14 @@ fn setup_tray(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
                                 let _ = update_tray_menu(app, false);
                             }
                             Ok(false) => {
-                                // Center BEFORE showing to prevent visible movement
-                                let _ = window.center();
-                                let _ = window.show();
-                                let _ = window.set_focus();
+                                // Use smooth show to prevent shadow flash
+                                if let Err(e) = show_window_smooth(&window) {
+                                    eprintln!("Failed to show window smoothly: {}", e);
+                                    // Fallback to regular show
+                                    let _ = window.center();
+                                    let _ = window.show();
+                                    let _ = window.set_focus();
+                                }
                                 // Update menu to show "Hide"
                                 let _ = update_tray_menu(app, true);
                             }
@@ -317,10 +321,14 @@ fn setup_tray(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
                     // Show the main window first if it's hidden
                     if let Some(window) = app.get_webview_window("main") {
                         if let Ok(false) = window.is_visible() {
-                            // Center BEFORE showing to prevent visible movement
-                            let _ = window.center();
-                            let _ = window.show();
-                            let _ = window.set_focus();
+                            // Use smooth show to prevent shadow flash
+                            if let Err(e) = show_window_smooth(&window) {
+                                eprintln!("Failed to show window smoothly: {}", e);
+                                // Fallback to regular show
+                                let _ = window.center();
+                                let _ = window.show();
+                                let _ = window.set_focus();
+                            }
                             // Update menu to show "Hide"
                             let _ = update_tray_menu(app, true);
                         }
@@ -332,10 +340,14 @@ fn setup_tray(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
                     // Show the main window first if it's hidden
                     if let Some(window) = app.get_webview_window("main") {
                         if let Ok(false) = window.is_visible() {
-                            // Center BEFORE showing to prevent visible movement
-                            let _ = window.center();
-                            let _ = window.show();
-                            let _ = window.set_focus();
+                            // Use smooth show to prevent shadow flash
+                            if let Err(e) = show_window_smooth(&window) {
+                                eprintln!("Failed to show window smoothly: {}", e);
+                                // Fallback to regular show
+                                let _ = window.center();
+                                let _ = window.show();
+                                let _ = window.set_focus();
+                            }
                             // Update menu to show "Hide"
                             let _ = update_tray_menu(app, true);
                         }
@@ -366,10 +378,14 @@ fn setup_tray(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
                             let _ = update_tray_menu(app, false);
                         }
                         Ok(false) => {
-                            // Center BEFORE showing to prevent visible movement
-                            let _ = window.center();
-                            let _ = window.show();
-                            let _ = window.set_focus();
+                            // Use smooth show to prevent shadow flash
+                            if let Err(e) = show_window_smooth(&window) {
+                                eprintln!("Failed to show window smoothly: {}", e);
+                                // Fallback to regular show
+                                let _ = window.center();
+                                let _ = window.show();
+                                let _ = window.set_focus();
+                            }
                             // Update menu to show "Hide"
                             let _ = update_tray_menu(app, true);
                         }
@@ -397,6 +413,65 @@ fn setup_tray(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
         });
     }
 
+    Ok(())
+}
+
+/// Show window smoothly without visible shadow flash
+///
+/// This function shows the window with a smooth fade-in effect to prevent
+/// the shadow from being visible before the content is rendered.
+///
+/// Steps:
+/// 1. Set opacity to 0 (invisible)
+/// 2. Center the window
+/// 3. Show the window (still invisible due to opacity)
+/// 4. Set focus
+/// 5. Quickly fade in by setting opacity to 1
+fn show_window_smooth(window: &tauri::WebviewWindow) -> Result<(), Box<dyn std::error::Error>> {
+    #[cfg(target_os = "macos")]
+    {
+        use objc2::rc::Retained;
+        use objc2::runtime::AnyObject;
+        use objc2_app_kit::NSWindow;
+        
+        // Get the native NSWindow
+        let ns_window_ptr = window.ns_window()? as *mut AnyObject;
+        let ns_window: Retained<NSWindow> = unsafe { Retained::retain(ns_window_ptr.cast()).unwrap() };
+        
+        // Set opacity to 0 before showing
+        ns_window.setAlphaValue(0.0);
+    }
+    
+    // Center while invisible
+    window.center()?;
+    
+    // Show window (still invisible on macOS due to alpha)
+    window.show()?;
+    
+    // Set focus
+    window.set_focus()?;
+    
+    #[cfg(target_os = "macos")]
+    {
+        use objc2::rc::Retained;
+        use objc2::runtime::AnyObject;
+        use objc2_app_kit::NSWindow;
+        
+        // Get the native NSWindow again
+        let ns_window_ptr = window.ns_window()? as *mut AnyObject;
+        let ns_window: Retained<NSWindow> = unsafe { Retained::retain(ns_window_ptr.cast()).unwrap() };
+        
+        // Fade in by setting opacity to 1
+        // This happens so fast it appears instant but prevents shadow flash
+        ns_window.setAlphaValue(1.0);
+    }
+    
+    #[cfg(not(target_os = "macos"))]
+    {
+        // On non-macOS, just show normally
+        // (already shown above)
+    }
+    
     Ok(())
 }
 
@@ -483,11 +558,14 @@ fn setup_global_shortcut(app: &tauri::App) -> Result<(), Box<dyn std::error::Err
                     let _ = update_tray_menu(app, false);
                 }
                 Ok(false) => {
-                    // Center BEFORE showing to prevent visible movement
-                    let _ = window.center();
-                    // Show and focus in one operation to minimize redraws
-                    let _ = window.show();
-                    let _ = window.set_focus();
+                    // Use smooth show to prevent shadow flash
+                    if let Err(e) = show_window_smooth(&window) {
+                        eprintln!("Failed to show window smoothly: {}", e);
+                        // Fallback to regular show
+                        let _ = window.center();
+                        let _ = window.show();
+                        let _ = window.set_focus();
+                    }
                     // Update menu to show "Hide"
                     let _ = update_tray_menu(app, true);
                 }
