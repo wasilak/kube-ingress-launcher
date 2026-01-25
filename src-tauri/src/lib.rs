@@ -300,9 +300,10 @@ fn setup_tray(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
                                 let _ = update_tray_menu(app, false);
                             }
                             Ok(false) => {
+                                // Center BEFORE showing to prevent visible movement
+                                let _ = window.center();
                                 let _ = window.show();
                                 let _ = window.set_focus();
-                                let _ = window.center();
                                 // Update menu to show "Hide"
                                 let _ = update_tray_menu(app, true);
                             }
@@ -316,9 +317,10 @@ fn setup_tray(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
                     // Show the main window first if it's hidden
                     if let Some(window) = app.get_webview_window("main") {
                         if let Ok(false) = window.is_visible() {
+                            // Center BEFORE showing to prevent visible movement
+                            let _ = window.center();
                             let _ = window.show();
                             let _ = window.set_focus();
-                            let _ = window.center();
                             // Update menu to show "Hide"
                             let _ = update_tray_menu(app, true);
                         }
@@ -330,9 +332,10 @@ fn setup_tray(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
                     // Show the main window first if it's hidden
                     if let Some(window) = app.get_webview_window("main") {
                         if let Ok(false) = window.is_visible() {
+                            // Center BEFORE showing to prevent visible movement
+                            let _ = window.center();
                             let _ = window.show();
                             let _ = window.set_focus();
-                            let _ = window.center();
                             // Update menu to show "Hide"
                             let _ = update_tray_menu(app, true);
                         }
@@ -363,9 +366,10 @@ fn setup_tray(app: &tauri::App) -> Result<(), Box<dyn std::error::Error>> {
                             let _ = update_tray_menu(app, false);
                         }
                         Ok(false) => {
+                            // Center BEFORE showing to prevent visible movement
+                            let _ = window.center();
                             let _ = window.show();
                             let _ = window.set_focus();
-                            let _ = window.center();
                             // Update menu to show "Hide"
                             let _ = update_tray_menu(app, true);
                         }
@@ -479,9 +483,11 @@ fn setup_global_shortcut(app: &tauri::App) -> Result<(), Box<dyn std::error::Err
                     let _ = update_tray_menu(app, false);
                 }
                 Ok(false) => {
+                    // Center BEFORE showing to prevent visible movement
+                    let _ = window.center();
+                    // Show and focus in one operation to minimize redraws
                     let _ = window.show();
                     let _ = window.set_focus();
-                    let _ = window.center();
                     // Update menu to show "Hide"
                     let _ = update_tray_menu(app, true);
                 }
