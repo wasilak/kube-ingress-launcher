@@ -56,7 +56,7 @@ export function IngressItem({ ingress, onSelect, isSelected = false }: IngressIt
     }
     
     // Call the original onSelect callback to open the URL
-    onSelect();
+    await onSelect();
   };
 
   // Calculate background color based on selection, hover state, and theme
