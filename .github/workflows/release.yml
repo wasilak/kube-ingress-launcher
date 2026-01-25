@@ -61,6 +61,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Required for git-cliff to access full git history
       
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
@@ -219,6 +221,16 @@ jobs:
           echo "universal_sha=$UNIVERSAL_SHA" >> $GITHUB_OUTPUT
           echo "Universal SHA256: $UNIVERSAL_SHA"
       
+      - name: Generate changelog with git-cliff
+        uses: orhun/git-cliff-action@v4
+        id: git-cliff
+        with:
+          config: cliff.toml
+          args: --verbose --latest --strip header
+        env:
+          OUTPUT: CHANGELOG.md
+          GITHUB_REPO: ${{ github.repository }}
+      
       - name: Upload to release
         uses: softprops/action-gh-release@v1
         with:
@@ -227,7 +239,7 @@ jobs:
             checksums.txt
           draft: false
           prerelease: false
-          generate_release_notes: true
+          body: ${{ steps.git-cliff.outputs.content }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

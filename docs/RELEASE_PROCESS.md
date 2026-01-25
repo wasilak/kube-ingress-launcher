@@ -105,7 +105,7 @@ When you push a tag (e.g., `v0.2.0`), GitHub Actions automatically:
 4. **Creates and publishes a GitHub Release**:
    - Release title: `v0.2.0`
    - Uploads DMG file and checksum
-   - Generates release notes automatically
+   - Generates formatted changelog using [git-cliff](https://git-cliff.org/) based on conventional commits
 
 5. **Updates Homebrew Tap automatically** 🎉:
    - Downloads checksum from the release
@@ -144,9 +144,10 @@ Before creating a release:
 - [ ] Application builds: `npm run tauri build`
 - [ ] Application runs correctly: `npm run tauri dev`
 - [ ] Version follows semantic versioning
-- [ ] CHANGELOG updated (if you maintain one)
+- [ ] All commits follow [Conventional Commits](https://www.conventionalcommits.org/) format
 - [ ] Documentation updated for new features
 - [ ] No uncommitted changes
+- [ ] Preview changelog: `git cliff --unreleased --strip header`
 
 After pushing the tag:
 
@@ -200,8 +201,45 @@ Track your releases:
 - `v0.2.1` - Fixed bug Y
 - `v1.0.0` - First stable release
 
+## Changelog Generation
+
+This project uses [git-cliff](https://git-cliff.org/) to automatically generate changelogs for releases.
+
+### Conventional Commits
+
+All commits should follow the [Conventional Commits](https://www.conventionalcommits.org/) format:
+
+```bash
+# Features
+git commit -m "feat: add keyboard shortcut customization"
+git commit -m "feat(ui): add dark mode toggle"
+
+# Bug fixes
+git commit -m "fix: resolve crash on startup"
+git commit -m "fix(search): handle empty search results"
+
+# Breaking changes
+git commit -m "feat!: change settings file format"
+```
+
+### Preview Changelog
+
+Before releasing, preview what the changelog will look like:
+
+```bash
+# Install git-cliff
+brew install git-cliff
+
+# Preview next release notes
+git cliff --unreleased --strip header
+```
+
+See [GIT_CLIFF.md](GIT_CLIFF.md) for detailed documentation on changelog generation.
+
 ## Resources
 
 - [Semantic Versioning](https://semver.org/)
+- [Conventional Commits](https://www.conventionalcommits.org/)
+- [git-cliff Documentation](https://git-cliff.org/)
 - [GitHub Releases](https://docs.github.com/en/repositories/releasing-projects-on-github)
 - [Homebrew Cask Documentation](https://docs.brew.sh/Cask-Cookbook)
